@@ -4,7 +4,7 @@ import { api, getImageUrl, getPosterUrl, getStillUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { MovieDetails, TvDetails, SeasonDetails, Episode } from '../types';
 import TvButton from '../components/TvButton';
-import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv } from 'lucide-react';
+import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, Film, List } from 'lucide-react';
 import { DetailsSkeleton } from '../components/Skeletons';
 
 const Details: React.FC = () => {
@@ -99,7 +99,7 @@ const Details: React.FC = () => {
   const title = 'title' in content ? content.title : content.name;
   const releaseDate = 'release_date' in content ? content.release_date : content.first_air_date;
   const runtime = 'runtime' in content ? content.runtime : (content.episode_run_time?.[0] || 0);
-
+  
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-x-hidden">
       {/* Full screen backdrop with heavy gradient overlay */}
@@ -141,6 +141,7 @@ const Details: React.FC = () => {
               >
                 {mediaType === 'movie' ? 'Watch Movie' : `Start Season ${selectedSeasonNumber}`}
               </TvButton>
+              
               <TvButton 
                 variant={inWatchlist ? "secondary" : "glass"}
                 icon={inWatchlist ? <Check /> : <Plus />}
@@ -174,10 +175,16 @@ const Details: React.FC = () => {
                     <span>{runtime}m</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 md:gap-2">
-                    <Layers className="w-4 h-4 md:w-5 md:h-5" />
-                    <span>{(content as TvDetails).number_of_seasons} Seasons</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Layers className="w-4 h-4 md:w-5 md:h-5" />
+                      <span>{(content as TvDetails).number_of_seasons} Seasons</span>
+                    </div>
+                     <div className="flex items-center gap-1 md:gap-2">
+                      <List className="w-4 h-4 md:w-5 md:h-5" />
+                      <span>{(content as TvDetails).number_of_episodes} Episodes</span>
+                    </div>
+                  </>
                 )}
 
                 {content.genres.map(g => (
