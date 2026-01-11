@@ -20,11 +20,17 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="fixed bottom-0 left-0 w-full h-16 md:left-0 md:top-0 md:h-full md:w-20 z-50 bg-black/90 md:bg-black/90 backdrop-blur-xl md:backdrop-blur-md flex flex-row md:flex-col items-center justify-around md:justify-start md:py-10 md:gap-8 border-t md:border-t-0 md:border-r border-white/10 shadow-2xl md:shadow-none pb-safe-area-inset-bottom">
-      <div className="hidden md:block mb-8 text-red-600">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2 10C2 6.68629 4.68629 4 8 4H16C19.3137 4 22 6.68629 22 10V18C22 19.1046 21.1046 20 20 20H4C2.89543 20 2 19.1046 2 18V10Z" />
-          <path d="M7 4V2H17V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <div className="hidden md:flex flex-col items-center mb-8 text-red-600 select-none">
+        <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" rx="20" fill="currentColor"/>
+          <path d="M20 20 V80" stroke="black" strokeWidth="12" strokeLinecap="round"/>
+          <path d="M20 50 L55 20" stroke="black" strokeWidth="12" strokeLinecap="round"/>
+          <path d="M20 50 L55 80" stroke="black" strokeWidth="12" strokeLinecap="round"/>
+          <path d="M60 20 V80" stroke="white" strokeWidth="12" strokeLinecap="round"/>
+          <path d="M60 50 L90 20" stroke="white" strokeWidth="12" strokeLinecap="round"/>
+          <path d="M60 50 L90 80" stroke="white" strokeWidth="12" strokeLinecap="round"/>
         </svg>
+        <span className="text-[10px] font-bold tracking-widest text-white mt-1">KKFLIX</span>
       </div>
       
       {navItems.map((item) => (
