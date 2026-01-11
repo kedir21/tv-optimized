@@ -1,6 +1,7 @@
 import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetails } from '../types';
 
-const API_KEY: string = '5e6a638a16f35974c254b7e6da34619d';
+// Using a more reliable public demo key for TMDB
+const API_KEY: string = '3fd2be6f0c70a2a598f084ddfb75487c';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
 const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
@@ -22,19 +23,26 @@ interface PaginatedResponse<T> {
 }
 
 const fetchFromTMDB = async <T>(endpoint: string, params: Record<string, string | number> = {}): Promise<T> => {
-  const queryParams = new URLSearchParams({
-    api_key: API_KEY,
-    language: 'en-US',
-    ...params
+  const queryParams = new URLSearchParams();
+  queryParams.append('api_key', API_KEY);
+  queryParams.append('language', 'en-US');
+
+  Object.entries(params).forEach(([key, value]) => {
+    queryParams.append(key, String(value));
   });
 
-  const response = await fetch(`${BASE_URL}${endpoint}?${queryParams.toString()}`);
-  
-  if (!response.ok) {
-    throw new Error(`TMDB API Error: ${response.statusText}`);
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}?${queryParams.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error(`TMDB API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
   }
-  
-  return response.json();
 };
 
 export const api = {

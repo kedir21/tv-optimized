@@ -73,14 +73,14 @@ const Search: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 pl-24 pt-12 pr-12 pb-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-24 md:pt-12 md:pr-12 md:pb-12">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Search</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8">Search</h1>
         
         {/* Search Bar */}
-        <div className="relative mb-12 max-w-2xl">
+        <div className="relative mb-8 md:mb-12 max-w-2xl">
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-            <SearchIcon />
+            <SearchIcon className="w-5 h-5 md:w-6 md:h-6" />
           </div>
           <input
             id="search-input"
@@ -88,13 +88,13 @@ const Search: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for movies & TV shows..."
-            className="w-full bg-gray-900 border border-gray-700 rounded-xl py-5 pl-14 pr-6 text-xl text-white focus:outline-none focus:ring-4 focus:ring-white/20 focus:border-white transition-all focusable tv-focus"
+            className="w-full bg-gray-900 border border-gray-700 rounded-xl py-3 pl-12 pr-4 md:py-5 md:pl-14 md:pr-6 text-base md:text-xl text-white focus:outline-none focus:ring-4 focus:ring-white/20 focus:border-white transition-all focusable tv-focus"
             autoComplete="off"
           />
         </div>
 
         {/* Results Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
             {results.map((item, index) => {
               const uniqueKey = `${item.id}-${item.media_type}-${index}`;
               const isLast = results.length === index + 1;
@@ -103,24 +103,24 @@ const Search: React.FC = () => {
               if (isLast) {
                  return (
                   <div ref={lastElementRef} key={uniqueKey}>
-                     <MovieCard movie={item} onClick={() => navigate(detailsPath)} className="w-full aspect-[2/3]" />
+                     <MovieCard movie={item} onClick={() => navigate(detailsPath)} className="w-full h-full aspect-[2/3]" />
                   </div>
                  );
               }
               return (
-                <MovieCard key={uniqueKey} movie={item} onClick={() => navigate(detailsPath)} className="w-full aspect-[2/3]" />
+                <MovieCard key={uniqueKey} movie={item} onClick={() => navigate(detailsPath)} className="w-full h-full aspect-[2/3]" />
               );
             })}
         </div>
         
         {loading && (
            <div className="flex justify-center py-10 w-full">
-              <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
            </div>
         )}
 
         {!loading && query && results.length === 0 && (
-          <div className="text-gray-500 text-2xl text-center mt-20">
+          <div className="text-gray-500 text-lg md:text-2xl text-center mt-20">
             No results found for "{query}"
           </div>
         )}

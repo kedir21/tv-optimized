@@ -57,20 +57,20 @@ const Player: React.FC = () => {
 
   if (!id) return null;
 
-  // Construct URL based on selected source and type
+  // Construct URL based on selected source and type with autoplay enabled
   const getEmbedUrl = () => {
     if (source === 'rivestream') {
       if (type === 'tv') {
-        return `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}`;
+        return `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
       }
-      return `https://rivestream.org/embed?type=movie&id=${id}`;
+      return `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
     }
     
     // Vidsrc fallback logic
     if (type === 'tv') {
-        return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`;
+        return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
     }
-    return `https://vidsrc.cc/v2/embed/movie/${id}`;
+    return `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
   };
 
   return (

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Movie, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
+import { MovieCardSkeleton } from '../components/Skeletons';
 
 const Movies: React.FC = () => {
   const navigate = useNavigate();
@@ -69,16 +70,16 @@ const Movies: React.FC = () => {
   }, [page, selectedGenre]);
 
   return (
-    <div className="min-h-screen bg-slate-950 pl-24 pt-8 pr-8 pb-12">
-      <h1 className="text-4xl font-bold mb-6 text-white">Movies</h1>
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-24 md:pt-8 md:pr-8 md:pb-12">
+      <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">Movies</h1>
       
       {/* Genre Filter */}
-      <div className="flex gap-3 overflow-x-auto no-scrollbar mb-8 py-2">
+      <div className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2">
         {genres.map(genre => (
           <button
             key={genre.id}
             onClick={() => setSelectedGenre(genre.id)}
-            className={`focusable tv-focus whitespace-nowrap px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+            className={`focusable tv-focus whitespace-nowrap px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${
               selectedGenre === genre.id 
                 ? 'bg-red-600 text-white' 
                 : 'bg-white/10 text-gray-300 hover:bg-white/20'
@@ -90,34 +91,40 @@ const Movies: React.FC = () => {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {movies.map((movie, index) => {
-          if (movies.length === index + 1) {
-            return (
-              <div ref={lastElementRef} key={`${movie.id}-${index}`}>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
+        {movies.length === 0 && loading ? (
+           // Initial Loading Skeletons
+           [...Array(12)].map((_, i) => <MovieCardSkeleton key={i} className="w-full h-full" />)
+        ) : (
+          movies.map((movie, index) => {
+            if (movies.length === index + 1) {
+              return (
+                <div ref={lastElementRef} key={`${movie.id}-${index}`}>
+                  <MovieCard 
+                    movie={movie} 
+                    onClick={() => navigate(`/details/movie/${movie.id}`)} 
+                    className="w-full h-full"
+                  />
+                </div>
+              );
+            } else {
+              return (
                 <MovieCard 
+                  key={`${movie.id}-${index}`} 
                   movie={movie} 
                   onClick={() => navigate(`/details/movie/${movie.id}`)} 
                   className="w-full h-full"
                 />
-              </div>
-            );
-          } else {
-            return (
-              <MovieCard 
-                key={`${movie.id}-${index}`} 
-                movie={movie} 
-                onClick={() => navigate(`/details/movie/${movie.id}`)} 
-                className="w-full h-full"
-              />
-            );
-          }
-        })}
+              );
+            }
+          })
+        )}
       </div>
 
-      {loading && (
+      {/* Pagination Loading */}
+      {loading && movies.length > 0 && (
         <div className="flex justify-center py-10 w-full">
-          <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
     </div>
