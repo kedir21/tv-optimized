@@ -79,7 +79,7 @@ const Player: React.FC = () => {
       <iframe
         key={`${source}-${id}-${type}-${season}-${episode}`} // Unique key to force reload
         src={getEmbedUrl()}
-        className="w-full h-full border-0"
+        className="w-full h-full border-0 absolute inset-0 z-0"
         allowFullScreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerPolicy="origin"
@@ -87,12 +87,12 @@ const Player: React.FC = () => {
         title="Content Player"
       />
 
-      {/* Overlay UI */}
+      {/* Overlay UI - Pointer events only enabled for buttons to allow clicking iframe header */}
       <div 
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 bg-gradient-to-b from-black/80 via-transparent to-transparent h-40 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 bg-gradient-to-b from-black/80 via-transparent to-transparent h-40 z-10 ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="p-8 pointer-events-auto flex items-start justify-between">
-          <div className="flex gap-4">
+        <div className="p-8 flex items-start justify-between w-full">
+          <div className="flex gap-4 pointer-events-auto">
               <button 
                 id="player-back-btn"
                 onClick={() => navigate(-1)}
@@ -103,14 +103,14 @@ const Player: React.FC = () => {
               </button>
               
               {type === 'tv' && (
-                  <div className="px-6 py-3 rounded-lg bg-black/50 text-white font-mono backdrop-blur-md border border-white/10">
+                  <div className="px-6 py-3 rounded-lg bg-black/50 text-white font-mono backdrop-blur-md border border-white/10 select-none">
                     S{season} : E{episode}
                   </div>
               )}
           </div>
 
           {/* Source Selector */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 pointer-events-auto">
             <button
               onClick={() => setSource('vidsrc')}
               className={`focusable tv-focus flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${source === 'vidsrc' ? 'bg-red-600 text-white' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
