@@ -1,84 +1,62 @@
+import { supabase } from '../lib/supabase';
 import { User } from '../types';
 
-const USERS_KEY = 'cinestream_users';
-const SESSION_KEY = 'cinestream_session';
-
 export const authService = {
-  getUsers: (): User[] => {
-    try {
-      return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-    } catch {
-      return [];
-    }
+  getCurrentUser: async (): Promise<User | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return null;
+
+    return {
+      id: session.user.id,
+      email: session.user.email || '',
+      username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'User',
+      joinedAt: session.user.created_at
+    };
   },
 
-  getCurrentUser: (): User | null => {
-    try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    } catch {
-      return null;
-    }
-  },
-
-  login: (identifier: string, password: string): Promise<User> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const users = authService.getUsers();
-        // In a real app, password should be hashed. Here we simulate it.
-        // We'll assume the user object stored contains the password for this mock.
-        const user = users.find((u: any) => 
-          (u.email === identifier || u.username === identifier) && u.password === password
-        );
-
-        if (user) {
-          const { password: _, ...safeUser } = user as any; // Exclude password from session
-          localStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
-          // Notify watchlist service that user changed
-          window.dispatchEvent(new Event('auth-changed'));
-          resolve(safeUser);
-        } else {
-          reject(new Error('Invalid credentials'));
-        }
-      }, 800); // Fake network delay
+  login: async (email: string, password: string): Promise<User> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (error) throw error;
+    if (!data.user) throw new Error('No user returned');
+
+    return {
+      id: data.user.id,
+      email: data.user.email || '',
+      username: data.user.user_metadata?.username || email.split('@')[0],
+      joinedAt: data.user.created_at
+    };
   },
 
-  register: (username: string, email: string, password: string): Promise<User> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const users = authService.getUsers();
-        if (users.some((u) => u.email === email)) {
-          reject(new Error('Email already registered'));
-          return;
-        }
-        if (users.some((u) => u.username === username)) {
-          reject(new Error('Username already taken'));
-          return;
-        }
-
-        const newUser = {
-          id: Math.random().toString(36).substr(2, 9),
-          username,
-          email,
-          password, // Mock storage
-          joinedAt: new Date().toISOString(),
-        };
-
-        (users as any[]).push(newUser);
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-        
-        const { password: _, ...safeUser } = newUser;
-        localStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
-        window.dispatchEvent(new Event('auth-changed'));
-        
-        resolve(safeUser);
-      }, 800);
+  register: async (username: string, email: string, password: string): Promise<User> => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: username,
+        },
+      },
     });
+
+    if (error) throw error;
+    if (!data.user) throw new Error('Registration failed');
+
+    // Note: If you have email confirmation enabled in Supabase, the user won't be able to login immediately
+    // unless you disable it in Authentication -> Providers -> Email -> Confirm email
+    
+    return {
+      id: data.user.id,
+      email: data.user.email || '',
+      username: username,
+      joinedAt: data.user.created_at
+    };
   },
 
-  logout: () => {
-    localStorage.removeItem(SESSION_KEY);
-    window.dispatchEvent(new Event('auth-changed'));
-    window.dispatchEvent(new Event('watchlist-updated')); // Clear watchlist view
+  logout: async () => {
+    await supabase.auth.signOut();
   }
 };

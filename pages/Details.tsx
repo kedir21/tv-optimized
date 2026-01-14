@@ -36,7 +36,10 @@ const Details: React.FC = () => {
         (data as any).media_type = mediaType;
         
         setContent(data);
-        setInWatchlist(watchlistService.isInWatchlist(data.id));
+        
+        // Async watchlist check
+        const inList = await watchlistService.isInWatchlist(data.id);
+        setInWatchlist(inList);
 
         // Fetch Recommendations
         const recs = await api.getRecommendations(parseInt(id), mediaType);
@@ -79,8 +82,11 @@ const Details: React.FC = () => {
   }, [selectedSeasonNumber, content?.id, mediaType]);
 
   useEffect(() => {
-    const handleUpdate = () => {
-      if (content) setInWatchlist(watchlistService.isInWatchlist(content.id));
+    const handleUpdate = async () => {
+      if (content) {
+        const inList = await watchlistService.isInWatchlist(content.id);
+        setInWatchlist(inList);
+      }
     };
     window.addEventListener('watchlist-updated', handleUpdate);
     return () => window.removeEventListener('watchlist-updated', handleUpdate);
@@ -93,9 +99,10 @@ const Details: React.FC = () => {
     }
   }, [loading, content]);
 
-  const toggleWatchlist = () => {
+  const toggleWatchlist = async () => {
     if (content) {
-      watchlistService.toggleWatchlist(content as any);
+      setInWatchlist(prev => !prev); // Optimistic
+      await watchlistService.toggleWatchlist(content as any);
     }
   };
 

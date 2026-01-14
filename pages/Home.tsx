@@ -56,11 +56,16 @@ const Home: React.FC = () => {
     fetchTopRated();
     
     // Initial load of watchlist based on current user (or guest)
-    setWatchlist(watchlistService.getWatchlist());
+    const fetchWatchlist = async () => {
+      const list = await watchlistService.getWatchlist();
+      setWatchlist(list as Movie[]);
+    };
+    fetchWatchlist();
 
     // Listen for watchlist updates
-    const handleWatchlistUpdate = () => {
-      setWatchlist(watchlistService.getWatchlist());
+    const handleWatchlistUpdate = async () => {
+      const list = await watchlistService.getWatchlist();
+      setWatchlist(list as Movie[]);
     };
     window.addEventListener('watchlist-updated', handleWatchlistUpdate);
     return () => window.removeEventListener('watchlist-updated', handleWatchlistUpdate);

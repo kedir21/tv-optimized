@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { watchlistService } from '../services/watchlist';
@@ -8,7 +8,15 @@ import TvButton from '../components/TvButton';
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const watchlist = watchlistService.getWatchlist();
+  const [watchlistCount, setWatchlistCount] = useState(0);
+
+  useEffect(() => {
+    const fetchWatchlistCount = async () => {
+      const list = await watchlistService.getWatchlist();
+      setWatchlistCount(list.length);
+    };
+    fetchWatchlistCount();
+  }, [user]);
 
   if (!user) {
     navigate('/auth');
@@ -70,7 +78,7 @@ const Profile: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-red-600/20 flex items-center justify-center mb-4 text-red-500">
               <Heart size={24} />
             </div>
-            <span className="text-3xl font-bold text-white mb-1">{watchlist.length}</span>
+            <span className="text-3xl font-bold text-white mb-1">{watchlistCount}</span>
             <span className="text-sm text-gray-400">Watchlist Items</span>
           </div>
           

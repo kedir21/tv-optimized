@@ -1,50 +1,102 @@
-import { Movie } from '../types';
+import { Movie, ContentItem } from '../types';
+import { supabase } from '../lib/supabase';
 import { authService } from './auth';
 
-const BASE_KEY = 'cinestream_watchlist';
+const LOCAL_KEY = 'cinestream_guest_watchlist';
 
-const getStorageKey = () => {
-  const user = authService.getCurrentUser();
-  return user ? `${BASE_KEY}_${user.id}` : `${BASE_KEY}_guest`;
+// Helper to check if we are online/authenticated
+const isAuthenticated = async () => {
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
 };
 
 export const watchlistService = {
-  getWatchlist: (): Movie[] => {
-    try {
-      const stored = localStorage.getItem(getStorageKey());
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      console.error("Failed to parse watchlist", e);
-      return [];
+  getWatchlist: async (): Promise<ContentItem[]> => {
+    const isAuth = await isAuthenticated();
+
+    if (isAuth) {
+      const { data, error } = await supabase
+        .from('watchlist')
+        .select('movie_data');
+      
+      if (error) {
+        console.error('Error fetching remote watchlist:', error);
+        return [];
+      }
+      return data.map(item => item.movie_data);
+    } else {
+      // Fallback to local storage for guests
+      try {
+        const stored = localStorage.getItem(LOCAL_KEY);
+        return stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        return [];
+      }
     }
   },
   
-  isInWatchlist: (id: number): boolean => {
-    const list = watchlistService.getWatchlist();
+  isInWatchlist: async (id: number): Promise<boolean> => {
+    const list = await watchlistService.getWatchlist();
     return list.some(m => m.id === id);
   },
 
-  addToWatchlist: (movie: Movie) => {
-    const list = watchlistService.getWatchlist();
-    if (!list.some(m => m.id === movie.id)) {
-      list.push(movie);
-      localStorage.setItem(getStorageKey(), JSON.stringify(list));
-      window.dispatchEvent(new Event('watchlist-updated'));
-    }
-  },
+  addToWatchlist: async (movie: ContentItem) => {
+    const isAuth = await isAuthenticated();
+    
+    if (isAuth) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-  removeFromWatchlist: (id: number) => {
-    let list = watchlistService.getWatchlist();
-    list = list.filter(m => m.id !== id);
-    localStorage.setItem(getStorageKey(), JSON.stringify(list));
+      const mediaType = 'media_type' in movie ? movie.media_type : 'movie';
+      
+      const { error } = await supabase
+        .from('watchlist')
+        .insert({
+          user_id: user.id,
+          movie_id: movie.id,
+          media_type: mediaType || 'movie',
+          movie_data: movie
+        });
+
+      if (error) console.error('Error adding to remote watchlist:', error);
+    } else {
+      // Local Guest Logic
+      const list = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+      if (!list.some((m: ContentItem) => m.id === movie.id)) {
+        list.push(movie);
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+      }
+    }
+    
     window.dispatchEvent(new Event('watchlist-updated'));
   },
 
-  toggleWatchlist: (movie: Movie) => {
-    if (watchlistService.isInWatchlist(movie.id)) {
-      watchlistService.removeFromWatchlist(movie.id);
+  removeFromWatchlist: async (id: number) => {
+    const isAuth = await isAuthenticated();
+
+    if (isAuth) {
+      const { error } = await supabase
+        .from('watchlist')
+        .delete()
+        .eq('movie_id', id);
+
+      if (error) console.error('Error removing from remote watchlist:', error);
     } else {
-      watchlistService.addToWatchlist(movie);
+      // Local Guest Logic
+      let list = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+      list = list.filter((m: ContentItem) => m.id !== id);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+    }
+
+    window.dispatchEvent(new Event('watchlist-updated'));
+  },
+
+  toggleWatchlist: async (movie: ContentItem) => {
+    const inList = await watchlistService.isInWatchlist(movie.id);
+    if (inList) {
+      await watchlistService.removeFromWatchlist(movie.id);
+    } else {
+      await watchlistService.addToWatchlist(movie);
     }
   }
 };

@@ -13,9 +13,10 @@ const Watchlist: React.FC = () => {
   const [watchlist, setWatchlist] = useState<ContentItem[]>([]);
 
   useEffect(() => {
-    const loadWatchlist = () => {
+    const loadWatchlist = async () => {
       // Cast to ContentItem[] as the service currently returns Movie[]
-      setWatchlist(watchlistService.getWatchlist() as unknown as ContentItem[]);
+      const list = await watchlistService.getWatchlist();
+      setWatchlist(list as unknown as ContentItem[]);
     };
 
     loadWatchlist();

@@ -21,16 +21,21 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
 
   useEffect(() => {
     // Check status whenever movie ID or User changes
-    const checkStatus = () => setInWatchlist(watchlistService.isInWatchlist(movie.id));
+    const checkStatus = async () => {
+      const exists = await watchlistService.isInWatchlist(movie.id);
+      setInWatchlist(exists);
+    };
     
     checkStatus();
     window.addEventListener('watchlist-updated', checkStatus);
     return () => window.removeEventListener('watchlist-updated', checkStatus);
   }, [movie.id, user]);
 
-  const handleToggleWatchlist = (e: React.MouseEvent) => {
+  const handleToggleWatchlist = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    watchlistService.toggleWatchlist(movie);
+    // Optimistic UI update
+    setInWatchlist(prev => !prev);
+    await watchlistService.toggleWatchlist(movie);
   };
 
   // Default width is smaller on mobile (w-32) and larger on tablet/desktop
