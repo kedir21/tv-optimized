@@ -2,15 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, getImageUrl, getPosterUrl, getStillUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
-import { MovieDetails, TvDetails, SeasonDetails, Episode } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { MovieDetails, TvDetails, SeasonDetails, Episode, ContentItem } from '../types';
 import TvButton from '../components/TvButton';
-import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, Film, List } from 'lucide-react';
+import Row from '../components/Row';
+import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, List } from 'lucide-react';
 import { DetailsSkeleton } from '../components/Skeletons';
 
 const Details: React.FC = () => {
   const { type, id } = useParams<{ type?: string; id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
   const [content, setContent] = useState<MovieDetails | TvDetails | null>(null);
+  const [recommendations, setRecommendations] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
   
@@ -33,6 +38,10 @@ const Details: React.FC = () => {
         setContent(data);
         setInWatchlist(watchlistService.isInWatchlist(data.id));
 
+        // Fetch Recommendations
+        const recs = await api.getRecommendations(parseInt(id), mediaType);
+        setRecommendations(recs);
+
         // If it's a TV show, try to set initial season
         if (mediaType === 'tv' && 'seasons' in data && data.seasons && data.seasons.length > 0) {
             // Find the first season that isn't season 0 (specials), unless that's all there is
@@ -46,7 +55,9 @@ const Details: React.FC = () => {
       }
     };
     fetchDetails();
-  }, [id, mediaType]);
+    // Reset scroll when navigating between details
+    window.scrollTo(0, 0);
+  }, [id, mediaType, user]); // Refetch status if user changes
 
   // Fetch Season Details when selected season changes
   useEffect(() => {
@@ -73,7 +84,7 @@ const Details: React.FC = () => {
     };
     window.addEventListener('watchlist-updated', handleUpdate);
     return () => window.removeEventListener('watchlist-updated', handleUpdate);
-  }, [content]);
+  }, [content, user]);
 
   useEffect(() => {
     if (!loading && content) {
@@ -145,7 +156,7 @@ const Details: React.FC = () => {
               <TvButton 
                 variant={inWatchlist ? "secondary" : "glass"}
                 icon={inWatchlist ? <Check /> : <Plus />}
-                className="w-full justify-center"
+                className={`w-full justify-center ${inWatchlist ? 'border-red-500/50 bg-red-900/20 text-white' : ''}`}
                 onClick={toggleWatchlist}
               >
                 {inWatchlist ? "In List" : "Add to List"}
@@ -155,7 +166,7 @@ const Details: React.FC = () => {
 
           {/* Right Column: Info & Content */}
           <div className="w-full lg:w-3/4 flex flex-col">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-4 leading-tight text-center lg:text-left">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-4 leading-tight text-center lg:text-left drop-shadow-xl">
                 {title}
               </h1>
               
@@ -188,7 +199,7 @@ const Details: React.FC = () => {
                 )}
 
                 {content.genres.map(g => (
-                  <span key={g.id} className="px-2 py-0.5 md:px-3 md:py-1 bg-white/10 rounded-full text-xs md:text-sm">
+                  <span key={g.id} className="px-2 py-0.5 md:px-3 md:py-1 bg-white/10 rounded-full text-xs md:text-sm backdrop-blur-md">
                     {g.name}
                   </span>
                 ))}
@@ -198,7 +209,7 @@ const Details: React.FC = () => {
                 <p className="text-lg md:text-xl text-gray-400 italic mb-4 md:mb-6 text-center lg:text-left">"{content.tagline}"</p>
               )}
 
-              <p className="text-base md:text-lg md:text-xl leading-relaxed text-gray-200 mb-8 md:mb-10 max-w-4xl text-center lg:text-left">
+              <p className="text-base md:text-lg md:text-xl leading-relaxed text-gray-200 mb-8 md:mb-10 max-w-4xl text-center lg:text-left font-light">
                 {content.overview}
               </p>
 
@@ -208,7 +219,7 @@ const Details: React.FC = () => {
                 <div className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar pb-4">
                   {content.credits.cast.slice(0, 8).map(person => (
                     <div key={person.id} className="flex flex-col items-center w-20 md:w-24 text-center flex-shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden mb-2 md:mb-3 border border-white/20">
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden mb-2 md:mb-3 border border-white/20 shadow-lg">
                         {person.profile_path ? (
                           <img 
                             src={`https://image.tmdb.org/t/p/w185${person.profile_path}`} 
@@ -239,7 +250,7 @@ const Details: React.FC = () => {
                         onClick={() => setSelectedSeasonNumber(season.season_number)}
                         className={`focusable tv-focus flex-shrink-0 px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all ${
                           selectedSeasonNumber === season.season_number 
-                            ? 'bg-red-600 text-white' 
+                            ? 'bg-red-600 text-white shadow-lg shadow-red-900/50' 
                             : 'bg-white/10 text-gray-300 hover:bg-white/20'
                         }`}
                       >
@@ -260,7 +271,7 @@ const Details: React.FC = () => {
                       seasonDetails.episodes.map((episode) => (
                         <div 
                           key={episode.id}
-                          className="focusable tv-focus group flex flex-col md:flex-row gap-4 p-3 md:p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-transparent focus:border-white"
+                          className="focusable tv-focus group flex flex-col md:flex-row gap-4 p-3 md:p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-transparent focus:border-white/20"
                           onClick={() => playEpisode(episode.season_number, episode.episode_number)}
                           role="button"
                           tabIndex={0}
@@ -269,7 +280,7 @@ const Details: React.FC = () => {
                           }}
                         >
                           {/* Episode Thumbnail */}
-                          <div className="w-full md:w-64 aspect-video rounded-lg overflow-hidden flex-shrink-0 relative">
+                          <div className="w-full md:w-64 aspect-video rounded-lg overflow-hidden flex-shrink-0 relative shadow-md">
                              {episode.still_path ? (
                                <img 
                                  src={getStillUrl(episode.still_path)} 
@@ -304,7 +315,7 @@ const Details: React.FC = () => {
                                </div>
                              </div>
 
-                             <p className="text-gray-300 text-xs md:text-sm line-clamp-2">{episode.overview}</p>
+                             <p className="text-gray-300 text-xs md:text-sm line-clamp-2 font-light">{episode.overview}</p>
                           </div>
                         </div>
                       ))
@@ -316,6 +327,17 @@ const Details: React.FC = () => {
               )}
           </div>
         </div>
+
+        {/* Recommendations Row */}
+        {recommendations.length > 0 && (
+           <div className="mt-12 md:mt-16 w-full -ml-4 md:-ml-12">
+             <Row 
+               title="You May Also Like" 
+               items={recommendations} 
+               onItemSelect={(recId) => navigate(`/details/${mediaType}/${recId}`)} 
+             />
+           </div>
+        )}
       </div>
     </div>
   );

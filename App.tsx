@@ -9,7 +9,10 @@ import Search from './pages/Search';
 import Movies from './pages/Movies';
 import TvShows from './pages/TvShows';
 import Watchlist from './pages/Watchlist';
+import Auth from './pages/Auth';
+import Profile from './pages/Profile';
 import { handleSpatialNavigation } from './utils/spatialNavigation';
+import { AuthProvider } from './context/AuthContext';
 
 // Component to handle global keydown events for navigation
 const TvNavigationController: React.FC = () => {
@@ -32,12 +35,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   // Strictly check for /watch/ to avoid hiding sidebar on /watchlist
   const isPlayer = location.pathname.startsWith('/watch/');
+  const isAuth = location.pathname.startsWith('/auth');
 
   return (
     <div className="min-h-screen w-screen bg-slate-950 text-white overflow-x-hidden font-sans antialiased selection:bg-red-500 selection:text-white">
       <TvNavigationController />
-      {!isPlayer && <Sidebar />}
-      <BackButton />
+      {!isPlayer && !isAuth && <Sidebar />}
+      {!isAuth && <BackButton />}
       <div className="relative z-0">
         {children}
       </div>
@@ -47,23 +51,27 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/tv" element={<TvShows />} />
-          <Route path="/watchlist" element={<Watchlist />} />
-          {/* Support legacy /movie/:id route if needed, or redirect */}
-          <Route path="/movie/:id" element={<Details />} /> 
-          {/* New Unified Details Route */}
-          <Route path="/details/:type/:id" element={<Details />} />
-          
-          <Route path="/watch/:id" element={<Player />} />
-        </Routes>
-      </AppLayout>
-    </HashRouter>
+    <AuthProvider>
+      <HashRouter>
+        <AppLayout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/movies" element={<Movies />} />
+            <Route path="/tv" element={<TvShows />} />
+            <Route path="/watchlist" element={<Watchlist />} />
+            {/* Support legacy /movie/:id route if needed, or redirect */}
+            <Route path="/movie/:id" element={<Details />} /> 
+            {/* New Unified Details Route */}
+            <Route path="/details/:type/:id" element={<Details />} />
+            
+            <Route path="/watch/:id" element={<Player />} />
+          </Routes>
+        </AppLayout>
+      </HashRouter>
+    </AuthProvider>
   );
 };
 

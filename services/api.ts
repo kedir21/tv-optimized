@@ -66,6 +66,12 @@ export const api = {
     const endpoint = `/${type}/${id}`;
     return await fetchFromTMDB<MovieDetails | TvDetails>(endpoint, { append_to_response: 'videos,credits' });
   },
+
+  // Recommendations
+  getRecommendations: async (id: number, type: 'movie' | 'tv'): Promise<ContentItem[]> => {
+    const res = await fetchFromTMDB<PaginatedResponse<ContentItem>>(`/${type}/${id}/recommendations`);
+    return res.results.map(item => ({ ...item, media_type: type } as ContentItem));
+  },
   
   // Season Details (Episodes)
   getSeasonDetails: async (tvId: number, seasonNumber: number): Promise<SeasonDetails> => {

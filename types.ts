@@ -121,6 +121,13 @@ export interface Genre {
   name: string;
 }
 
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  joinedAt: string;
+}
+
 export enum NavigationDirection {
   UP = 'ArrowUp',
   DOWN = 'ArrowDown',

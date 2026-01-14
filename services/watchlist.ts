@@ -1,11 +1,17 @@
 import { Movie } from '../types';
+import { authService } from './auth';
 
-const WATCHLIST_KEY = 'cinestream_watchlist';
+const BASE_KEY = 'cinestream_watchlist';
+
+const getStorageKey = () => {
+  const user = authService.getCurrentUser();
+  return user ? `${BASE_KEY}_${user.id}` : `${BASE_KEY}_guest`;
+};
 
 export const watchlistService = {
   getWatchlist: (): Movie[] => {
     try {
-      const stored = localStorage.getItem(WATCHLIST_KEY);
+      const stored = localStorage.getItem(getStorageKey());
       return stored ? JSON.parse(stored) : [];
     } catch (e) {
       console.error("Failed to parse watchlist", e);
@@ -21,10 +27,8 @@ export const watchlistService = {
   addToWatchlist: (movie: Movie) => {
     const list = watchlistService.getWatchlist();
     if (!list.some(m => m.id === movie.id)) {
-      // Store minimal data to save space, or full movie object
       list.push(movie);
-      localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
-      // Dispatch custom event for reactivity across components
+      localStorage.setItem(getStorageKey(), JSON.stringify(list));
       window.dispatchEvent(new Event('watchlist-updated'));
     }
   },
@@ -32,7 +36,7 @@ export const watchlistService = {
   removeFromWatchlist: (id: number) => {
     let list = watchlistService.getWatchlist();
     list = list.filter(m => m.id !== id);
-    localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
+    localStorage.setItem(getStorageKey(), JSON.stringify(list));
     window.dispatchEvent(new Event('watchlist-updated'));
   },
 
