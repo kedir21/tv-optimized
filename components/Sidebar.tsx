@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Home, Search, Film, Tv, Heart, User as UserIcon, LogIn } from 'lucide-react';
+import { Home, Search, Film, Tv, Heart, User as UserIcon, LogIn, Radio } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,6 +14,7 @@ const Sidebar: React.FC = () => {
     { icon: <Search size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Search", path: "/search" },
     { icon: <Film size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Movies", path: "/movies" },
     { icon: <Tv size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "TV", path: "/tv" },
+    { icon: <Radio size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Networks", path: "/networks" },
     { icon: <Heart size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "My List", path: "/watchlist" },
   ];
 

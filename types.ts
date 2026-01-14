@@ -1,3 +1,4 @@
+
 export interface Movie {
   id: number;
   title: string;
@@ -25,6 +26,13 @@ export interface TvShow {
 }
 
 export type ContentItem = Movie | TvShow;
+
+export interface Network {
+  id: number;
+  name: string;
+  logo_path: string | null;
+  origin_country: string;
+}
 
 export interface MovieDetails extends Movie {
   genres: { id: number; name: string }[];

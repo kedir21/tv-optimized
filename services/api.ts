@@ -1,4 +1,5 @@
-import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetails } from '../types';
+
+import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetails, Network } from '../types';
 
 // Using a more reliable public demo key for TMDB
 const API_KEY: string = '3fd2be6f0c70a2a598f084ddfb75487c';
@@ -15,6 +16,10 @@ export const getPosterUrl = (path: string | null | undefined) =>
 export const getStillUrl = (path: string | null | undefined) => 
   path ? `${IMAGE_BASE_URL}${path}` : 'https://picsum.photos/300/169';
 
+// Helper to get logo URL (using w500 for logos is usually enough)
+export const getLogoUrl = (path: string | null | undefined) => 
+  path ? `https://image.tmdb.org/t/p/w500${path}` : '';
+
 interface PaginatedResponse<T> {
   page: number;
   results: T[];
@@ -28,7 +33,10 @@ const fetchFromTMDB = async <T>(endpoint: string, params: Record<string, string 
   queryParams.append('language', 'en-US');
 
   Object.entries(params).forEach(([key, value]) => {
-    queryParams.append(key, String(value));
+    // Filter out empty values or "0" for IDs where 0 isn't valid
+    if (value !== undefined && value !== null && value !== '' && value !== 0 && value !== 'ALL') {
+        queryParams.append(key, String(value));
+    }
   });
 
   try {
@@ -84,27 +92,58 @@ export const api = {
     return res.genres;
   },
 
-  // Discovery (Infinite Scroll)
-  discoverMovies: async (page: number, genreId?: number): Promise<Movie[]> => {
-    const params: Record<string, string | number> = { page, sort_by: 'popularity.desc' };
+  // Discover
+  // Updated signature to support options object for cleaner advanced filtering
+  discoverMovies: async (
+    page: number, 
+    genreId?: number, 
+    sortBy: string = 'popularity.desc', 
+    options?: { companyId?: number, providerId?: number, country?: string }
+  ): Promise<Movie[]> => {
+    const params: Record<string, string | number> = { page, sort_by: sortBy };
+    
     if (genreId && genreId !== 0) params.with_genres = genreId;
+    
+    // Handle Advanced Filters
+    if (options?.providerId) {
+        // Filter by Streaming Provider (Netflix, Disney+, etc)
+        params.with_watch_providers = options.providerId;
+        // When using watch_providers, watch_region is important. Default to US if not specified.
+        params.watch_region = (options.country && options.country !== 'ALL') ? options.country : 'US'; 
+    } else if (options?.companyId) {
+        // Filter by Production Company (HBO Films, etc)
+        params.with_companies = options.companyId;
+        // If country is specified with company, we use it as release region to refine results
+        if (options.country && options.country !== 'ALL') {
+             params.region = options.country;
+        }
+    } else if (options?.country && options.country !== 'ALL') {
+        // Fallback: just filter by region/country if no company/provider
+        params.region = options.country;
+    }
     
     const res = await fetchFromTMDB<PaginatedResponse<Movie>>('/discover/movie', params);
     return res.results.map(m => ({ ...m, media_type: 'movie' }));
   },
 
-  discoverTvShows: async (page: number, genreId?: number): Promise<TvShow[]> => {
-    const params: Record<string, string | number> = { page, sort_by: 'popularity.desc' };
+  discoverTvShows: async (page: number, genreId?: number, sortBy: string = 'popularity.desc', networkId?: number, country?: string): Promise<TvShow[]> => {
+    const params: Record<string, string | number> = { page, sort_by: sortBy };
     if (genreId && genreId !== 0) params.with_genres = genreId;
-    
+    if (networkId) params.with_networks = networkId;
+    if (country && country !== 'ALL') params.with_origin_country = country;
+
     const res = await fetchFromTMDB<PaginatedResponse<TvShow>>('/discover/tv', params);
     return res.results.map(s => ({ ...s, media_type: 'tv' }));
+  },
+
+  // Network Details
+  getNetwork: async (id: number): Promise<Network> => {
+    return await fetchFromTMDB<Network>(`/network/${id}`);
   },
 
   // Search (Infinite Scroll)
   searchMulti: async (query: string, page: number = 1): Promise<ContentItem[]> => {
     const res = await fetchFromTMDB<PaginatedResponse<ContentItem>>('/search/multi', { query, page });
-    // Filter out people, only keep movie and tv
     return res.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
   },
 

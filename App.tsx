@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -9,6 +10,8 @@ import Search from './pages/Search';
 import Movies from './pages/Movies';
 import TvShows from './pages/TvShows';
 import Watchlist from './pages/Watchlist';
+import Networks from './pages/Networks';
+import NetworkDetails from './pages/NetworkDetails';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import { handleSpatialNavigation } from './utils/spatialNavigation';
@@ -61,6 +64,8 @@ const App: React.FC = () => {
             <Route path="/search" element={<Search />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/tv" element={<TvShows />} />
+            <Route path="/networks" element={<Networks />} />
+            <Route path="/network/:id" element={<NetworkDetails />} />
             <Route path="/watchlist" element={<Watchlist />} />
             {/* Support legacy /movie/:id route if needed, or redirect */}
             <Route path="/movie/:id" element={<Details />} /> 
