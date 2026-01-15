@@ -90,7 +90,7 @@ const Player: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black z-50 overflow-hidden group">
-      {/* Iframe Layer with Strict Sandbox for Ad Blocking */}
+      {/* Iframe Layer with Strict Sandbox for Ad Blocking, but allow-popups for mobile player compatibility */}
       <iframe
         key={`${source}-${id}-${type}-${season}-${episode}`}
         src={getEmbedUrl()}
@@ -98,7 +98,7 @@ const Player: React.FC = () => {
         allowFullScreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerPolicy="origin"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
         title="Content Player"
       />
 

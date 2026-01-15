@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
@@ -7,7 +8,7 @@ import { Movie } from '../types';
 import Row from '../components/Row';
 import TvButton from '../components/TvButton';
 import { Play, Info } from 'lucide-react';
-import { Skeleton } from '../components/Skeletons';
+import { HeroSkeleton } from '../components/Skeletons';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -89,16 +90,7 @@ const Home: React.FC = () => {
     <div className="min-h-screen pb-24 md:pb-20 md:pl-20 bg-slate-950">
       {/* Hero Section */}
       {loadingTrending && !heroMovie ? (
-         <div className="relative h-[70vh] md:h-[85vh] w-full mb-8 bg-gray-900 animate-pulse">
-            <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-4xl">
-              <Skeleton className="h-10 md:h-16 w-3/4 mb-4" />
-              <Skeleton className="h-20 md:h-24 w-full mb-8" />
-              <div className="flex gap-4">
-                <Skeleton className="h-12 w-32 md:h-14 md:w-40 rounded-lg" />
-                <Skeleton className="h-12 w-32 md:h-14 md:w-40 rounded-lg" />
-              </div>
-            </div>
-         </div>
+         <HeroSkeleton />
       ) : heroMovie && (
         <div className="relative h-[70vh] md:h-[85vh] w-full mb-8 group">
           {/* Backdrop */}
