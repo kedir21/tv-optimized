@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -34,7 +35,7 @@ const Profile: React.FC = () => {
     .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-24 pb-24 md:pl-28 md:pt-16 md:pr-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-24 pb-24 md:pl-32 md:pt-16 md:pr-12">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 mb-12">
           {/* Avatar */}
