@@ -15,7 +15,8 @@ const Player: React.FC = () => {
   const season = searchParams.get('s') || '1';
   const episode = searchParams.get('e') || '1';
 
-  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos'>('vidsrc');
+  // Default source set to 'cinemaos'
+  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos'>('cinemaos');
   const controlsTimeout = useRef<number | null>(null);
 
   // Auto-hide controls
@@ -135,9 +136,9 @@ const Player: React.FC = () => {
                       onChange={(e) => handleSourceChange(e.target.value)}
                       className="appearance-none bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium py-2 pl-3 pr-8 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors border border-transparent w-28 md:w-32"
                   >
+                      <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
                       <option value="vidsrc" className="bg-gray-900 text-white">VidSrc</option>
                       <option value="rivestream" className="bg-gray-900 text-white">RiveStream</option>
-                      <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/70">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

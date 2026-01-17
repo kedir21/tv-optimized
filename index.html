@@ -64,6 +64,16 @@
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
       }
+      
+      /* Unique Diagonal Sweep Animation */
+      @keyframes shimmer-diagonal {
+        0% { transform: translateX(-150%) skewX(-20deg); }
+        100% { transform: translateX(200%) skewX(-20deg); }
+      }
+      
+      .animate-shimmer-diagonal {
+        animation: shimmer-diagonal 1.2s infinite linear;
+      }
     </style>
 <script type="importmap">
 {

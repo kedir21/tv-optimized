@@ -87,7 +87,7 @@ const Home: React.FC = () => {
   const goToDetails = (id: number) => navigate(`/details/movie/${id}`);
 
   return (
-    <div className="min-h-screen pb-24 md:pb-20 md:pl-24 bg-slate-950">
+    <div className="min-h-screen pb-24 md:pb-28 bg-slate-950">
       {/* Hero Section */}
       {loadingTrending && !heroMovie ? (
          <HeroSkeleton />

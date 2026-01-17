@@ -71,7 +71,7 @@ const TvShows: React.FC = () => {
   }, [page, selectedGenre]);
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-28 md:pt-8 md:pr-8 md:pb-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
       <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">TV Shows</h1>
       
       {/* Genre Filter */}

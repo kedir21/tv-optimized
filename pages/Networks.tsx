@@ -28,7 +28,7 @@ const Networks: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-24 md:pt-12 md:pr-12 md:pb-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">Networks & Studios</h1>
         <p className="text-gray-400 mb-10 text-lg">Browse content from your favorite streaming services and production companies.</p>

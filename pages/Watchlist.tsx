@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { watchlistService } from '../services/watchlist';
@@ -30,7 +31,7 @@ const Watchlist: React.FC = () => {
   }, [user]); // Reload when user changes
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-24 md:pt-12 md:pr-12 md:pb-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
       <div className="flex items-center justify-between mb-8 md:mb-10">
         <div className="flex items-center gap-3 md:gap-4">
           <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">My List</h1>
@@ -69,7 +70,7 @@ const Watchlist: React.FC = () => {
              return (
               <MovieCard 
                 key={`${item.id}-${index}`} 
-                movie={{...item, media_type: type}} 
+                movie={{...item, media_type: type} as ContentItem} 
                 onClick={() => navigate(`/details/${type}/${item.id}`)} 
                 className="w-full h-full aspect-[2/3]"
               />

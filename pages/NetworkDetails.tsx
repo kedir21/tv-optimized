@@ -6,7 +6,7 @@ import { NETWORK_MOVIE_MAPPING } from '../services/networks';
 import { Network, ContentItem, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
 import { MovieCardSkeleton } from '../components/Skeletons';
-import { ChevronDown, Filter, Globe, Calendar, Star, SlidersHorizontal, Check } from 'lucide-react';
+import { ChevronDown, Filter, Globe } from 'lucide-react';
 
 type FilterType = 'tv' | 'movie';
 type SortType = 'popularity.desc' | 'vote_average.desc' | 'first_air_date.desc';
@@ -148,7 +148,7 @@ const NetworkDetails: React.FC = () => {
   const currentGenres = filterType === 'movie' ? movieGenres : tvGenres;
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:pl-24 md:pt-12 md:pr-12 md:pb-12">
+    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
        {/* Hero / Header */}
        <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 mb-8 md:mb-10 pb-8 border-b border-white/5">
           <div className="w-32 h-32 md:w-48 md:h-32 bg-white rounded-xl p-4 flex items-center justify-center shadow-2xl relative overflow-hidden group">
@@ -285,7 +285,7 @@ const NetworkDetails: React.FC = () => {
             return (
                 <div ref={isLast ? lastElementRef : null} key={uniqueKey} className="animate-in fade-in duration-500">
                   <MovieCard 
-                    movie={{...item, media_type: item.media_type || mediaType}} 
+                    movie={{...item, media_type: item.media_type || mediaType} as ContentItem} 
                     onClick={() => navigate(`/details/${item.media_type || mediaType}/${item.id}`)} 
                     className="w-full h-full"
                   />

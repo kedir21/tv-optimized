@@ -20,7 +20,7 @@ const Sidebar: React.FC = () => {
 
   // Add Profile or Login based on auth state
   const profileItem = user 
-    ? { icon: <UserIcon size={24} className="md:w-6 md:h-6 w-5 h-5 text-red-500" />, label: "Profile", path: "/profile" }
+    ? { icon: <UserIcon size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Profile", path: "/profile" }
     : { icon: <LogIn size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Sign In", path: "/auth" };
 
   const handleNav = (path: string) => {
@@ -28,51 +28,39 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 md:left-0 md:top-0 md:h-full md:w-24 z-50 bg-black/90 md:bg-black/90 backdrop-blur-xl md:backdrop-blur-md flex flex-row md:flex-col items-center justify-around md:justify-start md:py-10 md:gap-6 border-t md:border-t-0 md:border-r border-white/10 shadow-2xl md:shadow-none pb-safe-area-inset-bottom">
-      <div 
-        className="hidden md:flex flex-col items-center mb-6 text-red-600 select-none cursor-pointer"
-        onClick={() => navigate('/')}
-      >
-        <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100" height="100" rx="20" fill="currentColor"/>
-          <path d="M20 20 V80" stroke="black" strokeWidth="12" strokeLinecap="round"/>
-          <path d="M20 50 L55 20" stroke="black" strokeWidth="12" strokeLinecap="round"/>
-          <path d="M20 50 L55 80" stroke="black" strokeWidth="12" strokeLinecap="round"/>
-          <path d="M60 20 V80" stroke="white" strokeWidth="12" strokeLinecap="round"/>
-          <path d="M60 50 L90 20" stroke="white" strokeWidth="12" strokeLinecap="round"/>
-          <path d="M60 50 L90 80" stroke="white" strokeWidth="12" strokeLinecap="round"/>
-        </svg>
-        <span className="text-[10px] font-bold tracking-widest text-white mt-1">KKFLIX</span>
-      </div>
+    <div className="fixed bottom-0 left-0 w-full h-16 md:h-20 z-50 bg-black/95 backdrop-blur-2xl border-t border-white/10 shadow-2xl pb-safe-area-inset-bottom flex items-center justify-center gap-1 md:gap-8 px-2">
       
-      {navItems.map((item) => (
-        <button
-          key={item.label}
-          onClick={() => handleNav(item.path)}
-          className={`focusable tv-focus p-2 md:py-3 md:px-2 rounded-xl md:rounded-xl flex flex-col items-center gap-1.5 transition-colors w-full ${
-            location.pathname === item.path 
-              ? 'text-white md:bg-white/10 md:text-white' 
-              : 'text-gray-500 hover:text-white hover:bg-white/5'
-          }`}
-          aria-label={item.label}
-        >
-          {item.icon}
-          <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
-        </button>
-      ))}
-
-      <div className="md:mt-auto w-full flex justify-center">
-        <button
-            onClick={() => handleNav(profileItem.path)}
-            className={`focusable tv-focus p-2 md:py-3 md:px-2 rounded-xl md:rounded-xl flex flex-col items-center gap-1.5 transition-colors w-full ${
-              location.pathname === profileItem.path 
-                ? 'text-white md:bg-white/10 md:text-white' 
+      {/* Container for centering max width if needed, or just flex the items */}
+      <div className="flex w-full max-w-7xl items-center justify-around md:justify-center md:gap-12">
+        {navItems.map((item) => (
+            <button
+            key={item.label}
+            onClick={() => handleNav(item.path)}
+            className={`focusable tv-focus p-2 rounded-xl flex flex-col items-center gap-1 transition-all duration-300 min-w-[3.5rem] md:min-w-[4.5rem] ${
+                location.pathname === item.path 
+                ? 'text-white' 
                 : 'text-gray-500 hover:text-white hover:bg-white/5'
             }`}
+            aria-label={item.label}
+            >
+            {item.icon}
+            <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+            </button>
+        ))}
+
+        <button
+            onClick={() => handleNav(profileItem.path)}
+            className={`focusable tv-focus p-2 rounded-xl flex flex-col items-center gap-1 transition-all duration-300 min-w-[3.5rem] md:min-w-[4.5rem] group ${
+                location.pathname === profileItem.path 
+                ? 'text-red-500' 
+                : 'text-red-500/70 hover:text-red-500 hover:bg-red-900/10'
+            }`}
             aria-label={profileItem.label}
-          >
-            {profileItem.icon}
-            <span className="text-[10px] font-medium tracking-wide">{profileItem.label}</span>
+            >
+            <div className="relative">
+                {profileItem.icon}
+            </div>
+            <span className="text-[10px] font-bold tracking-wide uppercase">{profileItem.label}</span>
         </button>
       </div>
     </div>
