@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth';
-import { User, Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Lock, Mail, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
 import TvButton from '../components/TvButton';
 
 const Auth: React.FC = () => {
@@ -27,7 +28,7 @@ const Auth: React.FC = () => {
       } else {
         await authService.register(formData.username, formData.email, formData.password);
       }
-      navigate('/profile');
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -40,10 +41,19 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center flex items-center justify-center p-4 relative">
       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
       
-      <div className="relative z-10 w-full max-w-md bg-black/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all group focusable tv-focus border border-white/5"
+      >
+        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-medium">Back to Home</span>
+      </button>
+
+      <div className="relative z-10 w-full max-w-md bg-black/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
           <p className="text-gray-400 text-sm">

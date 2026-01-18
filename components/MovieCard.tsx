@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ContentItem } from '../types';
 import { getPosterUrl } from '../services/api';
@@ -93,4 +94,4 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
   );
 };
 
-export default MovieCard;
+export default React.memo(MovieCard);

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Server } from 'lucide-react';
@@ -47,7 +48,7 @@ const Player: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === NavigationDirection.ESCAPE || e.key === NavigationDirection.BACK) {
             e.preventDefault();
-            navigate(-1);
+            navigate('/');
         }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -110,11 +111,11 @@ const Player: React.FC = () => {
           <div className="flex gap-4 pointer-events-auto">
               <button 
                 id="player-back-btn"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/')}
                 className="focusable tv-focus flex items-center gap-2 md:gap-3 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all focus:ring-2 focus:ring-white focus:outline-none shadow-lg"
               >
                 <ArrowLeft size={20} />
-                <span className="font-semibold tracking-wide text-sm md:text-base">Back</span>
+                <span className="font-semibold tracking-wide text-sm md:text-base">Back to Home</span>
               </button>
               
               {type === 'tv' && (

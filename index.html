@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KK-flix</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23dc2626%22/><path d=%22M25 20 V80 M25 50 L75 20 M25 50 L75 80%22 stroke=%22white%22 stroke-width=%2215%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 fill=%22none%22/></svg>">
+    
+    <!-- Performance Optimization: Preconnect to API and Image servers -->
+    <link rel="preconnect" href="https://image.tmdb.org">
+    <link rel="preconnect" href="https://api.themoviedb.org">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -57,22 +64,6 @@
         box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
         z-index: 10;
         border-color: white;
-      }
-
-      /* Premium Shimmer Animation */
-      @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-      }
-      
-      /* Unique Diagonal Sweep Animation */
-      @keyframes shimmer-diagonal {
-        0% { transform: translateX(-150%) skewX(-20deg); }
-        100% { transform: translateX(200%) skewX(-20deg); }
-      }
-      
-      .animate-shimmer-diagonal {
-        animation: shimmer-diagonal 1.2s infinite linear;
       }
     </style>
 <script type="importmap">

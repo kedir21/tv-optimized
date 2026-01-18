@@ -4,8 +4,17 @@ import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetai
 // Using a more reliable public demo key for TMDB
 const API_KEY: string = '3fd2be6f0c70a2a598f084ddfb75487c';
 const BASE_URL = 'https://api.themoviedb.org/3';
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original';
-const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+
+// Optimized Image Sizes for better performance
+// Original was too large (5MB+), w1280 is sufficient for standard HD/4K TV UI backdrops
+const BACKDROP_SIZE = 'w1280'; 
+const POSTER_SIZE = 'w500';
+const STILL_SIZE = 'w780'; 
+const PROFILE_SIZE = 'w185';
+
+const IMAGE_BASE_URL = `https://image.tmdb.org/t/p/${BACKDROP_SIZE}`;
+const POSTER_BASE_URL = `https://image.tmdb.org/t/p/${POSTER_SIZE}`;
+const STILL_BASE_URL = `https://image.tmdb.org/t/p/${STILL_SIZE}`;
 
 export const getImageUrl = (path: string | null | undefined) => 
   path ? `${IMAGE_BASE_URL}${path}` : 'https://picsum.photos/1920/1080';
@@ -14,7 +23,7 @@ export const getPosterUrl = (path: string | null | undefined) =>
   path ? `${POSTER_BASE_URL}${path}` : 'https://picsum.photos/500/750';
 
 export const getStillUrl = (path: string | null | undefined) => 
-  path ? `${IMAGE_BASE_URL}${path}` : 'https://picsum.photos/300/169';
+  path ? `${STILL_BASE_URL}${path}` : 'https://picsum.photos/300/169';
 
 // Helper to get logo URL (using w500 for logos is usually enough)
 export const getLogoUrl = (path: string | null | undefined) => 
@@ -25,6 +34,52 @@ interface PaginatedResponse<T> {
   results: T[];
   total_pages: number;
   total_results: number;
+}
+
+// Persistent Cache Configuration
+const CACHE_PREFIX = 'tmdb_cache_v1_';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes persistence
+
+// Helper to read from LocalStorage safely
+const getCache = (key: string) => {
+    try {
+        const item = localStorage.getItem(CACHE_PREFIX + key);
+        if (!item) return null;
+        
+        const parsed = JSON.parse(item);
+        if (Date.now() - parsed.timestamp > CACHE_DURATION) {
+            localStorage.removeItem(CACHE_PREFIX + key);
+            return null;
+        }
+        return parsed.data;
+    } catch { 
+        return null; 
+    }
+};
+
+// Helper to write to LocalStorage with quota handling
+const setCache = (key: string, data: any) => {
+    try {
+        localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({
+            timestamp: Date.now(),
+            data
+        }));
+    } catch (e) {
+        // If quota exceeded, clear old cache entries to make space
+        try {
+            console.warn("Cache quota exceeded, cleaning up...");
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith(CACHE_PREFIX)) localStorage.removeItem(k);
+            });
+            // Try setting again after cleanup
+            localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({
+                timestamp: Date.now(),
+                data
+            }));
+        } catch (err) {
+            console.warn("Could not save to cache", err);
+        }
+    }
 }
 
 const fetchFromTMDB = async <T>(endpoint: string, params: Record<string, string | number> = {}): Promise<T> => {
@@ -39,14 +94,28 @@ const fetchFromTMDB = async <T>(endpoint: string, params: Record<string, string 
     }
   });
 
+  const queryString = queryParams.toString();
+  const cacheKey = `${endpoint}?${queryString}`;
+
+  // Check Cache
+  const cachedData = getCache(cacheKey);
+  if (cachedData) {
+    return cachedData as T;
+  }
+
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}?${queryParams.toString()}`);
+    const response = await fetch(`${BASE_URL}${endpoint}?${queryString}`);
     
     if (!response.ok) {
       throw new Error(`TMDB API Error: ${response.status} ${response.statusText}`);
     }
     
-    return response.json();
+    const data = await response.json();
+    
+    // Set Cache
+    setCache(cacheKey, data);
+    
+    return data;
   } catch (error) {
     console.error("API Request Failed:", error);
     throw error;

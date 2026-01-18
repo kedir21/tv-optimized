@@ -1,21 +1,30 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import BackButton from './components/BackButton';
-import Home from './pages/Home';
-import Details from './pages/Details';
-import Player from './pages/Player';
-import Search from './pages/Search';
-import Movies from './pages/Movies';
-import TvShows from './pages/TvShows';
-import Watchlist from './pages/Watchlist';
-import Networks from './pages/Networks';
-import NetworkDetails from './pages/NetworkDetails';
-import Auth from './pages/Auth';
-import Profile from './pages/Profile';
 import { handleSpatialNavigation } from './utils/spatialNavigation';
 import { AuthProvider } from './context/AuthContext';
+
+// Lazy Load Pages for Faster Initial Render
+const Home = lazy(() => import('./pages/Home'));
+const Details = lazy(() => import('./pages/Details'));
+const Player = lazy(() => import('./pages/Player'));
+const Search = lazy(() => import('./pages/Search'));
+const Movies = lazy(() => import('./pages/Movies'));
+const TvShows = lazy(() => import('./pages/TvShows'));
+const Watchlist = lazy(() => import('./pages/Watchlist'));
+const Networks = lazy(() => import('./pages/Networks'));
+const NetworkDetails = lazy(() => import('./pages/NetworkDetails'));
+const Auth = lazy(() => import('./pages/Auth'));
+const Profile = lazy(() => import('./pages/Profile'));
+
+// Loading Fallback
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+    <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 // Component to handle global keydown events for navigation
 const TvNavigationController: React.FC = () => {
@@ -46,7 +55,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {!isPlayer && !isAuth && <Sidebar />}
       {!isAuth && <BackButton />}
       <div className="relative z-0">
-        {children}
+        <Suspense fallback={<LoadingScreen />}>
+          {children}
+        </Suspense>
       </div>
     </div>
   );
