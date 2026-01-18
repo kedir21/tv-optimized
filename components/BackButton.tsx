@@ -8,7 +8,8 @@ const BackButton: React.FC = () => {
   const location = useLocation();
 
   // Hide on Player as it has its own controls and immersive mode.
-  if (location.pathname.startsWith('/watch/')) {
+  // Hide on Home page (root path).
+  if (location.pathname.startsWith('/watch/') || location.pathname === '/') {
     return null;
   }
 
