@@ -65,6 +65,18 @@
         z-index: 10;
         border-color: white;
       }
+
+      /* View Transitions */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 0.4s;
+        mix-blend-mode: normal;
+      }
+      
+      ::view-transition-group(shared-poster) {
+        animation-duration: 0.4s;
+        z-index: 100;
+      }
     </style>
 <script type="importmap">
 {

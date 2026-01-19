@@ -104,12 +104,12 @@ const Search: React.FC = () => {
               if (isLast) {
                  return (
                   <div ref={lastElementRef} key={uniqueKey}>
-                     <MovieCard movie={item} onClick={() => navigate(detailsPath)} className="w-full h-full aspect-[2/3]" />
+                     <MovieCard movie={item} onClick={() => navigate(detailsPath, { state: { movie: item } })} className="w-full h-full aspect-[2/3]" />
                   </div>
                  );
               }
               return (
-                <MovieCard key={uniqueKey} movie={item} onClick={() => navigate(detailsPath)} className="w-full h-full aspect-[2/3]" />
+                <MovieCard key={uniqueKey} movie={item} onClick={() => navigate(detailsPath, { state: { movie: item } })} className="w-full h-full aspect-[2/3]" />
               );
             })}
         </div>

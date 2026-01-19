@@ -71,7 +71,7 @@ const Watchlist: React.FC = () => {
               <MovieCard 
                 key={`${item.id}-${index}`} 
                 movie={{...item, media_type: type} as ContentItem} 
-                onClick={() => navigate(`/details/${type}/${item.id}`)} 
+                onClick={() => navigate(`/details/${type}/${item.id}`, { state: { movie: item } })} 
                 className="w-full h-full aspect-[2/3]"
               />
             );

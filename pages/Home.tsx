@@ -4,15 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
-import { Movie } from '../types';
+import { Movie, ContentItem } from '../types';
 import Row from '../components/Row';
 import TvButton from '../components/TvButton';
 import { Play, Info } from 'lucide-react';
-import { HeroSkeleton } from '../components/Skeletons';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Ensures re-render on auth change
+  const { user } = useAuth();
   const [heroMovie, setHeroMovie] = useState<Movie | null>(null);
   
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -27,50 +26,47 @@ const Home: React.FC = () => {
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
 
   useEffect(() => {
-    const fetchTrending = async () => {
-      try {
-        const data = await api.getTrending();
-        setTrending(data);
-        if (data.length > 0) setHeroMovie(data[0]);
-      } catch (e) { console.error(e); } 
-      finally { setLoadingTrending(false); }
+    // Parallel fetching for speed
+    const fetchAll = async () => {
+        try {
+            const [trendingData, popularData, topRatedData] = await Promise.all([
+                api.getTrending(),
+                api.getPopular(),
+                api.getTopRated()
+            ]);
+
+            setTrending(trendingData);
+            if (trendingData.length > 0) setHeroMovie(trendingData[0]);
+            setLoadingTrending(false);
+
+            setPopular(popularData);
+            setLoadingPopular(false);
+
+            setTopRated(topRatedData);
+            setLoadingTopRated(false);
+        } catch (e) {
+            console.error(e);
+            setLoadingTrending(false);
+            setLoadingPopular(false);
+            setLoadingTopRated(false);
+        }
     };
 
-    const fetchPopular = async () => {
-      try {
-        const data = await api.getPopular();
-        setPopular(data);
-      } catch (e) { console.error(e); } 
-      finally { setLoadingPopular(false); }
-    };
-
-    const fetchTopRated = async () => {
-      try {
-        const data = await api.getTopRated();
-        setTopRated(data);
-      } catch (e) { console.error(e); } 
-      finally { setLoadingTopRated(false); }
-    };
-
-    fetchTrending();
-    fetchPopular();
-    fetchTopRated();
+    fetchAll();
     
-    // Initial load of watchlist based on current user (or guest)
     const fetchWatchlist = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
     };
     fetchWatchlist();
 
-    // Listen for watchlist updates
     const handleWatchlistUpdate = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
     };
     window.addEventListener('watchlist-updated', handleWatchlistUpdate);
     return () => window.removeEventListener('watchlist-updated', handleWatchlistUpdate);
-  }, [user]); // Re-fetch watchlist when user changes
+  }, [user]);
 
   // Auto focus the Play button on load
   useEffect(() => {
@@ -83,16 +79,15 @@ const Home: React.FC = () => {
     }
   }, [heroMovie]);
 
-  // Helper for navigation
-  const goToDetails = (id: number) => navigate(`/details/movie/${id}`);
+  const goToDetails = (item: ContentItem) => {
+    navigate(`/details/${item.media_type || 'movie'}/${item.id}`, { state: { movie: item } });
+  };
 
   return (
     <div className="min-h-screen pb-24 md:pb-28 bg-slate-950">
-      {/* Hero Section */}
-      {loadingTrending && !heroMovie ? (
-         <HeroSkeleton />
-      ) : heroMovie && (
-        <div className="relative h-[70vh] md:h-[85vh] w-full mb-8 group">
+      {/* Hero Section - Only render if we have data, no skeleton */}
+      {heroMovie && (
+        <div className="relative h-[70vh] md:h-[85vh] w-full mb-8 group animate-in fade-in duration-1000">
           {/* Backdrop */}
           <div className="absolute inset-0">
             <img 
@@ -118,7 +113,7 @@ const Home: React.FC = () => {
                 id="hero-play-btn"
                 variant="primary" 
                 icon={<Play fill="currentColor" size={20} />}
-                onClick={() => goToDetails(heroMovie.id)}
+                onClick={() => goToDetails(heroMovie)}
                 className="px-6 py-3 text-base md:px-8 md:py-4 md:text-lg shadow-xl shadow-white/5"
               >
                 Details
@@ -126,7 +121,7 @@ const Home: React.FC = () => {
               <TvButton 
                 variant="glass" 
                 icon={<Info size={20} />}
-                onClick={() => goToDetails(heroMovie.id)}
+                onClick={() => goToDetails(heroMovie)}
                 className="px-6 py-3 text-base md:px-8 md:py-4 md:text-lg"
               >
                 More Info
@@ -137,13 +132,10 @@ const Home: React.FC = () => {
       )}
 
       {/* Rows */}
-      <div className="space-y-4 md:space-y-8 -mt-16 md:-mt-24 relative z-20">
+      {/* If hero is missing (loading), push content down slightly or just render */}
+      <div className={`space-y-4 md:space-y-8 relative z-20 ${heroMovie ? '-mt-16 md:-mt-24' : 'pt-24'}`}>
         {watchlist.length > 0 && (
-          <Row title={`My List ${user ? `(${user.username})` : ''}`} items={watchlist} onItemSelect={(id) => {
-             const item = watchlist.find(m => m.id === id);
-             const type = item?.media_type || 'movie';
-             navigate(`/details/${type}/${id}`);
-          }} />
+          <Row title={`My List ${user ? `(${user.username})` : ''}`} items={watchlist} onItemSelect={goToDetails} />
         )}
         <Row title="Trending Now" items={trending} isLoading={loadingTrending} onItemSelect={goToDetails} />
         <Row title="Popular Movies" items={popular} isLoading={loadingPopular} onItemSelect={goToDetails} />

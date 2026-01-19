@@ -5,7 +5,6 @@ import { api, getLogoUrl } from '../services/api';
 import { NETWORK_MOVIE_MAPPING } from '../services/networks';
 import { Network, ContentItem, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
-import { MovieCardSkeleton } from '../components/Skeletons';
 import { ChevronDown, Filter, Globe } from 'lucide-react';
 
 type FilterType = 'tv' | 'movie';
@@ -37,7 +36,6 @@ const NetworkDetails: React.FC = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   
-  // Filters
   const [filterType, setFilterType] = useState<FilterType>('tv');
   const [selectedGenre, setSelectedGenre] = useState<number>(0);
   const [selectedCountry, setSelectedCountry] = useState<string>('ALL');
@@ -46,7 +44,6 @@ const NetworkDetails: React.FC = () => {
   const [movieGenres, setMovieGenres] = useState<Genre[]>([]);
   const [tvGenres, setTvGenres] = useState<Genre[]>([]);
 
-  // Infinite Scroll Observer
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback((node: HTMLDivElement) => {
     if (loading) return;
@@ -61,7 +58,6 @@ const NetworkDetails: React.FC = () => {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,7 +76,6 @@ const NetworkDetails: React.FC = () => {
     if (networkId) fetchData();
   }, [networkId]);
 
-  // Handle Tab Switch
   const handleTabChange = (type: FilterType) => {
       if (type === filterType) return;
       
@@ -89,10 +84,8 @@ const NetworkDetails: React.FC = () => {
       setPage(1);
       setContent([]);
       setHasMore(true);
-      // We keep selectedCountry active as it's relevant for both
   };
 
-  // Fetch Content Logic
   useEffect(() => {
     const fetchContent = async () => {
       if (page === 1) setLoading(true);
@@ -118,8 +111,6 @@ const NetworkDetails: React.FC = () => {
                  const res = await api.discoverMovies(page, selectedGenre, sortBy, options);
                  newContent = res;
              } else {
-                 // Fallback: If no specific mapping, we might return empty or try a loose search.
-                 // For now, return empty to avoid junk data.
                  newContent = []; 
              }
         }
@@ -149,7 +140,6 @@ const NetworkDetails: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
-       {/* Hero / Header */}
        <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 mb-8 md:mb-10 pb-8 border-b border-white/5">
           <div className="w-32 h-32 md:w-48 md:h-32 bg-white rounded-xl p-4 flex items-center justify-center shadow-2xl relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-tr from-gray-200 to-transparent opacity-50" />
@@ -169,11 +159,9 @@ const NetworkDetails: React.FC = () => {
           </div>
        </div>
 
-       {/* Premium Filter Bar */}
        <div className="sticky top-16 md:top-0 z-40 -mx-4 px-4 md:-mx-12 md:px-12 mb-8 transition-all">
            <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-2 md:p-3 rounded-2xl shadow-2xl flex flex-col xl:flex-row gap-3 justify-between items-center max-w-[1920px] mx-auto">
                
-               {/* Tab Switcher - Pill Design */}
                <div className="bg-black/50 p-1 rounded-xl flex gap-1 w-full xl:w-auto relative">
                    <button
                     onClick={() => handleTabChange('tv')}
@@ -197,10 +185,8 @@ const NetworkDetails: React.FC = () => {
                    </button>
                </div>
 
-               {/* Dropdown Filters */}
                <div className="flex flex-wrap items-center justify-end gap-2 w-full xl:w-auto">
                    
-                   {/* Country */}
                    <div className="relative group flex-grow md:flex-grow-0 min-w-[150px]">
                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                            <Globe size={14} className="text-gray-400 group-hover:text-white transition-colors" />
@@ -223,7 +209,6 @@ const NetworkDetails: React.FC = () => {
                        </div>
                    </div>
 
-                   {/* Genre */}
                    <div className="relative group flex-grow md:flex-grow-0 min-w-[170px]">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <div className="text-[10px] font-bold border border-gray-400 group-hover:border-white text-gray-400 group-hover:text-white px-1 rounded transition-colors">G</div>
@@ -246,7 +231,6 @@ const NetworkDetails: React.FC = () => {
                        </div>
                    </div>
 
-                   {/* Sort */}
                    <div className="relative group flex-grow md:flex-grow-0 min-w-[170px]">
                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                            <Filter size={14} className="text-gray-400 group-hover:text-white transition-colors" />
@@ -272,30 +256,26 @@ const NetworkDetails: React.FC = () => {
            </div>
        </div>
 
-       {/* Content Grid */}
-       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-        {loading && page === 1 ? (
-           [...Array(12)].map((_, i) => <MovieCardSkeleton key={i} className="w-full h-full" />)
-        ) : (
-          content.map((item, index) => {
+       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 animate-in fade-in duration-500">
+        {content.map((item, index) => {
             const isLast = content.length === index + 1;
             const uniqueKey = `${item.id}-${index}`;
             const mediaType = filterType === 'movie' ? 'movie' : 'tv';
             
             return (
-                <div ref={isLast ? lastElementRef : null} key={uniqueKey} className="animate-in fade-in duration-500">
+                <div ref={isLast ? lastElementRef : null} key={uniqueKey} className="w-full h-full">
                   <MovieCard 
                     movie={{...item, media_type: item.media_type || mediaType} as ContentItem} 
-                    onClick={() => navigate(`/details/${item.media_type || mediaType}/${item.id}`)} 
+                    onClick={() => navigate(`/details/${item.media_type || mediaType}/${item.id}`, { state: { movie: item } })} 
                     className="w-full h-full"
                   />
                 </div>
               );
           })
-        )}
+        }
       </div>
       
-      {loading && page > 1 && (
+      {loading && (
         <div className="flex justify-center py-10 w-full">
           <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
         </div>

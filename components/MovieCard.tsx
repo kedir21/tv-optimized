@@ -39,17 +39,36 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
     await watchlistService.toggleWatchlist(movie);
   };
 
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+    // View Transition Logic
+    if ('startViewTransition' in document) {
+        const img = (e.currentTarget as HTMLElement).querySelector('img');
+        if (img) {
+            (img.style as any).viewTransitionName = 'shared-poster';
+            const transition = (document as any).startViewTransition(() => {
+                onClick();
+            });
+            
+            transition.finished.finally(() => {
+                (img.style as any).viewTransitionName = '';
+            });
+            return;
+        }
+    }
+    onClick();
+  };
+
   // Default width is smaller on mobile (w-32) and larger on tablet/desktop
   const baseClasses = "focusable tv-focus relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-lg overflow-hidden cursor-pointer group bg-gray-800 border-2 border-transparent focus:border-white focus:z-20 shadow-lg hover:shadow-2xl transition-all duration-300";
 
   return (
     <div 
       className={`${baseClasses} ${className}`}
-      onClick={onClick}
+      onClick={handleClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onClick();
+        if (e.key === 'Enter') handleClick(e);
       }}
     >
       <img 

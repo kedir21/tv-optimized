@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { TvShow, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
-import { MovieCardSkeleton } from '../components/Skeletons';
 
 const TvShows: React.FC = () => {
   const navigate = useNavigate();
@@ -29,7 +28,6 @@ const TvShows: React.FC = () => {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // Initial Genre Fetch
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -42,14 +40,12 @@ const TvShows: React.FC = () => {
     fetchGenres();
   }, []);
 
-  // Reset when genre changes
   useEffect(() => {
     setShows([]);
     setPage(1);
     setHasMore(true);
   }, [selectedGenre]);
 
-  // Fetch Shows
   useEffect(() => {
     const fetchShows = async () => {
       setLoading(true);
@@ -74,7 +70,6 @@ const TvShows: React.FC = () => {
     <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
       <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">TV Shows</h1>
       
-      {/* Genre Filter */}
       <div className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2">
         {genres.map(genre => (
           <button
@@ -91,19 +86,14 @@ const TvShows: React.FC = () => {
         ))}
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
-        {shows.length === 0 && loading ? (
-          // Initial Loading Skeletons
-           [...Array(12)].map((_, i) => <MovieCardSkeleton key={i} className="w-full h-full" />)
-        ) : (
-          shows.map((show, index) => {
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 animate-in fade-in duration-500">
+        {shows.map((show, index) => {
             if (shows.length === index + 1) {
               return (
                 <div ref={lastElementRef} key={`${show.id}-${index}`}>
                   <MovieCard 
                     movie={{...show, media_type: 'tv'}} 
-                    onClick={() => navigate(`/details/tv/${show.id}`)} 
+                    onClick={() => navigate(`/details/tv/${show.id}`, { state: { movie: show } })} 
                     className="w-full h-full"
                   />
                 </div>
@@ -113,17 +103,16 @@ const TvShows: React.FC = () => {
                 <MovieCard 
                   key={`${show.id}-${index}`} 
                   movie={{...show, media_type: 'tv'}} 
-                  onClick={() => navigate(`/details/tv/${show.id}`)} 
+                  onClick={() => navigate(`/details/tv/${show.id}`, { state: { movie: show } })} 
                   className="w-full h-full"
                 />
               );
             }
           })
-        )}
+        }
       </div>
 
-      {/* Pagination Loading */}
-      {loading && shows.length > 0 && (
+      {loading && (
         <div className="flex justify-center py-10 w-full">
           <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         </div>

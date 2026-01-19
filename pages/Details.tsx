@@ -1,23 +1,29 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api, getImageUrl, getPosterUrl, getStillUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
-import { MovieDetails, TvDetails, SeasonDetails, Episode, ContentItem } from '../types';
+import { MovieDetails, TvDetails, SeasonDetails, ContentItem } from '../types';
 import TvButton from '../components/TvButton';
 import Row from '../components/Row';
 import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, List, ChevronDown } from 'lucide-react';
-import { DetailsSkeleton } from '../components/Skeletons';
 
 const Details: React.FC = () => {
   const { type, id } = useParams<{ type?: string; id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   
-  const [content, setContent] = useState<MovieDetails | TvDetails | null>(null);
+  // Use state passed from navigation if available for instant render
+  const initialData = location.state?.movie as ContentItem | undefined;
+  
+  const [content, setContent] = useState<MovieDetails | TvDetails | null>(
+    initialData ? (initialData as MovieDetails | TvDetails) : null
+  );
+  
   const [recommendations, setRecommendations] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialData);
   const [inWatchlist, setInWatchlist] = useState(false);
   
   // TV Specific State
@@ -30,7 +36,9 @@ const Details: React.FC = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       if (!id) return;
-      setLoading(true);
+      // If we don't have initial data, we are loading
+      if (!initialData) setLoading(true);
+      
       try {
         const data = await api.getDetails(id, mediaType);
         if (typeof data.id === 'string') data.id = parseInt(data.id);
@@ -38,17 +46,13 @@ const Details: React.FC = () => {
         
         setContent(data);
         
-        // Async watchlist check
         const inList = await watchlistService.isInWatchlist(data.id);
         setInWatchlist(inList);
 
-        // Fetch Recommendations
         const recs = await api.getRecommendations(parseInt(id), mediaType);
         setRecommendations(recs);
 
-        // If it's a TV show, try to set initial season
         if (mediaType === 'tv' && 'seasons' in data && data.seasons && data.seasons.length > 0) {
-            // Find the first season that isn't season 0 (specials), unless that's all there is
             const firstSeason = data.seasons.find(s => s.season_number > 0) || data.seasons[0];
             setSelectedSeasonNumber(firstSeason.season_number);
         }
@@ -59,11 +63,9 @@ const Details: React.FC = () => {
       }
     };
     fetchDetails();
-    // Reset scroll when navigating between details
     window.scrollTo(0, 0);
-  }, [id, mediaType, user]); // Refetch status if user changes
+  }, [id, mediaType, user]);
 
-  // Fetch Season Details when selected season changes
   useEffect(() => {
     const fetchSeason = async () => {
       if (mediaType !== 'tv' || !content || !id) return;
@@ -102,7 +104,7 @@ const Details: React.FC = () => {
 
   const toggleWatchlist = async () => {
     if (content) {
-      setInWatchlist(prev => !prev); // Optimistic
+      setInWatchlist(prev => !prev);
       await watchlistService.toggleWatchlist(content as any);
     }
   };
@@ -111,20 +113,22 @@ const Details: React.FC = () => {
     if (!content) return;
     navigate(`/watch/${content.id}?type=tv&s=${season}&e=${episode}`);
   };
+  
+  // Safe accessors
+  const safeContent = content || {} as any;
+  const title = 'title' in safeContent ? safeContent.title : safeContent.name;
+  const releaseDate = 'release_date' in safeContent ? safeContent.release_date : safeContent.first_air_date;
+  const runtime = 'runtime' in safeContent ? safeContent.runtime : (safeContent.episode_run_time?.[0] || 0);
+  const voteAverage = safeContent.vote_average || 0;
+  const genres = safeContent.genres || (safeContent.genre_ids ? [] : []); // Basic handling if full details not loaded
 
-  if (loading || !content) return <DetailsSkeleton />;
-
-  // Normalize fields
-  const title = 'title' in content ? content.title : content.name;
-  const releaseDate = 'release_date' in content ? content.release_date : content.first_air_date;
-  const runtime = 'runtime' in content ? content.runtime : (content.episode_run_time?.[0] || 0);
+  if (loading && !content) return <div className="min-h-screen bg-slate-950" />;
   
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-x-hidden">
-      {/* Full screen backdrop with heavy gradient overlay */}
+    <div className="min-h-screen bg-slate-950 relative overflow-x-hidden animate-in fade-in duration-500">
       <div className="fixed inset-0 z-0">
         <img 
-          src={getImageUrl(content.backdrop_path)} 
+          src={getImageUrl(safeContent.backdrop_path)} 
           alt={title}
           className="w-full h-full object-cover opacity-60"
         />
@@ -134,13 +138,14 @@ const Details: React.FC = () => {
 
       <div className="relative z-10 min-h-screen px-4 md:px-20 pt-20 md:pt-24 pb-24 md:pb-20">
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
-          {/* Left Column: Poster & Actions */}
           <div className="w-full lg:w-1/4 flex flex-col gap-6 md:gap-8">
             <div className="rounded-xl overflow-hidden shadow-2xl border-2 border-white/10 aspect-[2/3] max-w-sm mx-auto lg:max-w-none w-2/3 lg:w-full">
+              {/* IMPORTANT: This style enables the shared element transition */}
               <img 
-                src={getPosterUrl(content.poster_path)} 
+                src={getPosterUrl(safeContent.poster_path)} 
                 alt={title} 
                 className="w-full h-full object-cover"
+                style={{ viewTransitionName: 'shared-poster' }}
               />
             </div>
             
@@ -154,7 +159,7 @@ const Details: React.FC = () => {
                   if (mediaType === 'tv') {
                       playEpisode(selectedSeasonNumber, 1);
                   } else {
-                      navigate(`/watch/${content.id}?type=movie`);
+                      navigate(`/watch/${safeContent.id}?type=movie`);
                   }
                 }}
               >
@@ -172,7 +177,6 @@ const Details: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Info & Content */}
           <div className="w-full lg:w-3/4 flex flex-col">
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-4 leading-tight text-center lg:text-left drop-shadow-xl">
                 {title}
@@ -181,7 +185,7 @@ const Details: React.FC = () => {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 text-gray-300 text-sm md:text-lg mb-6 md:mb-8">
                 <div className="flex items-center gap-1 md:gap-2">
                   <Star className="text-yellow-500 w-4 h-4 md:w-5 md:h-5" fill="currentColor" />
-                  <span className="font-bold text-white">{content.vote_average.toFixed(1)}</span>
+                  <span className="font-bold text-white">{voteAverage.toFixed(1)}</span>
                 </div>
                 <div className="flex items-center gap-1 md:gap-2">
                   <Calendar className="w-4 h-4 md:w-5 md:h-5" />
@@ -197,35 +201,35 @@ const Details: React.FC = () => {
                   <>
                     <div className="flex items-center gap-1 md:gap-2">
                       <Layers className="w-4 h-4 md:w-5 md:h-5" />
-                      <span>{(content as TvDetails).number_of_seasons} Seasons</span>
+                      <span>{safeContent.number_of_seasons || '?'} Seasons</span>
                     </div>
                      <div className="flex items-center gap-1 md:gap-2">
                       <List className="w-4 h-4 md:w-5 md:h-5" />
-                      <span>{(content as TvDetails).number_of_episodes} Episodes</span>
+                      <span>{safeContent.number_of_episodes || '?'} Episodes</span>
                     </div>
                   </>
                 )}
 
-                {content.genres.map(g => (
-                  <span key={g.id} className="px-2 py-0.5 md:px-3 md:py-1 bg-white/10 rounded-full text-xs md:text-sm backdrop-blur-md">
-                    {g.name}
+                {genres.map((g: any) => (
+                  <span key={g.id || g} className="px-2 py-0.5 md:px-3 md:py-1 bg-white/10 rounded-full text-xs md:text-sm backdrop-blur-md">
+                    {g.name || 'Genre'}
                   </span>
                 ))}
               </div>
 
-              {content.tagline && (
-                <p className="text-lg md:text-xl text-gray-400 italic mb-4 md:mb-6 text-center lg:text-left">"{content.tagline}"</p>
+              {safeContent.tagline && (
+                <p className="text-lg md:text-xl text-gray-400 italic mb-4 md:mb-6 text-center lg:text-left">"{safeContent.tagline}"</p>
               )}
 
               <p className="text-base md:text-lg md:text-xl leading-relaxed text-gray-200 mb-8 md:mb-10 max-w-4xl text-center lg:text-left font-light">
-                {content.overview}
+                {safeContent.overview}
               </p>
 
-              {/* Cast Row */}
+              {safeContent.credits && (
               <div className="mb-8 md:mb-12">
                 <h3 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-white/90">Top Cast</h3>
                 <div className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar pb-4">
-                  {content.credits.cast.slice(0, 8).map(person => (
+                  {safeContent.credits.cast.slice(0, 8).map((person: any) => (
                     <div key={person.id} className="flex flex-col items-center w-20 md:w-24 text-center flex-shrink-0">
                       <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden mb-2 md:mb-3 border border-white/20 shadow-lg">
                         {person.profile_path ? (
@@ -244,21 +248,20 @@ const Details: React.FC = () => {
                   ))}
                 </div>
               </div>
+              )}
 
-              {/* TV Show Seasons & Episodes Section */}
-              {mediaType === 'tv' && (content as TvDetails).seasons && (
+              {mediaType === 'tv' && safeContent.seasons && (
                 <div className="mt-8 border-t border-white/10 pt-8">
                   <div className="flex flex-row items-center justify-between mb-6">
                      <h3 className="text-2xl md:text-3xl font-bold text-white">Episodes</h3>
                      
-                     {/* Season Dropdown */}
                      <div className="relative group">
                         <select
                           value={selectedSeasonNumber}
                           onChange={(e) => setSelectedSeasonNumber(parseInt(e.target.value))}
                           className="appearance-none bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 rounded-lg py-2.5 pl-4 pr-10 text-white font-medium focus:outline-none focus:ring-2 focus:ring-white/50 transition-all cursor-pointer focusable tv-focus min-w-[160px] md:min-w-[200px]"
                         >
-                          {(content as TvDetails).seasons.map((season) => (
+                          {safeContent.seasons.map((season: any) => (
                             <option key={season.id} value={season.season_number} className="bg-slate-900 text-white">
                               {season.name}
                             </option>
@@ -270,13 +273,10 @@ const Details: React.FC = () => {
                      </div>
                   </div>
 
-                  {/* Episodes List */}
                   <div className="flex flex-col gap-3 md:gap-4">
                     {loadingSeason ? (
-                       <div className="flex flex-col gap-4">
-                          {[...Array(5)].map((_, i) => (
-                             <div key={i} className="w-full h-32 md:h-40 bg-white/5 rounded-xl animate-pulse" />
-                          ))}
+                       <div className="flex justify-center py-12">
+                          <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                        </div>
                     ) : seasonDetails?.episodes && seasonDetails.episodes.length > 0 ? (
                       seasonDetails.episodes.map((episode) => (
@@ -290,7 +290,6 @@ const Details: React.FC = () => {
                             if (e.key === 'Enter') playEpisode(episode.season_number, episode.episode_number);
                           }}
                         >
-                          {/* Episode Thumbnail */}
                           <div className="w-full md:w-64 aspect-video rounded-lg overflow-hidden flex-shrink-0 relative shadow-md bg-black/20">
                              {episode.still_path ? (
                                <img 
@@ -304,19 +303,16 @@ const Details: React.FC = () => {
                                  <Tv size={32} className="text-white/20" />
                                </div>
                              )}
-                             {/* Play Overlay */}
                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-300">
                                 <div className="bg-white/20 p-3 rounded-full backdrop-blur-md transform scale-75 group-hover:scale-100 transition-transform">
                                   <Play fill="white" size={24} className="text-white ml-1" />
                                 </div>
                              </div>
-                             {/* Duration Badge */}
                              <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] font-bold text-white/90">
                                {episode.runtime ? `${episode.runtime}m` : ''}
                              </div>
                           </div>
 
-                          {/* Episode Info */}
                           <div className="flex flex-col justify-center flex-grow min-w-0">
                              <div className="flex items-center gap-3 mb-1">
                                <span className="text-red-500 font-bold text-sm md:text-base whitespace-nowrap">E{episode.episode_number}</span>
@@ -351,13 +347,12 @@ const Details: React.FC = () => {
           </div>
         </div>
 
-        {/* Recommendations Row */}
         {recommendations.length > 0 && (
            <div className="mt-12 md:mt-16 w-full -ml-4 md:-ml-12">
              <Row 
                title="You May Also Like" 
                items={recommendations} 
-               onItemSelect={(recId) => navigate(`/details/${mediaType}/${recId}`)} 
+               onItemSelect={(rec) => navigate(`/details/${mediaType}/${rec.id}`, { state: { movie: rec } })} 
              />
            </div>
         )}
