@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Server } from 'lucide-react';
+import { api } from '../services/api';
 import { NavigationDirection } from '../types';
 
 const Player: React.FC = () => {
@@ -9,6 +10,7 @@ const Player: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showControls, setShowControls] = useState(true);
+  const [originalLang, setOriginalLang] = useState<string>('en');
   
   // Parse Query Params
   const searchParams = new URLSearchParams(location.search);
@@ -26,6 +28,23 @@ const Player: React.FC = () => {
   });
 
   const controlsTimeout = useRef<number | null>(null);
+
+  // Check content language to prefer English dubs for foreign content
+  useEffect(() => {
+    if (!id) return;
+    const checkLanguage = async () => {
+        try {
+            // This hits the cache if user just came from Details page, so it's fast
+            const details = await api.getDetails(id, type as 'movie' | 'tv');
+            if (details.original_language) {
+                setOriginalLang(details.original_language);
+            }
+        } catch (e) {
+            console.warn("Could not determine content language", e);
+        }
+    };
+    checkLanguage();
+  }, [id, type]);
 
   // Auto-hide controls
   useEffect(() => {
@@ -71,25 +90,39 @@ const Player: React.FC = () => {
 
   // Construct URL based on selected source and type
   const getEmbedUrl = () => {
+    let url = '';
+    
+    // Base URL Selection
     if (source === 'cinemaos') {
         if (type === 'tv') {
-            return `https://cinemaos.tech/player/${id}/${season}/${episode}`;
+            url = `https://cinemaos.tech/player/${id}/${season}/${episode}`;
+        } else {
+            url = `https://cinemaos.tech/player/${id}`;
         }
-        return `https://cinemaos.tech/player/${id}`;
+    } else if (source === 'rivestream') {
+      if (type === 'tv') {
+        url = `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
+      } else {
+        url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
+      }
+    } else {
+      // Vidsrc fallback logic
+      if (type === 'tv') {
+        url = `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
+      } else {
+        url = `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
+      }
     }
 
-    if (source === 'rivestream') {
-      if (type === 'tv') {
-        return `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
-      }
-      return `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
+    // Append English Audio preference for foreign content
+    if (originalLang !== 'en') {
+        const separator = url.includes('?') ? '&' : '?';
+        // ds_lang=en is for VidSrc, lang=en is generic. 
+        // This attempts to select English Audio (Dub) on supported providers.
+        url += `${separator}ds_lang=en&lang=en`;
     }
-    
-    // Vidsrc fallback logic
-    if (type === 'tv') {
-        return `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
-    }
-    return `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
+
+    return url;
   };
 
   const handleSourceChange = (newSource: string) => {
@@ -101,8 +134,9 @@ const Player: React.FC = () => {
   return (
     <div className="fixed inset-0 bg-black z-50 overflow-hidden group">
       {/* Iframe Layer with Strict Sandbox for Ad Blocking */}
+      {/* Key includes originalLang to force reload if language preference changes */}
       <iframe
-        key={`${source}-${id}-${type}-${season}-${episode}`}
+        key={`${source}-${id}-${type}-${season}-${episode}-${originalLang}`}
         src={getEmbedUrl()}
         className="w-full h-full border-0 absolute inset-0 z-0"
         allowFullScreen

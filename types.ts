@@ -1,4 +1,5 @@
 
+
 export interface Movie {
   id: number;
   title: string;
@@ -10,6 +11,7 @@ export interface Movie {
   vote_average: number;
   genre_ids: number[];
   media_type?: 'movie';
+  original_language?: string;
 }
 
 export interface TvShow {
@@ -23,6 +25,7 @@ export interface TvShow {
   vote_average: number;
   genre_ids: number[];
   media_type?: 'tv';
+  original_language?: string;
 }
 
 export type ContentItem = Movie | TvShow;
