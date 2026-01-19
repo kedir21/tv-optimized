@@ -16,8 +16,15 @@ const Player: React.FC = () => {
   const season = searchParams.get('s') || '1';
   const episode = searchParams.get('e') || '1';
 
-  // Default source set to 'cinemaos'
-  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos'>('cinemaos');
+  // Load preferred source from local storage to load faster (better UX)
+  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos'>(() => {
+    const saved = localStorage.getItem('player_source_pref');
+    if (saved && ['vidsrc', 'rivestream', 'cinemaos'].includes(saved)) {
+      return saved as any;
+    }
+    return 'cinemaos';
+  });
+
   const controlsTimeout = useRef<number | null>(null);
 
   // Auto-hide controls
@@ -87,6 +94,8 @@ const Player: React.FC = () => {
 
   const handleSourceChange = (newSource: string) => {
       setSource(newSource as any);
+      // Persist preference
+      localStorage.setItem('player_source_pref', newSource);
   };
 
   return (
@@ -103,12 +112,13 @@ const Player: React.FC = () => {
         title="Content Player"
       />
 
-      {/* Overlay UI - Pointer events only enabled for buttons to allow clicking iframe header */}
+      {/* Overlay UI - Controls stacked on left side */}
       <div 
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 bg-gradient-to-b from-black/90 via-transparent to-transparent h-32 md:h-40 z-10 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 bg-gradient-to-b from-black/90 via-transparent to-transparent h-48 md:h-56 z-10 ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="p-4 md:p-8 flex items-start justify-between w-full max-w-7xl mx-auto">
-          <div className="flex gap-4 pointer-events-auto">
+        <div className="p-4 md:p-8 flex flex-col items-start gap-4 w-full max-w-7xl mx-auto">
+          {/* Row 1: Back Button & Season Info */}
+          <div className="flex flex-wrap items-center gap-4 pointer-events-auto">
               <button 
                 id="player-back-btn"
                 onClick={() => navigate(`/details/${type}/${id}`)}
@@ -119,17 +129,17 @@ const Player: React.FC = () => {
               </button>
               
               {type === 'tv' && (
-                  <div className="hidden md:block px-6 py-3 rounded-lg bg-black/50 text-white font-mono backdrop-blur-md border border-white/10 select-none">
+                  <div className="px-4 py-2 md:px-6 md:py-3 rounded-lg bg-black/50 text-white font-mono backdrop-blur-md border border-white/10 select-none text-sm md:text-base">
                     S{season} : E{episode}
                   </div>
               )}
           </div>
 
-          {/* Source Selector */}
-          <div className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-black/60 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-lg">
+          {/* Row 2: Source Selector (Stacked below Back Button) */}
+          <div className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-black/60 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-lg mt-1">
               <div className="flex items-center gap-2 px-2 text-gray-300">
                   <Server size={14} className="md:w-4 md:h-4" />
-                  <span className="text-xs md:text-sm font-medium hidden md:block">Source</span>
+                  <span className="text-xs md:text-sm font-medium">Source</span>
               </div>
               <div className="relative">
                   <select

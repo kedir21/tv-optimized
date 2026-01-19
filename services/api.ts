@@ -38,7 +38,8 @@ interface PaginatedResponse<T> {
 
 // Persistent Cache Configuration
 const CACHE_PREFIX = 'tmdb_cache_v1_';
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes persistence
+// Increased to 6 hours to reduce network calls and skeleton states for better UX
+const CACHE_DURATION = 6 * 60 * 60 * 1000; 
 
 // Helper to read from LocalStorage safely
 const getCache = (key: string) => {
