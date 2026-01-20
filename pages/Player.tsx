@@ -24,7 +24,7 @@ const Player: React.FC = () => {
     if (saved && ['vidsrc', 'rivestream', 'cinemaos'].includes(saved)) {
       return saved as any;
     }
-    return 'cinemaos';
+    return 'cinemaos'; // Default to cinemaos
   });
 
   const controlsTimeout = useRef<number | null>(null);
@@ -117,8 +117,6 @@ const Player: React.FC = () => {
     // Append English Audio preference for foreign content
     if (originalLang !== 'en') {
         const separator = url.includes('?') ? '&' : '?';
-        // ds_lang=en is for VidSrc, lang=en is generic. 
-        // This attempts to select English Audio (Dub) on supported providers.
         url += `${separator}ds_lang=en&lang=en`;
     }
 

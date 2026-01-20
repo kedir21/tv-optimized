@@ -54,18 +54,24 @@ const Home: React.FC = () => {
 
     fetchAll();
     
-    const fetchWatchlist = async () => {
+    // Initial fetch of local data
+    const fetchLocalData = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
     };
-    fetchWatchlist();
+    fetchLocalData();
 
+    // Listen for updates
     const handleWatchlistUpdate = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
     };
+    
     window.addEventListener('watchlist-updated', handleWatchlistUpdate);
-    return () => window.removeEventListener('watchlist-updated', handleWatchlistUpdate);
+    
+    return () => {
+        window.removeEventListener('watchlist-updated', handleWatchlistUpdate);
+    };
   }, [user]);
 
   // Auto focus the Play button on load
@@ -134,9 +140,11 @@ const Home: React.FC = () => {
       {/* Rows */}
       {/* If hero is missing (loading), push content down slightly or just render */}
       <div className={`space-y-4 md:space-y-8 relative z-20 ${heroMovie ? '-mt-16 md:-mt-24' : 'pt-24'}`}>
+        
         {watchlist.length > 0 && (
           <Row title={`My List ${user ? `(${user.username})` : ''}`} items={watchlist} onItemSelect={goToDetails} />
         )}
+        
         <Row title="Trending Now" items={trending} isLoading={loadingTrending} onItemSelect={goToDetails} />
         <Row title="Popular Movies" items={popular} isLoading={loadingPopular} onItemSelect={goToDetails} />
         <Row title="Top Rated" items={topRated} isLoading={loadingTopRated} onItemSelect={goToDetails} />
