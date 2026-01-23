@@ -10,58 +10,53 @@ const Sidebar: React.FC = () => {
   const { user } = useAuth();
 
   const navItems = [
-    { icon: <Home size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Home", path: "/" },
-    { icon: <Search size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Search", path: "/search" },
-    { icon: <Film size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Movies", path: "/movies" },
-    { icon: <Tv size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "TV", path: "/tv" },
-    { icon: <Radio size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Networks", path: "/networks" },
-    { icon: <Heart size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "My List", path: "/watchlist" },
+    { icon: <Home size={24} />, label: "Home", path: "/" },
+    { icon: <Search size={24} />, label: "Search", path: "/search" },
+    { icon: <Film size={24} />, label: "Movies", path: "/movies" },
+    { icon: <Tv size={24} />, label: "TV", path: "/tv" },
+    { icon: <Radio size={24} />, label: "Networks", path: "/networks" },
+    { icon: <Heart size={24} />, label: "My List", path: "/watchlist" },
   ];
 
-  // Add Profile or Login based on auth state
   const profileItem = user 
-    ? { icon: <UserIcon size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Profile", path: "/profile" }
-    : { icon: <LogIn size={24} className="md:w-6 md:h-6 w-5 h-5" />, label: "Sign In", path: "/auth" };
+    ? { icon: <UserIcon size={24} />, label: "Profile", path: "/profile" }
+    : { icon: <LogIn size={24} />, label: "Sign In", path: "/auth" };
 
   const handleNav = (path: string) => {
     navigate(path);
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 md:h-20 z-50 bg-black/95 backdrop-blur-2xl border-t border-white/10 shadow-2xl pb-safe-area-inset-bottom flex items-center justify-center gap-1 md:gap-8 px-2">
-      
-      {/* Container for centering max width if needed, or just flex the items */}
-      <div className="flex w-full max-w-7xl items-center justify-around md:justify-center md:gap-12">
-        {navItems.map((item) => (
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+      <div className="bg-gray-900/70 backdrop-blur-2xl rounded-full shadow-lg border border-white/10 overflow-hidden">
+        <div className="flex items-center justify-center gap-2 p-2">
+          {navItems.map((item) => (
             <button
-            key={item.label}
-            onClick={() => handleNav(item.path)}
-            className={`focusable tv-focus p-2 rounded-xl flex flex-col items-center gap-1 transition-all duration-300 min-w-[3.5rem] md:min-w-[4.5rem] ${
-                location.pathname === item.path 
-                ? 'text-white' 
-                : 'text-gray-500 hover:text-white hover:bg-white/5'
-            }`}
-            aria-label={item.label}
+              key={item.label}
+              onClick={() => handleNav(item.path)}
+              className={`relative focusable tv-focus p-3 rounded-full flex items-center justify-center transition-all duration-300 ${
+                location.pathname === item.path
+                  ? 'bg-red-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              aria-label={item.label}
             >
-            {item.icon}
-            <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+              {item.icon}
             </button>
-        ))}
-
-        <button
+          ))}
+          <div className="w-px h-6 bg-white/10 mx-2"></div>
+          <button
             onClick={() => handleNav(profileItem.path)}
-            className={`focusable tv-focus p-2 rounded-xl flex flex-col items-center gap-1 transition-all duration-300 min-w-[3.5rem] md:min-w-[4.5rem] group ${
-                location.pathname === profileItem.path 
-                ? 'text-red-500' 
-                : 'text-red-500/70 hover:text-red-500 hover:bg-red-900/10'
+            className={`relative focusable tv-focus p-3 rounded-full flex items-center justify-center transition-all duration-300 group ${
+              location.pathname === profileItem.path
+                ? 'bg-red-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-white/10'
             }`}
             aria-label={profileItem.label}
-            >
-            <div className="relative">
-                {profileItem.icon}
-            </div>
-            <span className="text-[10px] font-bold tracking-wide uppercase">{profileItem.label}</span>
-        </button>
+          >
+            {profileItem.icon}
+          </button>
+        </div>
       </div>
     </div>
   );
