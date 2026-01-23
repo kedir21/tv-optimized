@@ -153,12 +153,12 @@ const Details: React.FC = () => {
         </div>
       )}
 
-      <div className="relative z-30 pt-12 pb-32 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto">
+      <div className="relative z-30 pt-12 pb-32 px-4 sm:px-8 xl:px-16 max-w-[1500px] mx-auto"> {/* Adjusted max-w and padding */}
         <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
           
           {/* Left: Poster & Main Actions */}
           <div className="w-full lg:w-80 flex-shrink-0 flex flex-col items-center lg:items-start space-y-8 lg:sticky lg:top-24">
-            <div className="relative group rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.15)] border border-white/10 w-64 sm:w-80 lg:w-full">
+            <div className="relative group rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.15)] border border-white/10 w-64 sm:w-80 lg:w-full max-w-xs lg:max-w-none"> {/* Added max-w-xs */}
               <img 
                 src={getPosterUrl(safeContent.poster_path)} 
                 alt={title} 
@@ -168,7 +168,7 @@ const Details: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
-            <div className="w-full space-y-4">
+            <div className="w-full space-y-4 max-w-xs lg:max-w-none"> {/* Added max-w-xs */}
                <TvButton 
                 id="details-play-btn"
                 variant="primary" 
@@ -209,7 +209,7 @@ const Details: React.FC = () => {
             </div>
 
             {/* Side Info Cards */}
-            <div className="w-full hidden lg:grid grid-cols-1 gap-4 pt-4">
+            <div className="w-full hidden lg:grid grid-cols-1 gap-4 pt-4 max-w-xs lg:max-w-none"> {/* Added max-w-xs */}
                 <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-3xl space-y-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Status</p>
                     <p className="text-lg font-bold">{safeContent.status}</p>
@@ -241,7 +241,7 @@ const Details: React.FC = () => {
                 )}
               </div>
 
-              <h1 className="text-5xl sm:text-7xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.8] uppercase italic drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.8] uppercase italic drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"> {/* Adjusted font sizes */}
                 {title}
               </h1>
 
@@ -403,8 +403,8 @@ const Details: React.FC = () => {
         </div>
 
         {recommendations.length > 0 && (
-           <div className="mt-32 -mx-4 sm:-mx-8 lg:-mx-16 pt-16 border-t border-white/10">
-             <div className="px-4 sm:px-8 lg:px-16 mb-8">
+           <div className="mt-32 -mx-4 sm:-mx-8 xl:-mx-16 pt-16 border-t border-white/10"> {/* Adjusted negative margin */}
+             <div className="px-4 sm:px-8 xl:px-16 mb-8"> {/* Adjusted padding */}
                 <h2 className="text-sm font-black uppercase tracking-[0.4em] text-white/30 mb-2">Simulation</h2>
                 <h3 className="text-4xl sm:text-5xl font-black uppercase italic tracking-tighter">Related Content</h3>
              </div>
