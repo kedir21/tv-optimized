@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Server } from 'lucide-react';
@@ -24,7 +23,7 @@ const Player: React.FC = () => {
     if (saved && ['vidsrc', 'rivestream', 'cinemaos'].includes(saved)) {
       return saved as any;
     }
-    return 'cinemaos'; // Default to cinemaos
+    return 'vidsrc'; // Changed default from 'cinemaos' to 'vidsrc'
   });
 
   const controlsTimeout = useRef<number | null>(null);
@@ -106,7 +105,7 @@ const Player: React.FC = () => {
         url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
       }
     } else {
-      // Vidsrc fallback logic
+      // Vidsrc fallback logic (now default)
       if (type === 'tv') {
         url = `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
       } else {
@@ -179,8 +178,8 @@ const Player: React.FC = () => {
                       onChange={(e) => handleSourceChange(e.target.value)}
                       className="appearance-none bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium py-2 pl-3 pr-8 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors border border-transparent w-28 md:w-32"
                   >
-                      <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
                       <option value="vidsrc" className="bg-gray-900 text-white">VidSrc</option>
+                      <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
                       <option value="rivestream" className="bg-gray-900 text-white">RiveStream</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/70">
