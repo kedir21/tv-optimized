@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { MovieDetails, TvDetails, SeasonDetails, ContentItem } from '../types';
 import TvButton from '../components/TvButton';
 import Row from '../components/Row';
-import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, ChevronDown, X, Youtube, Users, Globe, Award, Film, BookOpen, Sparkles } from 'lucide-react';
+import { Play, Plus, Check, Star, Calendar, Clock, Layers, Tv, ChevronDown, X, Youtube, Users, Globe, Award, Film, BookOpen, Sparkles, Share2, Heart, AlertCircle } from 'lucide-react';
 
 const Details: React.FC = () => {
   const { type, id } = useParams<{ type?: string; id: string }>();
@@ -24,11 +24,13 @@ const Details: React.FC = () => {
   const [loading, setLoading] = useState(!initialData);
   const [inWatchlist, setInWatchlist] = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [isHoveringPlay, setIsHoveringPlay] = useState(false);
   
   const [selectedSeasonNumber, setSelectedSeasonNumber] = useState<number>(1);
   const [seasonDetails, setSeasonDetails] = useState<SeasonDetails | null>(null);
   const [loadingSeason, setLoadingSeason] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'cast' | 'episodes' | 'details'>('overview');
+  const [showNotification, setShowNotification] = useState(false);
 
   const mediaType = (type as 'movie' | 'tv') || 'movie';
 
@@ -97,6 +99,8 @@ const Details: React.FC = () => {
     if (content) {
       setInWatchlist(prev => !prev);
       await watchlistService.toggleWatchlist(content as any);
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
     }
   };
 
@@ -114,196 +118,274 @@ const Details: React.FC = () => {
   const trailer = safeContent.videos?.results?.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube');
 
   if (loading && !content) return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 to-black flex items-center justify-center">
       <div className="relative">
-        <div className="w-16 h-16 border-4 border-purple-500/20 rounded-full animate-spin" />
-        <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+        <div className="w-20 h-20 border-4 border-[#1CE783]/20 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-[#1CE783] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+        <div className="absolute -inset-4 bg-gradient-to-r from-[#1CE783]/10 to-transparent blur-xl" />
       </div>
     </div>
   );
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white font-sans overflow-x-hidden">
-      {/* Hero Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-gray-900 z-10" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white font-sans overflow-x-hidden">
+      {/* Notification Toast */}
+      {showNotification && (
+        <div className="fixed top-6 right-6 z-[200] animate-in slide-in-from-right-10 duration-300">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 backdrop-blur-xl border border-gray-700 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#1CE783]/20 rounded-full flex items-center justify-center">
+              <Check className="w-5 h-5 text-[#1CE783]" />
+            </div>
+            <div>
+              <p className="font-semibold">Added to My Stuff</p>
+              <p className="text-sm text-white/60">Content saved to your watchlist</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Background with Hulu-inspired gradient */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-gray-950 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 z-20" />
         <img 
           src={getImageUrl(safeContent.backdrop_path)} 
           alt={title}
-          className="w-full h-full object-cover scale-105 animate-slow-zoom opacity-40 blur-[1px]"
+          className="w-full h-full object-cover scale-105 animate-slow-zoom opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-gray-900/30 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-gray-950 z-30" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1CE783]/30 to-transparent z-40" />
       </div>
 
       {/* Trailer Modal */}
       {showTrailer && trailer && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-300">
-            <button 
-                onClick={() => setShowTrailer(false)}
-                className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all z-[110] backdrop-blur-md"
-            >
-                <X size={24} />
-            </button>
-            <div className="w-full max-w-6xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                <iframe 
-                    src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&modestbranding=1&rel=0`}
-                    className="w-full h-full"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title={`${title} Trailer`}
-                />
-            </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 animate-in fade-in duration-300">
+          <button 
+            onClick={() => setShowTrailer(false)}
+            className="absolute top-6 right-6 p-3 bg-gray-900/90 hover:bg-gray-800/90 rounded-full transition-all z-[110] backdrop-blur-xl border border-gray-700 group"
+          >
+            <X size={24} className="group-hover:scale-110 transition-transform" />
+          </button>
+          <div className="w-full max-w-6xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-gray-700 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1CE783]/10 via-transparent to-purple-500/10" />
+            <iframe 
+              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&modestbranding=1&rel=0&controls=1&showinfo=0`}
+              className="w-full h-full relative z-10"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              title={`${title} Trailer`}
+            />
+          </div>
         </div>
       )}
 
       {/* Main Content */}
       <div className="relative z-30">
-        {/* Hero Section */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {/* Hero Section - Enhanced Hulu-style */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 lg:pt-14">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 xl:gap-16">
             
-            {/* Poster & Quick Actions - Mobile First */}
+            {/* Poster & Actions - Mobile Optimized */}
             <div className="lg:w-1/3 xl:w-1/4 flex flex-col items-center lg:items-start">
-              <div className="w-full max-w-sm lg:max-w-none">
-                {/* Poster */}
-                <div className="relative group rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl hover:shadow-purple-500/20 transition-all duration-500 mb-6">
+              <div className="w-full max-w-xs sm:max-w-sm lg:max-w-none">
+                {/* Poster with Hulu-inspired border */}
+                <div className="relative group rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl hover:shadow-[#1CE783]/20 transition-all duration-500 mb-6 lg:mb-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#1CE783]/20 via-transparent to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#1CE783] via-purple-500 to-blue-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-700" />
                   <img 
                     src={getPosterUrl(safeContent.poster_path)} 
                     alt={title}
-                    className="w-full h-auto object-cover transform group-hover:scale-[1.02] transition-transform duration-700"
+                    className="w-full h-auto object-cover transform group-hover:scale-[1.03] transition-transform duration-700 relative z-0"
                     style={{ viewTransitionName: 'shared-poster' }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20" />
                 </div>
 
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-6 lg:mb-8">
-                  <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
-                    <Star className="w-5 h-5 text-yellow-400 mx-auto mb-2" />
-                    <div className="text-2xl font-bold font-mono">{voteAverage.toFixed(1)}</div>
-                    <div className="text-xs text-white/60 uppercase tracking-wider mt-1">Rating</div>
+                {/* Quick Stats - Premium Cards */}
+                <div className="grid grid-cols-2 gap-3 mb-6 lg:mb-8">
+                  <div className="bg-gray-900/80 backdrop-blur-xl rounded-xl p-4 border border-gray-700 hover:border-[#1CE783]/50 transition-colors group">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                      <span className="text-2xl font-bold font-mono tracking-tight">{voteAverage.toFixed(1)}</span>
+                    </div>
+                    <div className="text-xs text-white/60 uppercase tracking-wider text-center">Rating</div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
-                    <Calendar className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-                    <div className="text-2xl font-bold font-mono">{releaseDate ? releaseDate.split('-')[0] : 'N/A'}</div>
-                    <div className="text-xs text-white/60 uppercase tracking-wider mt-1">Year</div>
+                  <div className="bg-gray-900/80 backdrop-blur-xl rounded-xl p-4 border border-gray-700 hover:border-purple-500/50 transition-colors group">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Calendar className="w-5 h-5 text-purple-400" />
+                      <span className="text-2xl font-bold font-mono tracking-tight">
+                        {releaseDate ? releaseDate.split('-')[0] : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-white/60 uppercase tracking-wider text-center">Year</div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Hulu-style */}
                 <div className="space-y-3">
-                  <TvButton 
-                    variant="primary"
-                    icon={<Play className="w-5 h-5" />}
-                    className="w-full h-12 rounded-xl text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30"
+                  <button
+                    onMouseEnter={() => setIsHoveringPlay(true)}
+                    onMouseLeave={() => setIsHoveringPlay(false)}
                     onClick={() => {
                       if (mediaType === 'tv') {
-                          playEpisode(selectedSeasonNumber, 1);
+                        playEpisode(selectedSeasonNumber, 1);
                       } else {
-                          navigate(`/watch/${safeContent.id}?type=movie`);
+                        navigate(`/watch/${safeContent.id}?type=movie`);
                       }
                     }}
+                    className="w-full h-14 rounded-xl text-lg font-bold bg-gradient-to-r from-[#1CE783] to-[#00ED82] hover:from-[#00ED82] hover:to-[#1CE783] shadow-lg shadow-[#1CE783]/30 hover:shadow-[#1CE783]/50 transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden"
                   >
-                    {mediaType === 'movie' ? 'Watch Now' : 'Start Watching'}
-                  </TvButton>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                    <Play className={`w-5 h-5 transition-transform duration-300 ${isHoveringPlay ? 'scale-110' : ''}`} fill="black" />
+                    <span className="text-gray-900">
+                      {mediaType === 'movie' ? 'Watch Now' : 'Start Watching'}
+                    </span>
+                  </button>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <TvButton 
-                      variant={inWatchlist ? "secondary" : "glass"}
-                      icon={inWatchlist ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                      className={`h-11 rounded-xl ${inWatchlist ? 'bg-purple-600/20 border-purple-500/50' : 'border-white/10 hover:bg-white/10'}`}
+                    <button
                       onClick={toggleWatchlist}
+                      className={`h-12 rounded-xl border transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden ${
+                        inWatchlist 
+                          ? 'bg-[#1CE783]/20 border-[#1CE783]/50 text-[#1CE783]' 
+                          : 'bg-gray-900/80 border-gray-700 hover:border-gray-600 hover:bg-gray-800/80'
+                      }`}
                     >
-                      {inWatchlist ? 'In List' : 'My List'}
-                    </TvButton>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                      {inWatchlist ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span className="font-medium">In My Stuff</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          <span className="font-medium">My Stuff</span>
+                        </>
+                      )}
+                    </button>
                     
                     {trailer && (
-                      <TvButton 
-                        variant="glass"
-                        icon={<Youtube className="w-4 h-4" />}
-                        className="h-11 rounded-xl border border-white/10 hover:bg-white/10"
+                      <button
                         onClick={() => setShowTrailer(true)}
+                        className="h-12 rounded-xl border border-gray-700 bg-gray-900/80 hover:bg-gray-800/80 hover:border-gray-600 transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden"
                       >
-                        Trailer
-                      </TvButton>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                        <Youtube className="w-4 h-4" />
+                        <span className="font-medium">Trailer</span>
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Main Content Area */}
+            {/* Main Content Area - Enhanced Typography */}
             <div className="lg:w-2/3 xl:w-3/4">
-              {/* Title & Meta */}
+              {/* Title & Meta with Premium Styling */}
               <div className="mb-6 lg:mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full text-xs font-semibold text-purple-300 border border-purple-500/30">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="px-3 py-1.5 bg-gradient-to-r from-[#1CE783]/10 to-purple-500/10 rounded-full text-xs font-semibold text-[#1CE783] border border-[#1CE783]/30 backdrop-blur-sm">
                     {mediaType === 'movie' ? 'MOVIE' : 'SERIES'}
                   </span>
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <span>{safeContent.status}</span>
-                    <span>•</span>
-                    <span>{safeContent.original_language?.toUpperCase()}</span>
+                  <div className="flex items-center gap-3 text-sm text-white/70">
+                    <div className="flex items-center gap-1">
+                      <div className="w-1 h-1 bg-[#1CE783] rounded-full" />
+                      <span>{safeContent.status}</span>
+                    </div>
+                    <span className="text-white/40">•</span>
+                    <span className="uppercase tracking-wide">{safeContent.original_language}</span>
                   </div>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight leading-[1.1] bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
                   {title}
                 </h1>
                 
-                <div className="flex flex-wrap items-center gap-4 text-white/80">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-blue-400" />
-                    <span className="font-medium">{mediaType === 'movie' ? `${Math.floor(runtime / 60)}h ${runtime % 60}m` : `${safeContent.number_of_seasons} Season${safeContent.number_of_seasons !== 1 ? 's' : ''}`}</span>
+                <div className="flex flex-wrap items-center gap-4 text-white/80 mb-6">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-gray-700">
+                    <Clock className="w-4 h-4 text-[#1CE783]" />
+                    <span className="font-medium">
+                      {mediaType === 'movie' 
+                        ? `${Math.floor(runtime / 60)}h ${runtime % 60}m` 
+                        : `${safeContent.number_of_seasons} Season${safeContent.number_of_seasons !== 1 ? 's' : ''}`
+                      }
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {genres.map((g: any) => (
-                      <span key={g.id} className="px-3 py-1 bg-white/5 rounded-full text-sm border border-white/10">
+                    {genres.slice(0, 3).map((g: any) => (
+                      <span 
+                        key={g.id} 
+                        className="px-3 py-1.5 bg-gray-900/50 backdrop-blur-sm rounded-lg text-sm border border-gray-700 hover:border-[#1CE783]/50 transition-colors cursor-pointer"
+                      >
                         {g.name}
                       </span>
                     ))}
+                    {genres.length > 3 && (
+                      <span className="px-3 py-1.5 bg-gray-900/50 backdrop-blur-sm rounded-lg text-sm border border-gray-700 text-white/60">
+                        +{genres.length - 3}
+                      </span>
+                    )}
                   </div>
                 </div>
+
+                {/* Premium Tagline */}
+                {safeContent.tagline && (
+                  <div className="relative pl-5 border-l-2 border-[#1CE783] mb-6">
+                    <p className="text-lg lg:text-xl italic text-white/90 font-light">
+                      "{safeContent.tagline}"
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Navigation Tabs */}
+              {/* Premium Navigation Tabs */}
               <div className="mb-6 lg:mb-8">
-                <div className="flex space-x-1 border-b border-white/10">
-                  {['overview', 'cast', mediaType === 'tv' ? 'episodes' : 'details', 'details'].filter(tab => tab !== 'episodes' || mediaType === 'tv').map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab as any)}
-                      className={`px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px capitalize ${
-                        activeTab === tab
-                          ? 'text-white border-purple-500'
-                          : 'text-white/60 border-transparent hover:text-white'
-                      }`}
-                    >
-                      {tab === 'overview' && 'Overview'}
-                      {tab === 'cast' && 'Cast & Crew'}
-                      {tab === 'episodes' && 'Episodes'}
-                      {tab === 'details' && 'Details'}
-                    </button>
-                  ))}
+                <div className="flex space-x-0 border-b border-gray-700">
+                  {['overview', 'cast', mediaType === 'tv' ? 'episodes' : 'details', 'details']
+                    .filter(tab => tab !== 'episodes' || mediaType === 'tv')
+                    .map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab as any)}
+                        className={`px-5 py-3 text-sm font-semibold transition-all duration-300 relative overflow-hidden group ${
+                          activeTab === tab
+                            ? 'text-white'
+                            : 'text-white/60 hover:text-white'
+                        }`}
+                      >
+                        {tab === 'overview' && 'Overview'}
+                        {tab === 'cast' && 'Cast & Crew'}
+                        {tab === 'episodes' && 'Episodes'}
+                        {tab === 'details' && 'Details'}
+                        
+                        {/* Active indicator */}
+                        {activeTab === tab && (
+                          <>
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#1CE783] to-purple-500" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#1CE783] to-purple-500 blur-sm" />
+                          </>
+                        )}
+                        
+                        {/* Hover effect */}
+                        <div className="absolute bottom-0 left-1/2 right-1/2 h-0.5 bg-gradient-to-r from-transparent via-[#1CE783] to-transparent transition-all duration-300 group-hover:left-0 group-hover:right-0" />
+                      </button>
+                    ))}
                 </div>
               </div>
 
-              {/* Tab Content */}
+              {/* Tab Content with Premium Cards */}
               <div className="mb-8 lg:mb-12">
                 {/* Overview Tab */}
                 {activeTab === 'overview' && (
-                  <div className="space-y-6">
-                    {safeContent.tagline && (
-                      <div className="relative pl-4 border-l-2 border-purple-500">
-                        <p className="text-xl lg:text-2xl italic text-white/90 font-light">
-                          "{safeContent.tagline}"
-                        </p>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-purple-400" />
+                  <div className="space-y-8">
+                    <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                      <h3 className="text-2xl font-semibold mb-4 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#1CE783]/20 to-purple-500/20 rounded-lg flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-[#1CE783]" />
+                        </div>
                         Synopsis
                       </h3>
                       <p className="text-white/80 leading-relaxed text-lg font-light">
@@ -311,21 +393,29 @@ const Details: React.FC = () => {
                       </p>
                     </div>
 
-                    {/* Featured Crew */}
+                    {/* Featured Crew - Premium Cards */}
                     {safeContent.credits?.crew && (
-                      <div>
-                        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-yellow-400" />
+                      <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                        <h3 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 text-yellow-400" />
+                          </div>
                           Featured Crew
                         </h3>
-                        <div className="flex flex-wrap gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                           {safeContent.credits.crew
                             .filter((person: any) => ['Director', 'Writer', 'Creator'].includes(person.job))
                             .slice(0, 3)
                             .map((person: any) => (
-                              <div key={person.id} className="bg-white/5 rounded-xl p-4 border border-white/10 min-w-[200px]">
-                                <p className="font-semibold text-white">{person.name}</p>
+                              <div 
+                                key={person.id} 
+                                className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 hover:border-[#1CE783]/50 transition-colors group cursor-pointer"
+                              >
+                                <p className="font-semibold text-white group-hover:text-[#1CE783] transition-colors">
+                                  {person.name}
+                                </p>
                                 <p className="text-sm text-white/60 mt-1">{person.job}</p>
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#1CE783]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                             ))}
                         </div>
@@ -336,26 +426,29 @@ const Details: React.FC = () => {
 
                 {/* Cast & Crew Tab */}
                 {activeTab === 'cast' && safeContent.credits?.cast && (
-                  <div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                    <h3 className="text-2xl font-semibold mb-6">Cast & Crew</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                       {safeContent.credits.cast.slice(0, 12).map((person: any) => (
                         <div key={person.id} className="group cursor-pointer">
                           <div className="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative">
                             {person.profile_path ? (
-                              <img 
-                                src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
-                                alt={person.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              />
+                              <>
+                                <img 
+                                  src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                                  alt={person.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              </>
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                                <Users className="w-8 h-8 text-white/20" />
+                                <Users className="w-12 h-12 text-white/10" />
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </div>
-                          <div>
-                            <p className="font-semibold text-white group-hover:text-purple-300 transition-colors">
+                          <div className="px-1">
+                            <p className="font-semibold text-white group-hover:text-[#1CE783] transition-colors truncate">
                               {person.name}
                             </p>
                             <p className="text-sm text-white/60 truncate">
@@ -372,13 +465,13 @@ const Details: React.FC = () => {
                 {activeTab === 'episodes' && mediaType === 'tv' && (
                   <div className="space-y-6">
                     {/* Season Selector */}
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold">Episodes</h3>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                      <h3 className="text-2xl font-semibold">Episodes</h3>
                       <div className="relative">
                         <select
                           value={selectedSeasonNumber}
                           onChange={(e) => setSelectedSeasonNumber(parseInt(e.target.value))}
-                          className="appearance-none bg-white/5 border border-white/10 rounded-lg px-4 py-2 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="appearance-none bg-gray-900/80 backdrop-blur-xl border border-gray-700 rounded-xl px-5 py-3 pr-12 text-white focus:outline-none focus:ring-2 focus:ring-[#1CE783] focus:border-transparent hover:border-gray-600 transition-colors cursor-pointer"
                         >
                           {safeContent.seasons.map((season: any) => (
                             <option key={season.id} value={season.season_number}>
@@ -386,14 +479,17 @@ const Details: React.FC = () => {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
                       </div>
                     </div>
 
                     {/* Episodes List */}
                     {loadingSeason ? (
                       <div className="flex justify-center py-12">
-                        <div className="w-8 h-8 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+                        <div className="relative">
+                          <div className="w-12 h-12 border-3 border-[#1CE783]/20 rounded-full animate-spin" />
+                          <div className="w-12 h-12 border-3 border-[#1CE783] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+                        </div>
                       </div>
                     ) : seasonDetails?.episodes && seasonDetails.episodes.length > 0 ? (
                       <div className="space-y-4">
@@ -401,40 +497,44 @@ const Details: React.FC = () => {
                           <div
                             key={episode.id}
                             onClick={() => playEpisode(episode.season_number, episode.episode_number)}
-                            className="group bg-white/5 hover:bg-white/10 rounded-xl p-4 border border-white/10 hover:border-purple-500/30 transition-all duration-300 cursor-pointer"
+                            className="group bg-gray-900/60 backdrop-blur-xl hover:bg-gray-800/60 rounded-xl p-5 border border-gray-700 hover:border-[#1CE783]/50 transition-all duration-300 cursor-pointer relative overflow-hidden"
                           >
-                            <div className="flex items-start gap-4">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#1CE783]/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                            <div className="flex flex-col sm:flex-row items-start gap-4 relative z-10">
                               <div className="relative flex-shrink-0">
-                                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <span className="text-lg font-bold">{episode.episode_number}</span>
+                                <div className="w-14 h-14 bg-gradient-to-br from-[#1CE783] to-green-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-[#1CE783]/20">
+                                  <span className="text-lg font-bold text-gray-900">{episode.episode_number}</span>
                                 </div>
                               </div>
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2">
-                                  <h4 className="font-semibold text-lg group-hover:text-purple-300 transition-colors">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                                  <h4 className="font-semibold text-lg group-hover:text-[#1CE783] transition-colors truncate">
                                     {episode.name}
                                   </h4>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-4">
                                     {episode.runtime && (
-                                      <span className="text-sm text-white/60">
+                                      <span className="text-sm text-white/60 whitespace-nowrap">
                                         {episode.runtime}m
                                       </span>
                                     )}
-                                    <span className="text-sm text-white/60">
+                                    <span className="text-sm text-white/60 whitespace-nowrap">
                                       {episode.air_date || 'TBA'}
                                     </span>
                                   </div>
                                 </div>
-                                <p className="text-white/70 line-clamp-2">
+                                <p className="text-white/70 line-clamp-2 mb-3">
                                   {episode.overview || 'No description available.'}
                                 </p>
-                                <div className="flex items-center gap-3 mt-3">
-                                  <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-4">
+                                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/50 rounded-lg">
                                     <Star className="w-4 h-4 text-yellow-400" />
                                     <span className="text-sm font-medium">
                                       {episode.vote_average?.toFixed(1) || 'N/A'}
                                     </span>
                                   </div>
+                                  <button className="text-sm text-[#1CE783] hover:text-white transition-colors font-medium">
+                                    Watch Episode →
+                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -442,8 +542,9 @@ const Details: React.FC = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12 text-white/60">
-                        No episodes available for this season.
+                      <div className="text-center py-12 text-white/60 bg-gray-900/60 rounded-2xl border border-gray-700">
+                        <AlertCircle className="w-12 h-12 mx-auto mb-4 text-white/20" />
+                        <p className="text-lg">No episodes available for this season.</p>
                       </div>
                     )}
                   </div>
@@ -451,25 +552,31 @@ const Details: React.FC = () => {
 
                 {/* Details Tab */}
                 {activeTab === 'details' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left Column */}
                     <div className="space-y-6">
-                      <div>
-                        <h4 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                          <Globe className="w-5 h-5 text-blue-400" />
-                          Production
+                      {/* Production Companies */}
+                      <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                        <h4 className="text-xl font-semibold mb-4 flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg flex items-center justify-center">
+                            <Globe className="w-5 h-5 text-blue-400" />
+                          </div>
+                          Production Companies
                         </h4>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {safeContent.production_companies?.map((company: any) => (
-                            <div key={company.id} className="flex items-center gap-3">
+                            <div key={company.id} className="flex items-center gap-4 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors">
                               {company.logo_path ? (
-                                <img 
-                                  src={`https://image.tmdb.org/t/p/w92${company.logo_path}`}
-                                  alt={company.name}
-                                  className="h-8 object-contain"
-                                />
+                                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center p-2">
+                                  <img 
+                                    src={`https://image.tmdb.org/t/p/w92${company.logo_path}`}
+                                    alt={company.name}
+                                    className="max-w-full max-h-full object-contain"
+                                  />
+                                </div>
                               ) : (
-                                <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
-                                  <Film className="w-4 h-4 text-white/40" />
+                                <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                                  <Film className="w-6 h-6 text-white/30" />
                                 </div>
                               )}
                               <span className="font-medium">{company.name}</span>
@@ -478,11 +585,15 @@ const Details: React.FC = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <h4 className="text-lg font-semibold mb-3">Spoken Languages</h4>
-                        <div className="flex flex-wrap gap-2">
+                      {/* Languages */}
+                      <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                        <h4 className="text-xl font-semibold mb-4">Spoken Languages</h4>
+                        <div className="flex flex-wrap gap-3">
                           {safeContent.spoken_languages?.map((lang: any) => (
-                            <span key={lang.iso_639_1} className="px-3 py-1 bg-white/5 rounded-full text-sm border border-white/10">
+                            <span 
+                              key={lang.iso_639_1} 
+                              className="px-4 py-2 bg-gray-800/50 rounded-lg text-sm border border-gray-700 hover:border-[#1CE783]/50 transition-colors"
+                            >
                               {lang.english_name}
                             </span>
                           ))}
@@ -490,24 +601,30 @@ const Details: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Right Column */}
                     <div className="space-y-6">
-                      {safeContent.budget > 0 && (
-                        <div>
-                          <h4 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                            <Award className="w-5 h-5 text-green-400" />
-                            Budget & Revenue
-                          </h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-white/70">Budget:</span>
-                              <span className="font-medium">
-                                ${(safeContent.budget / 1000000).toFixed(1)}M
-                              </span>
+                      {/* Financial Info */}
+                      {(safeContent.budget > 0 || safeContent.revenue > 0) && (
+                        <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                          <h4 className="text-xl font-semibold mb-4 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg flex items-center justify-center">
+                              <Award className="w-5 h-5 text-green-400" />
                             </div>
+                            Financial Information
+                          </h4>
+                          <div className="space-y-4">
+                            {safeContent.budget > 0 && (
+                              <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+                                <span className="text-white/70">Budget</span>
+                                <span className="font-semibold text-lg">
+                                  ${(safeContent.budget / 1000000).toFixed(1)}M
+                                </span>
+                              </div>
+                            )}
                             {safeContent.revenue > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-white/70">Revenue:</span>
-                                <span className="font-medium">
+                              <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+                                <span className="text-white/70">Revenue</span>
+                                <span className="font-semibold text-lg text-[#1CE783]">
                                   ${(safeContent.revenue / 1000000).toFixed(1)}M
                                 </span>
                               </div>
@@ -516,32 +633,39 @@ const Details: React.FC = () => {
                         </div>
                       )}
 
-                      <div>
-                        <h4 className="text-lg font-semibold mb-3">Status</h4>
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                          <div className={`w-2 h-2 rounded-full ${
-                            safeContent.status === 'Released' ? 'bg-green-500' :
-                            safeContent.status === 'In Production' ? 'bg-yellow-500' :
-                            safeContent.status === 'Post Production' ? 'bg-blue-500' :
-                            'bg-gray-500'
-                          }`} />
-                          <span className="font-medium">{safeContent.status}</span>
+                      {/* Status & Links */}
+                      <div className="space-y-6">
+                        <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                          <h4 className="text-xl font-semibold mb-4">Status</h4>
+                          <div className="inline-flex items-center gap-3 px-5 py-3 bg-gray-800/50 rounded-xl border border-gray-700">
+                            <div className={`w-3 h-3 rounded-full ${
+                              safeContent.status === 'Released' ? 'bg-[#1CE783]' :
+                              safeContent.status === 'In Production' ? 'bg-yellow-500' :
+                              safeContent.status === 'Post Production' ? 'bg-blue-500' :
+                              'bg-gray-500'
+                            }`} />
+                            <span className="font-semibold">{safeContent.status}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      {safeContent.homepage && (
-                        <div>
-                          <h4 className="text-lg font-semibold mb-3">Official Site</h4>
-                          <a 
-                            href={safeContent.homepage}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
-                          >
-                            Visit Website
-                          </a>
-                        </div>
-                      )}
+                        {safeContent.homepage && (
+                          <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700">
+                            <h4 className="text-xl font-semibold mb-4">Official Links</h4>
+                            <a 
+                              href={safeContent.homepage}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl border border-gray-700 hover:border-[#1CE783] hover:from-gray-700 hover:to-gray-800 transition-all group"
+                            >
+                              <Globe className="w-5 h-5 text-[#1CE783]" />
+                              <span className="font-medium">Visit Official Website</span>
+                              <div className="ml-2 transform group-hover:translate-x-1 transition-transform">
+                                →
+                              </div>
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -550,9 +674,9 @@ const Details: React.FC = () => {
           </div>
         </div>
 
-        {/* Recommendations Section */}
+        {/* Recommendations Section - Premium Carousel */}
         {recommendations.length > 0 && (
-          <div className="border-t border-white/10 mt-8 lg:mt-12">
+          <div className="border-t border-gray-700 mt-8 lg:mt-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-2xl lg:text-3xl font-bold mb-2">More Like This</h2>
