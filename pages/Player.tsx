@@ -107,9 +107,9 @@ const Player: React.FC = () => {
     } else {
       // Vidsrc fallback logic (now default)
       if (type === 'tv') {
-        url = `https://vidsrc.cc/v3/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
+        url = `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
       } else {
-        url = `https://vidsrc.cc/v3/embed/movie/${id}?autoPlay=true`;
+        url = `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
       }
     }
 
