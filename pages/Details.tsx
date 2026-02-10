@@ -26,6 +26,8 @@ const TABS = [
   { id: 'similar', label: 'Similar' }
 ];
 
+import Meta from '../components/Meta';
+
 const Details: React.FC = () => {
   const { type, id } = useParams<{ type?: string; id: string }>();
   const navigate = useNavigate();
@@ -162,8 +164,16 @@ const Details: React.FC = () => {
     return true;
   });
 
+  const contentTitle = 'title' in content ? content.title : content.name;
+
   return (
     <div className="min-h-screen bg-[#020617] text-white selection:bg-cyan-500/30">
+      <Meta
+        title={contentTitle}
+        description={content.overview?.substring(0, 160)}
+        image={getImageUrl(content.backdrop_path)}
+        type={mediaType === 'movie' ? 'video.movie' : 'video.tv_show'}
+      />
       {/* Notification */}
       <AnimatePresence>
         {notification && (
@@ -174,8 +184,8 @@ const Details: React.FC = () => {
             className="fixed top-6 right-6 z-[60]"
           >
             <div className={`px-4 py-3 rounded-xl backdrop-blur-xl border shadow-2xl ${notification.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
-                : 'bg-red-500/10 border-red-500/30 text-red-200'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+              : 'bg-red-500/10 border-red-500/30 text-red-200'
               }`}>
               <p className="text-sm font-bold flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />

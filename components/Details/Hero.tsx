@@ -42,8 +42,9 @@ export const Hero: React.FC<HeroProps> = ({
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 1.2 }}
                     src={getImageUrl(content.backdrop_path)}
-                    alt={title}
+                    alt={`${title} backdrop`}
                     className="w-full h-full object-cover"
+                    fetchPriority="high"
                 />
             </div>
 
@@ -59,7 +60,7 @@ export const Hero: React.FC<HeroProps> = ({
                             transition={{ delay: 0.2 }}
                             className="relative w-48 sm:w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10"
                         >
-                            <img src={getPosterUrl(content.poster_path)} alt={title} className="w-full h-full object-cover" />
+                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover" />
                         </motion.div>
                     </div>
 
@@ -75,23 +76,23 @@ export const Hero: React.FC<HeroProps> = ({
                                 <span className="px-2 py-0.5 rounded bg-white/10 text-white border border-white/20 uppercase tracking-wider">
                                     {mediaType}
                                 </span>
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1" aria-label={`Rating: ${rating} out of 10`}>
                                     <Star className="w-4 h-4 text-yellow-500 fill-current" />
                                     {rating}
                                 </span>
                                 <span>•</span>
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1" aria-label={`Release year: ${year}`}>
                                     <Calendar className="w-4 h-4" />
                                     {year}
                                 </span>
                                 <span>•</span>
                                 {mediaType === 'movie' ? (
-                                    <span className="flex items-center gap-1">
+                                    <span className="flex items-center gap-1" aria-label={`Runtime: ${(content as MovieDetails).runtime} minutes`}>
                                         <Clock className="w-4 h-4" />
                                         {(content as MovieDetails).runtime}m
                                     </span>
                                 ) : (
-                                    <span>{(content as TvDetails).number_of_seasons} Seasons</span>
+                                    <span aria-label={`${(content as TvDetails).number_of_seasons} seasons`}>{(content as TvDetails).number_of_seasons} Seasons</span>
                                 )}
                             </div>
 
@@ -120,6 +121,7 @@ export const Hero: React.FC<HeroProps> = ({
                                     whileTap={{ scale: 0.95 }}
                                     onClick={onPlay}
                                     className="px-8 py-4 rounded-xl bg-white text-[#020617] font-bold flex items-center gap-3 transition-colors hover:bg-white/90"
+                                    aria-label={`Watch ${title} now`}
                                 >
                                     <Play className="w-6 h-6 fill-current" />
                                     <span>Watch Now</span>
@@ -132,6 +134,7 @@ export const Hero: React.FC<HeroProps> = ({
                                         onClick={onTrailer}
                                         className="p-4 rounded-xl bg-white/10 border border-white/20 text-white backdrop-blur-md transition-all hover:bg-white/20"
                                         title="Watch Trailer"
+                                        aria-label={`Watch trailer for ${title}`}
                                     >
                                         <Youtube className="w-6 h-6" />
                                     </motion.button>
@@ -142,10 +145,11 @@ export const Hero: React.FC<HeroProps> = ({
                                     whileTap={{ scale: 0.95 }}
                                     onClick={onWatchlistToggle}
                                     className={`p-4 rounded-xl border transition-all backdrop-blur-md flex items-center gap-2 font-semibold ${inWatchlist
-                                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
-                                            : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                                        ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
+                                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
                                         }`}
                                     title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+                                    aria-label={inWatchlist ? `Remove ${title} from watchlist` : `Add ${title} to watchlist`}
                                 >
                                     {inWatchlist ? <Check className="w-6 h-6" /> : <Bookmark className="w-6 h-6" />}
                                     <span className="hidden sm:inline">{inWatchlist ? "Saved" : "Add to List"}</span>
@@ -157,6 +161,7 @@ export const Hero: React.FC<HeroProps> = ({
                                     onClick={onShare}
                                     className="p-4 rounded-xl bg-white/10 border border-white/20 text-white backdrop-blur-md transition-all hover:bg-white/20"
                                     title="Share"
+                                    aria-label={`Share ${title}`}
                                 >
                                     <Share2 className="w-6 h-6" />
                                 </motion.button>
@@ -173,7 +178,7 @@ export const Hero: React.FC<HeroProps> = ({
                             className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 group cursor-pointer"
                             onClick={onPlay}
                         >
-                            <img src={getPosterUrl(content.poster_path)} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                                 <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center text-[#020617] shadow-xl transform scale-75 group-hover:scale-100 transition-transform">
                                     <Play className="w-10 h-10 fill-current ml-1" />

@@ -7,19 +7,21 @@ import MovieCard from '../components/MovieCard';
 import { ChevronDown, Globe } from 'lucide-react';
 
 const COUNTRIES = [
-    { code: 'ALL', name: 'Global' },
-    { code: 'US', name: 'United States' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'KR', name: 'South Korea' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'CN', name: 'China' },
-    { code: 'IN', name: 'India' },
-    { code: 'FR', name: 'France' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'AU', name: 'Australia' }
+  { code: 'ALL', name: 'Global' },
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'CN', name: 'China' },
+  { code: 'IN', name: 'India' },
+  { code: 'FR', name: 'France' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' }
 ];
+
+import Meta from '../components/Meta';
 
 const Movies: React.FC = () => {
   const navigate = useNavigate();
@@ -30,18 +32,18 @@ const Movies: React.FC = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  
+
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback((node: HTMLDivElement) => {
     if (loading) return;
     if (observer.current) observer.current.disconnect();
-    
+
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
         setPage(prev => prev + 1);
       }
     });
-    
+
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
@@ -75,9 +77,9 @@ const Movies: React.FC = () => {
           setHasMore(false);
         } else {
           setMovies(prev => {
-             const existingIds = new Set(prev.map(m => m.id));
-             const uniqueNew = newMovies.filter(m => !existingIds.has(m.id));
-             return [...prev, ...uniqueNew];
+            const existingIds = new Set(prev.map(m => m.id));
+            const uniqueNew = newMovies.filter(m => !existingIds.has(m.id));
+            return [...prev, ...uniqueNew];
           });
         }
       } catch (e) {
@@ -90,76 +92,83 @@ const Movies: React.FC = () => {
     fetchMovies();
   }, [page, selectedGenre, selectedCountry]);
 
+  const selectedGenreName = genres.find(g => g.id === selectedGenre)?.name || 'Movies';
+
   return (
-    <div className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
+      <Meta
+        title={`${selectedGenreName} - Explore Movies`}
+        description={`Browse our extensive collection of ${selectedGenreName.toLowerCase()}. Discover popular and trending movies from around the world.`}
+      />
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-white">Movies</h1>
-        
+
         <div className="relative group min-w-[160px] max-w-[200px]">
-           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-white transition-colors pointer-events-none">
-               <Globe size={16} />
-           </div>
-           <select 
-            value={selectedCountry} 
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-white transition-colors pointer-events-none">
+            <Globe size={16} />
+          </div>
+          <select
+            value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
             className="appearance-none w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white text-sm rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all cursor-pointer focusable tv-focus font-medium"
-           >
-               {COUNTRIES.map(c => (
-                   <option key={c.code} value={c.code} className="bg-slate-900 text-white">{c.name}</option>
-               ))}
-           </select>
-           <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            aria-label="Filter by country"
+          >
+            {COUNTRIES.map(c => (
+              <option key={c.code} value={c.code} className="bg-slate-900 text-white">{c.name}</option>
+            ))}
+          </select>
+          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
         </div>
-      </div>
-      
-      <div className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2">
+      </header>
+
+      <section className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2" aria-label="Genre filters">
         {genres.map(genre => (
           <button
             key={genre.id}
             onClick={() => setSelectedGenre(genre.id)}
-            className={`focusable tv-focus whitespace-nowrap px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${
-              selectedGenre === genre.id 
-                ? 'bg-red-600 text-white' 
+            className={`focusable tv-focus whitespace-nowrap px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${selectedGenre === genre.id
+                ? 'bg-red-600 text-white'
                 : 'bg-white/10 text-gray-300 hover:bg-white/20'
-            }`}
+              }`}
+            aria-pressed={selectedGenre === genre.id}
           >
             {genre.name}
           </button>
         ))}
-      </div>
+      </section>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 animate-in fade-in duration-500">
+      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 animate-in fade-in duration-500" aria-label="Movie list">
         {movies.map((movie, index) => {
-            if (movies.length === index + 1) {
-              return (
-                <div ref={lastElementRef} key={`${movie.id}-${index}`}>
-                  <MovieCard 
-                    movie={movie} 
-                    onClick={() => navigate(`/details/movie/${movie.id}`, { state: { movie } })} 
-                    className="w-full h-full"
-                  />
-                </div>
-              );
-            } else {
-              return (
-                <MovieCard 
-                  key={`${movie.id}-${index}`} 
-                  movie={movie} 
-                  onClick={() => navigate(`/details/movie/${movie.id}`, { state: { movie } })} 
+          if (movies.length === index + 1) {
+            return (
+              <div ref={lastElementRef} key={`${movie.id}-${index}`}>
+                <MovieCard
+                  movie={movie}
+                  onClick={() => navigate(`/details/movie/${movie.id}`, { state: { movie } })}
                   className="w-full h-full"
                 />
-              );
-            }
-          })
+              </div>
+            );
+          } else {
+            return (
+              <MovieCard
+                key={`${movie.id}-${index}`}
+                movie={movie}
+                onClick={() => navigate(`/details/movie/${movie.id}`, { state: { movie } })}
+                className="w-full h-full"
+              />
+            );
+          }
+        })
         }
-      </div>
+      </section>
 
       {loading && (
-        <div className="flex justify-center py-10 w-full">
+        <div className="flex justify-center py-10 w-full" aria-live="polite" aria-busy="true">
           <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 
