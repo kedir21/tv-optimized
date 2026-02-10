@@ -41,12 +41,27 @@ export interface MovieDetails extends Movie {
   genres: { id: number; name: string }[];
   runtime: number;
   tagline: string;
+  status: string;
+  budget: number;
+  revenue: number;
+  homepage: string;
+  production_companies: { id: number; name: string; logo_path: string | null; origin_country: string }[];
+  spoken_languages: { english_name: string; iso_639_1: string; name: string }[];
+  production_countries: { iso_3166_1: string; name: string }[];
   credits: {
     cast: CastMember[];
     crew: CrewMember[];
   };
   videos: {
     results: Video[];
+  };
+  "watch/providers"?: {
+    results: Record<string, {
+      link: string;
+      flatrate?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+      rent?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+      buy?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+    }>;
   };
   // TV specific fields might be present if we reuse this or creating a union
   number_of_seasons?: number;
@@ -57,12 +72,25 @@ export interface MovieDetails extends Movie {
 export interface TvDetails extends TvShow {
   genres: { id: number; name: string }[];
   tagline: string;
+  status: string;
+  homepage: string;
+  production_companies: { id: number; name: string; logo_path: string | null; origin_country: string }[];
+  spoken_languages: { english_name: string; iso_639_1: string; name: string }[];
+  origin_country: string[];
   credits: {
     cast: CastMember[];
     crew: CrewMember[];
   };
   videos: {
     results: Video[];
+  };
+  "watch/providers"?: {
+    results: Record<string, {
+      link: string;
+      flatrate?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+      rent?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+      buy?: { logo_path: string; provider_id: number; provider_name: string; display_priority: number }[];
+    }>;
   };
   number_of_seasons: number;
   number_of_episodes: number;
@@ -130,6 +158,21 @@ export interface Video {
 export interface Genre {
   id: number;
   name: string;
+}
+
+export interface Review {
+  author: string;
+  author_details: {
+    name: string;
+    username: string;
+    avatar_path: string | null;
+    rating: number | null;
+  };
+  content: string;
+  created_at: string;
+  id: string;
+  updated_at: string;
+  url: string;
 }
 
 export interface User {

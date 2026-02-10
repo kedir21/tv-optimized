@@ -26,7 +26,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
       const exists = await watchlistService.isInWatchlist(movie.id);
       setInWatchlist(exists);
     };
-    
+
     checkStatus();
     window.addEventListener('watchlist-updated', checkStatus);
     return () => window.removeEventListener('watchlist-updated', checkStatus);
@@ -42,27 +42,27 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
   const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     // View Transition Logic
     if ('startViewTransition' in document) {
-        const img = (e.currentTarget as HTMLElement).querySelector('img');
-        if (img) {
-            (img.style as any).viewTransitionName = 'shared-poster';
-            const transition = (document as any).startViewTransition(() => {
-                onClick();
-            });
-            
-            transition.finished.finally(() => {
-                (img.style as any).viewTransitionName = '';
-            });
-            return;
-        }
+      const img = (e.currentTarget as HTMLElement).querySelector('img');
+      if (img) {
+        (img.style as any).viewTransitionName = 'shared-poster';
+        const transition = (document as any).startViewTransition(() => {
+          onClick();
+        });
+
+        transition.finished.finally(() => {
+          (img.style as any).viewTransitionName = '';
+        });
+        return;
+      }
     }
     onClick();
   };
 
   // Default width is smaller on mobile (w-32) and larger on tablet/desktop
-  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-lg overflow-hidden cursor-pointer group bg-gray-800 border-2 border-transparent focus:border-white focus:z-20 shadow-lg hover:shadow-2xl transition-all duration-300";
+  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer group bg-slate-900 border border-white/5 focus:border-white focus:z-20 shadow-lg hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300";
 
   return (
-    <div 
+    <div
       className={`${baseClasses} ${className}`}
       onClick={handleClick}
       role="button"
@@ -71,13 +71,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
         if (e.key === 'Enter') handleClick(e);
       }}
     >
-      <img 
-        src={getPosterUrl(movie.poster_path)} 
+      <img
+        src={getPosterUrl(movie.poster_path)}
         alt={title}
         loading="lazy"
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110"
       />
-      
+
       {/* Type Badge */}
       {movie.media_type === 'tv' && (
         <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-white border border-white/20">
@@ -89,8 +89,8 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
       <button
         onClick={handleToggleWatchlist}
         className={`absolute top-2 right-2 p-1.5 md:p-2 rounded-full backdrop-blur-md transition-all duration-200 z-10 
-          ${inWatchlist 
-            ? 'bg-red-600/90 text-white opacity-100 scale-100' 
+          ${inWatchlist
+            ? 'bg-red-600/90 text-white opacity-100 scale-100'
             : 'bg-black/40 text-white opacity-0 group-focus:opacity-100 group-hover:opacity-100 hover:bg-red-600 scale-90 group-hover:scale-100'
           }`}
         title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}

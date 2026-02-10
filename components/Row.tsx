@@ -16,14 +16,16 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
   if (items.length === 0) return null;
 
   return (
-    <div className="mb-8 md:mb-12 pl-4 md:pl-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className="text-lg md:text-2xl font-bold text-gray-100 mb-3 md:mb-6 tracking-wide pl-1">{title}</h2>
-      <div className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar py-2 md:py-4 px-1 scroll-smooth">
+    <div className="mb-12 md:mb-20 pl-4 md:pl-12">
+      <h2 className="text-2xl md:text-3xl font-black text-white mb-6 md:mb-8 tracking-tighter uppercase pl-1 border-l-4 border-cyan-500 ml-[-1rem] md:ml-[-3rem] pl-[1rem] md:pl-[3rem]">
+        {title}
+      </h2>
+      <div className="flex gap-6 md:gap-8 overflow-x-auto no-scrollbar py-4 px-1 scroll-smooth">
         {items.map((item) => (
-          <MovieCard 
-            key={item.id} 
-            movie={item} 
-            onClick={() => onItemSelect(item)} 
+          <MovieCard
+            key={item.id}
+            movie={item}
+            onClick={() => onItemSelect(item)}
           />
         ))}
         {/* Spacer for end of row */}
