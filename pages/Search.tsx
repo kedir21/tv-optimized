@@ -1,15 +1,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { ContentItem } from '../types';
 import MovieCard from '../components/MovieCard';
 import { Search as SearchIcon } from 'lucide-react';
 
 import Meta from '../components/Meta';
+import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
 
 const Search: React.FC = () => {
-  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -108,17 +107,25 @@ const Search: React.FC = () => {
           {results.map((item, index) => {
             const uniqueKey = `${item.id}-${item.media_type}-${index}`;
             const isLast = results.length === index + 1;
-            const detailsPath = `/details/${item.media_type || 'movie'}/${item.id}`;
 
             if (isLast) {
               return (
                 <div ref={lastElementRef} key={uniqueKey}>
-                  <MovieCard movie={item} onClick={() => navigate(detailsPath, { state: { movie: item } })} className="w-full h-full aspect-[2/3]" />
+                  <MovieCard
+                    movie={item}
+                    onClick={() => openDetailsInNewTab((item.media_type || 'movie') as 'movie' | 'tv', item.id)}
+                    className="w-full h-full aspect-[2/3]"
+                  />
                 </div>
               );
             }
             return (
-              <MovieCard key={uniqueKey} movie={item} onClick={() => navigate(detailsPath, { state: { movie: item } })} className="w-full h-full aspect-[2/3]" />
+              <MovieCard
+                key={uniqueKey}
+                movie={item}
+                onClick={() => openDetailsInNewTab((item.media_type || 'movie') as 'movie' | 'tv', item.id)}
+                className="w-full h-full aspect-[2/3]"
+              />
             );
           })}
         </section>

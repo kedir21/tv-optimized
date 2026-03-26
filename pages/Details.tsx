@@ -17,6 +17,7 @@ import { Hero } from '../components/Details/Hero';
 import { Tabs } from '../components/Details/Tabs';
 import { ReviewCard } from '../components/Details/ReviewCard';
 import { DetailsSkeleton } from '../components/Skeletons';
+import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -519,7 +520,13 @@ const Details: React.FC = () => {
                   </div>
                   <h3 className="text-2xl lg:text-3xl font-black">You Might Also Like</h3>
                 </div>
-                <Row items={recommendations} title="" onItemSelect={(item) => navigate(`/details/${item.media_type || mediaType}/${item.id}`, { state: { movie: item } })} />
+                <Row
+                  items={recommendations}
+                  title=""
+                  onItemSelect={(item) =>
+                    openDetailsInNewTab((item.media_type || mediaType) as 'movie' | 'tv', item.id)
+                  }
+                />
               </div>
             )}
           </motion.div>

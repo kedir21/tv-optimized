@@ -18,9 +18,9 @@ const Player: React.FC = () => {
   const episode = searchParams.get('e') || '1';
 
   // Load preferred source from local storage to load faster (better UX)
-  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos'>(() => {
+  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos' | 'vidfast'>(() => {
     const saved = localStorage.getItem('player_source_pref');
-    if (saved && ['vidsrc', 'rivestream', 'cinemaos'].includes(saved)) {
+    if (saved && ['vidsrc', 'rivestream', 'cinemaos', 'vidfast'].includes(saved)) {
       return saved as any;
     }
     return 'vidsrc'; // Changed default from 'cinemaos' to 'vidsrc'
@@ -104,6 +104,12 @@ const Player: React.FC = () => {
       } else {
         url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
       }
+    } else if (source === 'vidfast') {
+      if (type === 'tv') {
+        url = `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`;
+      } else {
+        url = `https://vidfast.pro/movie/${id}?autoPlay=true`;
+      }
     } else {
       // Vidsrc fallback logic (now default)
       if (type === 'tv') {
@@ -139,7 +145,8 @@ const Player: React.FC = () => {
         allowFullScreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerPolicy="origin"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+        // VidFast sometimes requires less restrictive iframe sandboxing to work properly.
+        sandbox={source === 'vidfast' ? undefined : 'allow-scripts allow-same-origin allow-forms allow-presentation'}
         title="Content Player"
       />
 
@@ -181,6 +188,7 @@ const Player: React.FC = () => {
                       <option value="vidsrc" className="bg-gray-900 text-white">VidSrc</option>
                       <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
                       <option value="rivestream" className="bg-gray-900 text-white">RiveStream</option>
+                      <option value="vidfast" className="bg-gray-900 text-white">VidFast</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/70">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

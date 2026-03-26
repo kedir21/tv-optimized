@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
@@ -8,11 +7,11 @@ import { Movie, ContentItem } from '../types';
 import Row from '../components/Row';
 import TvButton from '../components/TvButton';
 import { Play, Info } from 'lucide-react';
+import { openDetailsInNewTabForItem } from '../utils/openDetailsInNewTab';
 
 import Meta from '../components/Meta';
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [heroMovie, setHeroMovie] = useState<Movie | null>(null);
 
@@ -88,7 +87,7 @@ const Home: React.FC = () => {
   }, [heroMovie]);
 
   const goToDetails = (item: ContentItem) => {
-    navigate(`/details/${item.media_type || 'movie'}/${item.id}`, { state: { movie: item } });
+    openDetailsInNewTabForItem(item);
   };
 
   return (

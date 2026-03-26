@@ -7,6 +7,7 @@ import { ContentItem } from '../types';
 import MovieCard from '../components/MovieCard';
 import { Heart, PlayCircle } from 'lucide-react';
 import TvButton from '../components/TvButton';
+import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
 
 import Meta from '../components/Meta';
 
@@ -78,7 +79,7 @@ const Watchlist: React.FC = () => {
               <MovieCard
                 key={`${item.id}-${index}`}
                 movie={{ ...item, media_type: type } as ContentItem}
-                onClick={() => navigate(`/details/${type}/${item.id}`, { state: { movie: item } })}
+                onClick={() => openDetailsInNewTab(type as 'movie' | 'tv', item.id)}
                 className="w-full h-full aspect-[2/3]"
               />
             );
