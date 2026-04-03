@@ -22,7 +22,7 @@ export function getVidVaultUrl(
     season > 0 &&
     episode > 0
   ) {
-    url = `${VIDVAULT_BASE}/tv/${tmdbId}/season/${season}/episode/${episode}`;
+    url = `${VIDVAULT_BASE}/tv/${tmdbId}/${season}/${episode}`;
   } else {
     url = `${VIDVAULT_BASE}/tv/${tmdbId}`;
   }
