@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Bookmark, Check, Share2, Star, Clock, Calendar, Youtube } from 'lucide-react';
+import { Play, Bookmark, Check, Share2, Star, Clock, Calendar, Youtube, Download, Loader2 } from 'lucide-react';
 import { getImageUrl, getPosterUrl } from '../../services/api';
-import { MovieDetails, TvDetails } from '../../types';
+import { MovieDetails, TvDetails, Season } from '../../types';
 
 interface HeroProps {
     content: MovieDetails | TvDetails;
@@ -14,6 +14,15 @@ interface HeroProps {
     onPlay: () => void;
     onTrailer: () => void;
     hasTrailer: boolean;
+    onDownload: () => void;
+    downloadLoading: boolean;
+    downloadDisabled: boolean;
+    tvSeason?: number;
+    tvEpisode?: number;
+    onTvSeasonChange?: (season: number) => void;
+    onTvEpisodeChange?: (episode: number) => void;
+    tvSeasons?: Season[];
+    tvEpisodeMax?: number;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -24,7 +33,16 @@ export const Hero: React.FC<HeroProps> = ({
     onShare,
     onPlay,
     onTrailer,
-    hasTrailer
+    hasTrailer,
+    onDownload,
+    downloadLoading,
+    downloadDisabled,
+    tvSeason,
+    tvEpisode,
+    onTvSeasonChange,
+    onTvEpisodeChange,
+    tvSeasons,
+    tvEpisodeMax
 }) => {
     const title = 'title' in content ? content.title : content.name;
     const releaseDate = 'release_date' in content ? content.release_date : content.first_air_date;
@@ -141,6 +159,29 @@ export const Hero: React.FC<HeroProps> = ({
                                 )}
 
                                 <motion.button
+                                    type="button"
+                                    whileHover={downloadDisabled ? undefined : { scale: 1.05 }}
+                                    whileTap={downloadDisabled ? undefined : { scale: 0.95 }}
+                                    onClick={onDownload}
+                                    disabled={downloadDisabled || downloadLoading}
+                                    className={`px-6 py-4 rounded-xl border backdrop-blur-md flex items-center gap-2 font-semibold transition-all ${downloadDisabled || downloadLoading
+                                        ? 'bg-white/5 border-white/10 text-white/40 cursor-not-allowed'
+                                        : 'bg-cyan-500/15 border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/25'
+                                        }`}
+                                    title={downloadDisabled ? 'TMDB ID unavailable' : "Search VidVault using this title's TMDB ID"}
+                                    aria-label={mediaType === 'movie' ? `Download movie ${title} via VidVault` : `Download episode via VidVault for ${title}`}
+                                >
+                                    {downloadLoading ? (
+                                        <Loader2 className="w-6 h-6 animate-spin shrink-0" aria-hidden />
+                                    ) : (
+                                        <Download className="w-6 h-6 shrink-0" aria-hidden />
+                                    )}
+                                    <span className="hidden sm:inline">
+                                        {mediaType === 'movie' ? 'Download Movie' : 'Download Episode'}
+                                    </span>
+                                </motion.button>
+
+                                <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={onWatchlistToggle}
@@ -166,6 +207,42 @@ export const Hero: React.FC<HeroProps> = ({
                                     <Share2 className="w-6 h-6" />
                                 </motion.button>
                             </div>
+
+                            {mediaType === 'tv' && tvSeasons && tvSeasons.length > 0 && onTvSeasonChange && onTvEpisodeChange && typeof tvSeason === 'number' && typeof tvEpisode === 'number' && typeof tvEpisodeMax === 'number' && !downloadDisabled && (
+                                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-white/50">VidVault</span>
+                                    <div className="relative">
+                                        <select
+                                            value={tvSeason}
+                                            onChange={(e) => onTvSeasonChange(parseInt(e.target.value, 10))}
+                                            className="appearance-none bg-[#020617]/80 border border-white/15 rounded-xl pl-3 pr-9 py-2 text-sm font-bold text-white focus:outline-none focus:border-cyan-500/50 cursor-pointer"
+                                            aria-label="Season for download"
+                                        >
+                                            {tvSeasons.map((s) => (
+                                                <option key={s.id} value={s.season_number}>
+                                                    Season {s.season_number}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-white/40 text-[10px]">▾</span>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={Math.min(tvEpisode, tvEpisodeMax)}
+                                            onChange={(e) => onTvEpisodeChange(parseInt(e.target.value, 10))}
+                                            className="appearance-none bg-[#020617]/80 border border-white/15 rounded-xl pl-3 pr-9 py-2 text-sm font-bold text-white focus:outline-none focus:border-cyan-500/50 cursor-pointer min-w-[7rem]"
+                                            aria-label="Episode for download"
+                                        >
+                                            {Array.from({ length: tvEpisodeMax }, (_, i) => i + 1).map((num) => (
+                                                <option key={num} value={num}>
+                                                    Episode {num}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-white/40 text-[10px]">▾</span>
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
                     </div>
 

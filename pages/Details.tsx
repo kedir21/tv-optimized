@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -18,6 +18,7 @@ import { Tabs } from '../components/Details/Tabs';
 import { ReviewCard } from '../components/Details/ReviewCard';
 import { DetailsSkeleton } from '../components/Skeletons';
 import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
+import { getVidVaultUrl } from '../utils/vidvault';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -48,8 +49,19 @@ const Details: React.FC = () => {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [expandedOverview, setExpandedOverview] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadEpisode, setDownloadEpisode] = useState(1);
 
   const mediaType = (type as 'movie' | 'tv') || 'movie';
+
+  const episodeMaxForSeason = useMemo(() => {
+    if (mediaType !== 'tv' || !content || !('seasons' in content)) return 1;
+    const sn = selectedSeasonNumber;
+    if (seasonDetails?.season_number === sn && seasonDetails.episodes?.length)
+      return Math.max(1, seasonDetails.episodes.length);
+    const s = content.seasons?.find((se) => se.season_number === sn);
+    return Math.max(1, s?.episode_count ?? 1);
+  }, [mediaType, content, selectedSeasonNumber, seasonDetails]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -146,6 +158,53 @@ const Details: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setDownloadEpisode(1);
+  }, [selectedSeasonNumber]);
+
+  useEffect(() => {
+    if (downloadEpisode > episodeMaxForSeason) setDownloadEpisode(episodeMaxForSeason);
+  }, [episodeMaxForSeason, downloadEpisode]);
+
+  const handleVidVaultDownload = useCallback(async () => {
+    if (!content?.id) {
+      setNotification({ message: 'TMDB ID not found for this title.', type: 'error' });
+      setTimeout(() => setNotification(null), 4000);
+      return;
+    }
+    setDownloadLoading(true);
+    try {
+      await new Promise((r) => setTimeout(r, 180));
+      const tvSeasonsOk =
+        mediaType === 'tv' &&
+        'seasons' in content &&
+        (content as TvDetails).seasons?.some((s) => s.season_number > 0);
+      const url = getVidVaultUrl(
+        content.id,
+        mediaType,
+        mediaType === 'tv' && tvSeasonsOk
+          ? {
+              season: selectedSeasonNumber,
+              episode: Math.min(downloadEpisode, episodeMaxForSeason),
+            }
+          : undefined
+      );
+      const w = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!w) {
+        setNotification({ message: 'Popup blocked. Allow popups to open VidVault.', type: 'error' });
+      } else {
+        setNotification({
+          message:
+            'Opened VidVault in a new tab. If the title does not appear, it may not be listed there.',
+          type: 'success',
+        });
+      }
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setDownloadLoading(false);
+    }
+  }, [content, mediaType, selectedSeasonNumber, downloadEpisode, episodeMaxForSeason]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -206,6 +265,19 @@ const Details: React.FC = () => {
         onPlay={() => navigate(`/watch/${content.id}?type=${mediaType}`)}
         onTrailer={() => setShowTrailer(true)}
         hasTrailer={!!trailer}
+        onDownload={handleVidVaultDownload}
+        downloadLoading={downloadLoading}
+        downloadDisabled={!content.id}
+        {...(mediaType === 'tv'
+          ? {
+              tvSeason: selectedSeasonNumber,
+              tvEpisode: downloadEpisode,
+              onTvSeasonChange: setSelectedSeasonNumber,
+              onTvEpisodeChange: setDownloadEpisode,
+              tvSeasons: (content as TvDetails).seasons?.filter((s) => s.season_number > 0) ?? [],
+              tvEpisodeMax: episodeMaxForSeason,
+            }
+          : {})}
       />
 
       <Tabs
