@@ -6,9 +6,9 @@ import MovieCard from '../components/MovieCard';
 import { Search as SearchIcon } from 'lucide-react';
 
 import Meta from '../components/Meta';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
-
+import { useNavigate } from 'react-router-dom';
 const Search: React.FC = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -113,7 +113,7 @@ const Search: React.FC = () => {
                 <div ref={lastElementRef} key={uniqueKey}>
                   <MovieCard
                     movie={item}
-                    onClick={() => openDetailsInNewTab((item.media_type || 'movie') as 'movie' | 'tv', item.id)}
+                    onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
                     className="w-full h-full aspect-[2/3]"
                   />
                 </div>
@@ -123,7 +123,7 @@ const Search: React.FC = () => {
               <MovieCard
                 key={uniqueKey}
                 movie={item}
-                onClick={() => openDetailsInNewTab((item.media_type || 'movie') as 'movie' | 'tv', item.id)}
+                onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
                 className="w-full h-full aspect-[2/3]"
               />
             );

@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api, getImageUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
@@ -7,12 +8,12 @@ import { Movie, ContentItem } from '../types';
 import Row from '../components/Row';
 import TvButton from '../components/TvButton';
 import { Play, Info } from 'lucide-react';
-import { openDetailsInNewTabForItem } from '../utils/openDetailsInNewTab';
-
+import { NetworkSection } from '../components/NetworkSection';
 import Meta from '../components/Meta';
 
 const Home: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [heroMovie, setHeroMovie] = useState<Movie | null>(null);
 
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -87,7 +88,8 @@ const Home: React.FC = () => {
   }, [heroMovie]);
 
   const goToDetails = (item: ContentItem) => {
-    openDetailsInNewTabForItem(item);
+    const type = item.media_type || 'movie';
+    navigate(`/details/${type}/${item.id}`);
   };
 
   return (
@@ -166,6 +168,8 @@ const Home: React.FC = () => {
         <section aria-label="Top Rated Content">
           <Row title="Top Rated" items={topRated} isLoading={loadingTopRated} onItemSelect={goToDetails} />
         </section>
+
+        <NetworkSection />
       </div>
     </main>
   );

@@ -13,7 +13,6 @@ const Sidebar: React.FC = () => {
     { icon: <Search size={24} />, label: "Search", path: "/search" },
     { icon: <Film size={24} />, label: "Movies", path: "/movies" },
     { icon: <Tv size={24} />, label: "TV", path: "/tv" },
-    { icon: <Radio size={24} />, label: "Networks", path: "/networks" },
     { icon: <Heart size={24} />, label: "My List", path: "/watchlist" },
   ];
 

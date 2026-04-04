@@ -596,7 +596,7 @@ const Details: React.FC = () => {
                   items={recommendations}
                   title=""
                   onItemSelect={(item) =>
-                    openDetailsInNewTab((item.media_type || mediaType) as 'movie' | 'tv', item.id)
+                    navigate(`/details/${item.media_type || mediaType}/${item.id}`)
                   }
                 />
               </div>

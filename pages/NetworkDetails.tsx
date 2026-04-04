@@ -1,14 +1,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { api, getLogoUrl } from '../services/api';
 import { NETWORK_MOVIE_MAPPING } from '../services/networks';
 import { Network, ContentItem, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
 import { ChevronDown, Filter, Globe } from 'lucide-react';
 import Meta from '../components/Meta';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
-
 type FilterType = 'tv' | 'movie';
 type SortType = 'popularity.desc' | 'vote_average.desc' | 'first_air_date.desc';
 
@@ -29,6 +27,7 @@ const COUNTRIES = [
 
 const NetworkDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const networkId = parseInt(id || '0');
 
   const [network, setNetwork] = useState<Network | null>(null);
@@ -269,7 +268,7 @@ const NetworkDetails: React.FC = () => {
             <div ref={isLast ? lastElementRef : null} key={uniqueKey} className="w-full h-full">
               <MovieCard
                 movie={{ ...item, media_type: item.media_type || mediaType } as ContentItem}
-                onClick={() => openDetailsInNewTab((item.media_type || mediaType) as 'movie' | 'tv', item.id)}
+                onClick={() => navigate(`/details/${(item.media_type || mediaType)}/${item.id}`)}
                 className="w-full h-full"
               />
             </div>

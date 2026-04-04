@@ -14,7 +14,6 @@ const Search = lazy(() => import('./pages/Search'));
 const Movies = lazy(() => import('./pages/Movies'));
 const TvShows = lazy(() => import('./pages/TvShows'));
 const Watchlist = lazy(() => import('./pages/Watchlist'));
-const Networks = lazy(() => import('./pages/Networks'));
 const NetworkDetails = lazy(() => import('./pages/NetworkDetails'));
 const Auth = lazy(() => import('./pages/Auth'));
 const Profile = lazy(() => import('./pages/Profile'));
@@ -75,7 +74,6 @@ const App: React.FC = () => {
             <Route path="/search" element={<Search />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/tv" element={<TvShows />} />
-            <Route path="/networks" element={<Networks />} />
             <Route path="/network/:id" element={<NetworkDetails />} />
             <Route path="/watchlist" element={<Watchlist />} />
             {/* Support legacy /movie/:id route if needed, or redirect */}
