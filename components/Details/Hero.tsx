@@ -52,9 +52,10 @@ export const Hero: React.FC<HeroProps> = ({
     return (
         <div className="relative min-h-[85vh] lg:h-screen w-full overflow-hidden flex items-end pt-20">
             {/* Background Image/Video */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-transparent to-transparent z-10 lg:from-[#020617]/80" />
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/20 to-transparent z-10 lg:from-[#020617]/90" />
+                <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-[5]" />
                 <motion.img
                     initial={{ scale: 1.1, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -114,7 +115,7 @@ export const Hero: React.FC<HeroProps> = ({
                                 )}
                             </div>
 
-                            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl">
+                            <h1 className="text-4xl sm:text-5xl lg:text-8xl font-black text-white leading-[1.1] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] tracking-tighter">
                                 {title}
                             </h1>
 
@@ -251,14 +252,15 @@ export const Hero: React.FC<HeroProps> = ({
                         <motion.div
                             initial={{ x: 50, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.6, type: 'spring', damping: 15 }}
-                            className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 group cursor-pointer"
+                            transition={{ delay: 0.6, type: 'spring', damping: 20 }}
+                            className="relative w-full aspect-[2/3] rounded-[2.5rem] overflow-hidden shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] border border-white/20 group cursor-pointer ring-1 ring-white/10"
                             onClick={onPlay}
                         >
-                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center text-[#020617] shadow-xl transform scale-75 group-hover:scale-100 transition-transform">
-                                    <Play className="w-10 h-10 fill-current ml-1" />
+                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[4px]">
+                                <div className="w-24 h-24 rounded-full bg-white text-[#020617] flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.3)] transform scale-50 group-hover:scale-100 transition-transform duration-500 cubic-bezier(0.175, 0.885, 0.32, 1.275)">
+                                    <Play className="w-10 h-10 fill-current ml-2" />
                                 </div>
                             </div>
                         </motion.div>
