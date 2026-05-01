@@ -7,7 +7,7 @@ import { ContentItem } from '../types';
 import MovieCard from '../components/MovieCard';
 import { Heart, PlayCircle } from 'lucide-react';
 import TvButton from '../components/TvButton';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
+
 
 import Meta from '../components/Meta';
 

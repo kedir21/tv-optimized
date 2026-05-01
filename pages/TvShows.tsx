@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../services/api';
 import { TvShow, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
+import { useNavigate } from 'react-router-dom';
 
 import Meta from '../components/Meta';
 
 const TvShows: React.FC = () => {
+  const navigate = useNavigate();
   const [shows, setShows] = useState<TvShow[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<number>(0);
@@ -102,7 +103,7 @@ const TvShows: React.FC = () => {
               <div ref={lastElementRef} key={`${show.id}-${index}`}>
                 <MovieCard
                   movie={{ ...show, media_type: 'tv' }}
-                  onClick={() => openDetailsInNewTab('tv', show.id)}
+                  onClick={() => navigate(`/details/tv/${show.id}`)}
                   className="w-full h-full"
                 />
               </div>
@@ -112,7 +113,7 @@ const TvShows: React.FC = () => {
               <MovieCard
                 key={`${show.id}-${index}`}
                 movie={{ ...show, media_type: 'tv' }}
-                onClick={() => openDetailsInNewTab('tv', show.id)}
+                onClick={() => navigate(`/details/tv/${show.id}`)}
                 className="w-full h-full"
               />
             );

@@ -17,7 +17,7 @@ import { Hero } from '../components/Details/Hero';
 import { Tabs } from '../components/Details/Tabs';
 import { ReviewCard } from '../components/Details/ReviewCard';
 import { DetailsSkeleton } from '../components/Skeletons';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
+
 import { getVidVaultUrl } from '../utils/vidvault';
 
 const TABS = [

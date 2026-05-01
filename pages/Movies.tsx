@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import { Movie, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
 import { ChevronDown, Globe } from 'lucide-react';
-import { openDetailsInNewTab } from '../utils/openDetailsInNewTab';
+import { useNavigate } from 'react-router-dom';
 
 const COUNTRIES = [
   { code: 'ALL', name: 'Global' },
@@ -24,6 +24,7 @@ const COUNTRIES = [
 import Meta from '../components/Meta';
 
 const Movies: React.FC = () => {
+  const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<number>(0);
@@ -143,7 +144,7 @@ const Movies: React.FC = () => {
               <div ref={lastElementRef} key={`${movie.id}-${index}`}>
                 <MovieCard
                   movie={movie}
-                  onClick={() => openDetailsInNewTab('movie', movie.id)}
+                  onClick={() => navigate(`/details/movie/${movie.id}`)}
                   className="w-full h-full"
                 />
               </div>
@@ -153,7 +154,7 @@ const Movies: React.FC = () => {
               <MovieCard
                 key={`${movie.id}-${index}`}
                 movie={movie}
-                onClick={() => openDetailsInNewTab('movie', movie.id)}
+                onClick={() => navigate(`/details/movie/${movie.id}`)}
                 className="w-full h-full"
               />
             );
