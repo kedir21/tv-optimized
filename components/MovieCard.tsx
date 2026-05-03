@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { ContentItem } from '../types';
-import { getPosterUrl } from '../services/api';
+import { api, getPosterUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
 import { Star, Heart, Check } from 'lucide-react';
@@ -58,6 +57,37 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
     onClick();
   };
 
+  const releaseTime = date ? new Date(date).getTime() : 0;
+  const now = Date.now();
+  const daysSinceRelease = (now - releaseTime) / (1000 * 60 * 60 * 24);
+  const isRecent = date && daysSinceRelease >= 0 && daysSinceRelease <= 45;
+
+  const [showInTheaters, setShowInTheaters] = useState(isRecent);
+
+  useEffect(() => {
+    setShowInTheaters(isRecent);
+    
+    if (isRecent) {
+      let isMounted = true;
+      const checkNetflix = async () => {
+        try {
+          // Check if available on Netflix
+          const details: any = await api.getDetails(movie.id.toString(), movie.media_type || 'movie');
+          const providers = details["watch/providers"]?.results?.US;
+          const isNetflix = providers?.flatrate?.some((p: any) => p.provider_name.toLowerCase().includes('netflix'));
+          
+          if (isMounted && isNetflix) {
+            setShowInTheaters(false);
+          }
+        } catch (e) {
+          console.warn('Failed to check netflix availability', e);
+        }
+      };
+      checkNetflix();
+      return () => { isMounted = false; };
+    }
+  }, [movie.id, movie.media_type, isRecent]);
+
   // Default width is smaller on mobile (w-32) and larger on tablet/desktop
   const baseClasses = "focusable tv-focus relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer group bg-slate-900 border border-white/5 focus:border-white focus:z-20 shadow-lg hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300";
 
@@ -78,12 +108,19 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110"
       />
 
-      {/* Type Badge */}
-      {movie.media_type === 'tv' && (
-        <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-white border border-white/20">
-          TV
-        </div>
-      )}
+      {/* Badges (Type & In Theaters) */}
+      <div className="absolute top-2 left-2 flex flex-col gap-1 items-start pointer-events-none z-10">
+        {movie.media_type === 'tv' && (
+          <span className="px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-white border border-white/20">
+            TV
+          </span>
+        )}
+        {showInTheaters && (
+          <span className="px-1.5 py-0.5 bg-red-500/80 backdrop-blur-md rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-white border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse">
+            In Theaters
+          </span>
+        )}
+      </div>
 
       {/* Watchlist Indicator */}
       <button

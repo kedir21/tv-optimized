@@ -172,9 +172,8 @@ const Details: React.FC = () => {
       setTimeout(() => setNotification(null), 4000);
       return;
     }
-    setDownloadLoading(true);
+    
     try {
-      await new Promise((r) => setTimeout(r, 180));
       const tvSeasonsOk =
         mediaType === 'tv' &&
         'seasons' in content &&
@@ -189,7 +188,14 @@ const Details: React.FC = () => {
             }
           : undefined
       );
+
+      // Open immediately to prevent popup blocker
       const w = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      setDownloadLoading(true);
+      await new Promise((r) => setTimeout(r, 180)); // maintain the feeling of loading
+      setDownloadLoading(false);
+
       if (!w) {
         setNotification({ message: 'Popup blocked. Allow popups to open VidVault.', type: 'error' });
       } else {
@@ -200,7 +206,7 @@ const Details: React.FC = () => {
         });
       }
       setTimeout(() => setNotification(null), 5000);
-    } finally {
+    } catch (error) {
       setDownloadLoading(false);
     }
   }, [content, mediaType, selectedSeasonNumber, downloadEpisode, episodeMaxForSeason]);

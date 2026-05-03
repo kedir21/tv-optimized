@@ -18,12 +18,12 @@ const Player: React.FC = () => {
   const episode = searchParams.get('e') || '1';
 
   // Load preferred source from local storage to load faster (better UX)
-  const [source, setSource] = useState<'vidsrc' | 'rivestream' | 'cinemaos' | 'vidfast'>(() => {
+  const [source, setSource] = useState<'rivestream' | 'cinemaos' | 'vidfast'>(() => {
     const saved = localStorage.getItem('player_source_pref');
-    if (saved && ['vidsrc', 'rivestream', 'cinemaos', 'vidfast'].includes(saved)) {
+    if (saved && ['rivestream', 'cinemaos', 'vidfast'].includes(saved)) {
       return saved as any;
     }
-    return 'vidsrc'; // Changed default from 'cinemaos' to 'vidsrc'
+    return 'rivestream'; // Default source
   });
 
   const controlsTimeout = useRef<number | null>(null);
@@ -111,11 +111,11 @@ const Player: React.FC = () => {
         url = `https://vidfast.pro/movie/${id}?autoPlay=true`;
       }
     } else {
-      // Vidsrc fallback logic (now default)
+      // rivestream fallback logic (now default)
       if (type === 'tv') {
-        url = `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`;
+        url = `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
       } else {
-        url = `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`;
+        url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
       }
     }
 
@@ -150,47 +150,51 @@ const Player: React.FC = () => {
         title="Content Player"
       />
 
-      {/* Overlay UI - Controls stacked on left side */}
+      {/* Overlay UI - Top Bar floating design */}
       <div 
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 bg-gradient-to-b from-black/90 via-transparent to-transparent h-48 md:h-56 z-10 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-x-0 top-0 pointer-events-none transition-opacity duration-700 ease-in-out z-10 ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="p-4 md:p-8 flex flex-col items-start gap-4 w-full max-w-7xl mx-auto">
-          {/* Row 1: Back Button & Season Info */}
-          <div className="flex flex-wrap items-center gap-4 pointer-events-auto">
+        <div className="absolute inset-0 h-40 bg-gradient-to-b from-black/90 via-black/40 to-transparent pointer-events-none" />
+        
+        <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-[1600px] mx-auto pointer-events-auto">
+          {/* Left: Back & Info */}
+          <div className="flex items-center gap-4">
               <button 
                 id="player-back-btn"
                 onClick={() => navigate(`/details/${type}/${id}`)}
-                className="focusable tv-focus flex items-center gap-2 md:gap-3 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all focus:ring-2 focus:ring-white focus:outline-none shadow-lg"
+                className="group flex flex-row items-center justify-center w-12 h-12 md:w-auto md:px-6 md:py-3.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:bg-white/10 hover:border-white/30 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
-                <ArrowLeft size={20} />
-                <span className="font-semibold tracking-wide text-sm md:text-base">Back</span>
+                <ArrowLeft size={20} className="md:w-5 md:h-5 md:mr-3 group-hover:-translate-x-1 transition-transform duration-300" />
+                <span className="hidden md:inline font-bold tracking-wide">Back to Details</span>
               </button>
               
               {type === 'tv' && (
-                  <div className="px-4 py-2 md:px-6 md:py-3 rounded-lg bg-black/50 text-white font-mono backdrop-blur-md border border-white/10 select-none text-sm md:text-base">
-                    S{season} : E{episode}
+                  <div className="flex items-center px-6 py-3.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white font-black tracking-widest shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden relative">
+                    <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+                    <span className="text-white/80">S{season}</span> 
+                    <span className="mx-3 text-cyan-400">•</span> 
+                    <span className="text-white/80">E{episode}</span>
                   </div>
               )}
           </div>
 
-          {/* Row 2: Source Selector (Stacked below Back Button) */}
-          <div className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-black/60 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-lg mt-1">
-              <div className="flex items-center gap-2 px-2 text-gray-300">
-                  <Server size={14} className="md:w-4 md:h-4" />
-                  <span className="text-xs md:text-sm font-medium">Source</span>
+          {/* Right: Source Selector */}
+          <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl p-2 rounded-full border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center gap-2 px-4 text-white/70 bg-white/5 rounded-full py-2 border border-white/5 shadow-inner">
+                  <Server size={16} className="text-cyan-400" />
+                  <span className="text-[11px] font-black uppercase tracking-widest">Source</span>
               </div>
               <div className="relative">
                   <select
                       value={source}
                       onChange={(e) => handleSourceChange(e.target.value)}
-                      className="appearance-none bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium py-2 pl-3 pr-8 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors border border-transparent w-28 md:w-32"
+                      className="appearance-none bg-transparent hover:bg-white/10 text-white text-sm font-bold py-2.5 pl-5 pr-12 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-colors border border-transparent shadow-inner"
                   >
-                      <option value="vidsrc" className="bg-gray-900 text-white">VidSrc</option>
-                      <option value="cinemaos" className="bg-gray-900 text-white">CinemaOS</option>
-                      <option value="rivestream" className="bg-gray-900 text-white">RiveStream</option>
-                      <option value="vidfast" className="bg-gray-900 text-white">VidFast</option>
+                      <option value="rivestream" className="bg-slate-900 text-white font-medium">RiveStream</option>
+                      <option value="cinemaos" className="bg-slate-900 text-white font-medium">CinemaOS</option>
+                      <option value="vidfast" className="bg-slate-900 text-white font-medium">VidFast</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/70">
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-cyan-400 transition-transform group-hover:translate-y-0.5">
                       <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                           <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
                       </svg>

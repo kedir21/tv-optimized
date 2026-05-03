@@ -95,6 +95,28 @@ export const Hero: React.FC<HeroProps> = ({
                                 <span className="px-2 py-0.5 rounded bg-white/10 text-white border border-white/20 uppercase tracking-wider">
                                     {mediaType}
                                 </span>
+                                {(() => {
+                                    const releaseTime = new Date(releaseDate || '').getTime();
+                                    const now = Date.now();
+                                    const daysSinceRelease = (now - releaseTime) / (1000 * 60 * 60 * 24);
+                                    let isInTheaters = daysSinceRelease >= 0 && daysSinceRelease <= 45 && content.status === 'Released';
+                                    
+                                    // Remove badge if available on Netflix
+                                    const providers = content["watch/providers"]?.results?.US;
+                                    const isNetflix = providers?.flatrate?.some((p: any) => p.provider_name.toLowerCase().includes('netflix'));
+                                    if (isNetflix) {
+                                        isInTheaters = false;
+                                    }
+
+                                    if (isInTheaters) {
+                                        return (
+                                            <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 uppercase tracking-wider font-bold animate-pulse">
+                                                In Theaters
+                                            </span>
+                                        );
+                                    }
+                                    return null;
+                                })()}
                                 <span className="flex items-center gap-1" aria-label={`Rating: ${rating} out of 10`}>
                                     <Star className="w-4 h-4 text-yellow-500 fill-current" />
                                     {rating}
