@@ -89,7 +89,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
   }, [movie.id, movie.media_type, isRecent]);
 
   // Default width is smaller on mobile (w-32) and larger on tablet/desktop
-  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer group bg-slate-900 border border-white/5 focus:border-white focus:z-20 shadow-lg hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300";
+  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-32 sm:w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer group bg-slate-900 border border-white/5 focus:border-white focus:z-20 shadow-lg active:scale-95 lg:hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300 select-none touch-pan-y";
 
   return (
     <div

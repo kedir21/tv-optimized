@@ -156,7 +156,7 @@ const Player: React.FC = () => {
       >
         <div className="absolute inset-0 h-40 bg-gradient-to-b from-black/90 via-black/40 to-transparent pointer-events-none" />
         
-        <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-[1600px] mx-auto pointer-events-auto">
+        <div className="relative pt-[calc(1.5rem+env(safe-area-inset-top))] px-6 pb-6 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-[1600px] mx-auto pointer-events-auto">
           {/* Left: Back & Info */}
           <div className="flex items-center gap-4">
               <button 

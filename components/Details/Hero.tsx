@@ -50,7 +50,7 @@ export const Hero: React.FC<HeroProps> = ({
     const rating = content.vote_average?.toFixed(1) || '0.0';
 
     return (
-        <div className="relative min-h-[85vh] lg:h-screen w-full overflow-hidden flex items-end pt-20">
+        <div className="relative min-h-[85vh] lg:h-screen w-full overflow-hidden flex items-end pt-[calc(5rem+env(safe-area-inset-top))]">
             {/* Background Image/Video */}
             <div className="absolute inset-0 z-0 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent z-10" />
@@ -68,7 +68,7 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Content */}
-            <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 lg:pb-24">
+            <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-[calc(3rem+env(safe-area-inset-bottom))] lg:pb-24">
                 <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
 
                     {/* Mobile Poster (Above Text) */}

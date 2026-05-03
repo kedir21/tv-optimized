@@ -20,7 +20,7 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
       <h2 className="text-2xl md:text-3xl font-black text-white mb-6 md:mb-8 tracking-tighter uppercase pl-1 border-l-4 border-cyan-500 ml-[-1rem] md:ml-[-3rem] pl-[1rem] md:pl-[3rem]">
         {title}
       </h2>
-      <div className="flex gap-6 md:gap-8 overflow-x-auto no-scrollbar py-4 px-1 scroll-smooth">
+      <div className="flex gap-4 md:gap-8 overflow-x-auto no-scrollbar py-4 px-1 scroll-smooth [-webkit-overflow-scrolling:touch]">
         {items.map((item) => (
           <MovieCard
             key={item.id}

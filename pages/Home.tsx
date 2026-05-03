@@ -94,7 +94,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen pb-24 md:pb-28 bg-slate-950">
+    <main className="min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-28 overflow-x-hidden bg-slate-950">
       <Meta
         title="Home"
         description="Explore trending, popular, and top-rated movies and TV shows. Start streaming your favorite content now on K-Flix."

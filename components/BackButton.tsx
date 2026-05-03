@@ -18,7 +18,7 @@ const BackButton: React.FC = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed top-4 right-4 md:top-6 md:right-8 z-50 flex items-center gap-3"
+      className="fixed top-4 right-4 md:top-6 md:right-8 mt-[env(safe-area-inset-top)] z-50 flex items-center gap-3"
     >
       <button
         onClick={() => navigate(-1)}
