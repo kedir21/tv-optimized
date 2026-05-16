@@ -10,7 +10,6 @@ const Player: React.FC = () => {
   const location = useLocation();
   const [showControls, setShowControls] = useState(true);
   const [originalLang, setOriginalLang] = useState<string>('en');
-  
   // Parse Query Params
   const searchParams = new URLSearchParams(location.search);
   const type = searchParams.get('type') || 'movie';
@@ -18,9 +17,9 @@ const Player: React.FC = () => {
   const episode = searchParams.get('e') || '1';
 
   // Load preferred source from local storage to load faster (better UX)
-  const [source, setSource] = useState<'rivestream' | 'cinemaos' | 'vidfast'>(() => {
+  const [source, setSource] = useState<'rivestream'>(() => {
     const saved = localStorage.getItem('player_source_pref');
-    if (saved && ['rivestream', 'cinemaos', 'vidfast'].includes(saved)) {
+    if (saved && ['rivestream'].includes(saved)) {
       return saved as any;
     }
     return 'rivestream'; // Default source
@@ -87,40 +86,30 @@ const Player: React.FC = () => {
 
   if (!id) return null;
 
+  // Build a better Source Manager
+  const SOURCES = [
+    {
+      name: "RiveStream",
+      id: "rivestream",
+      movie: (id: string) => `https://rivestream.ru/embed?type=movie&id=${id}`,
+      tv: (id: string, season: string, episode: string) => `https://rivestream.ru/embed?type=tv&id=${id}&season=${season}&episode=${episode}`,
+      priority: 1,
+    }
+  ];
+
   // Construct URL based on selected source and type
   const getEmbedUrl = () => {
     let url = '';
+    const currentSource = SOURCES.find(s => s.id === source) || SOURCES[0];
     
-    // Base URL Selection
-    if (source === 'cinemaos') {
-        if (type === 'tv') {
-            url = `https://cinemaos.tech/player/${id}/${season}/${episode}`;
-        } else {
-            url = `https://cinemaos.tech/player/${id}`;
-        }
-    } else if (source === 'rivestream') {
-      if (type === 'tv') {
-        url = `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
-      } else {
-        url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
-      }
-    } else if (source === 'vidfast') {
-      if (type === 'tv') {
-        url = `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`;
-      } else {
-        url = `https://vidfast.pro/movie/${id}?autoPlay=true`;
-      }
+    if (type === 'tv') {
+        url = currentSource.tv(id, season, episode);
     } else {
-      // rivestream fallback logic (now default)
-      if (type === 'tv') {
-        url = `https://rivestream.org/embed?type=tv&id=${id}&season=${season}&episode=${episode}&autoplay=1`;
-      } else {
-        url = `https://rivestream.org/embed?type=movie&id=${id}&autoplay=1`;
-      }
+        url = currentSource.movie(id);
     }
 
-    // Append English Audio preference for foreign content
-    if (originalLang !== 'en') {
+    // Append English Audio preference for foreign content, but ONLY for sources that support it via ds_lang
+    if (currentSource.id !== 'vidsrc-ru' && currentSource.id !== 'vidsrc' && originalLang !== 'en') {
         const separator = url.includes('?') ? '&' : '?';
         url += `${separator}ds_lang=en&lang=en`;
     }
@@ -134,21 +123,53 @@ const Player: React.FC = () => {
       localStorage.setItem('player_source_pref', newSource);
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [backdrop, setBackdrop] = useState<string>('');
+
+  useEffect(() => {
+    // Fetch backdrop for ambient lighting
+    const fetchBackdrop = async () => {
+      try {
+        const details = await api.getDetails(id, type as 'movie' | 'tv');
+        if (details.backdrop_path) {
+          setBackdrop(details.backdrop_path);
+        }
+      } catch (e) {
+        console.warn("Could not fetch backdrop", e);
+      }
+    };
+    fetchBackdrop();
+  }, [id, type]);
+
   return (
-    <div className="fixed inset-0 bg-black z-50 overflow-hidden group">
+    <div className="fixed inset-0 bg-[#020617] z-50 overflow-hidden group">
+      
+      {/* Ambient Background Lighting */}
+      {backdrop && (
+        <div className="absolute inset-x-0 top-0 h-1/2 opacity-30 blur-[100px] pointer-events-none transition-opacity duration-1000 z-0 select-none">
+          <img src={`https://image.tmdb.org/t/p/w1280${backdrop}`} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
+
+      {/* Loading Screen */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center bg-[#020617] z-20 transition-opacity duration-700 ease-in-out ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+         <div className="w-16 h-16 border-4 border-white/10 border-t-cyan-500 rounded-full animate-spin mb-6" />
+         <h2 className="text-white/80 font-bold tracking-widest uppercase text-sm animate-pulse">Loading Source...</h2>
+      </div>
       {/* Iframe Layer with Strict Sandbox for Ad Blocking */}
       {/* Key includes originalLang to force reload if language preference changes */}
       <iframe
         key={`${source}-${id}-${type}-${season}-${episode}-${originalLang}`}
         src={getEmbedUrl()}
-        className="w-full h-full border-0 absolute inset-0 z-0"
+        className="w-full h-full border-0 absolute inset-0 z-10"
         allowFullScreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         referrerPolicy="origin"
-        // VidFast needs less restrictive iframe sandboxing; others match VidSrc-style sandbox.
-        sandbox={source === 'vidfast' ? undefined : 'allow-scripts allow-same-origin allow-forms allow-presentation'}
+        sandbox="allow-scripts allow-same-origin allow-presentation"
         title="Content Player"
+        onLoad={() => setIsLoading(false)}
       />
+
 
       {/* Overlay UI - Top Bar floating design */}
       <div 
@@ -156,7 +177,7 @@ const Player: React.FC = () => {
       >
         <div className="absolute inset-0 h-40 bg-gradient-to-b from-black/90 via-black/40 to-transparent pointer-events-none" />
         
-        <div className="relative pt-[calc(1.5rem+env(safe-area-inset-top))] px-6 pb-6 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-[1600px] mx-auto pointer-events-auto">
+        <div className="relative pt-[calc(1.5rem+env(safe-area-inset-top))] px-6 pb-6 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-6 w-full max-w-[1600px] mx-auto pointer-events-auto">
           {/* Left: Back & Info */}
           <div className="flex items-center gap-4">
               <button 
@@ -176,30 +197,6 @@ const Player: React.FC = () => {
                     <span className="text-white/80">E{episode}</span>
                   </div>
               )}
-          </div>
-
-          {/* Right: Source Selector */}
-          <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl p-2 rounded-full border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-              <div className="flex items-center gap-2 px-4 text-white/70 bg-white/5 rounded-full py-2 border border-white/5 shadow-inner">
-                  <Server size={16} className="text-cyan-400" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">Source</span>
-              </div>
-              <div className="relative">
-                  <select
-                      value={source}
-                      onChange={(e) => handleSourceChange(e.target.value)}
-                      className="appearance-none bg-transparent hover:bg-white/10 text-white text-sm font-bold py-2.5 pl-5 pr-12 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-colors border border-transparent shadow-inner"
-                  >
-                      <option value="rivestream" className="bg-slate-900 text-white font-medium">RiveStream</option>
-                      <option value="cinemaos" className="bg-slate-900 text-white font-medium">CinemaOS</option>
-                      <option value="vidfast" className="bg-slate-900 text-white font-medium">VidFast</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-cyan-400 transition-transform group-hover:translate-y-0.5">
-                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                      </svg>
-                  </div>
-              </div>
           </div>
         </div>
       </div>

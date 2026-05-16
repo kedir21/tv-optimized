@@ -26,16 +26,24 @@ const Home: React.FC = () => {
   const [topRated, setTopRated] = useState<Movie[]>([]);
   const [loadingTopRated, setLoadingTopRated] = useState(true);
 
+  const [upcoming, setUpcoming] = useState<Movie[]>([]);
+  const [loadingUpcoming, setLoadingUpcoming] = useState(true);
+
+  const [popularTv, setPopularTv] = useState<ContentItem[]>([]);
+  const [loadingPopularTv, setLoadingPopularTv] = useState(true);
+
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
 
   useEffect(() => {
     // Parallel fetching for speed
     const fetchAll = async () => {
       try {
-        const [trendingData, popularData, topRatedData] = await Promise.all([
+        const [trendingData, popularData, topRatedData, upcomingData, popularTvData] = await Promise.all([
           api.getTrending(),
           api.getPopular(),
-          api.getTopRated()
+          api.getTopRated(),
+          api.getUpcoming(),
+          api.getPopularTv()
         ]);
 
         setTrending(trendingData);
@@ -47,6 +55,12 @@ const Home: React.FC = () => {
 
         setTopRated(topRatedData);
         setLoadingTopRated(false);
+
+        setUpcoming(upcomingData);
+        setLoadingUpcoming(false);
+
+        setPopularTv(popularTvData as any);
+        setLoadingPopularTv(false);
       } catch (e) {
         console.error(e);
         setLoadingTrending(false);
@@ -94,7 +108,12 @@ const Home: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-28 overflow-x-hidden bg-slate-950">
+    <motion.main 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-28 overflow-x-hidden bg-[#020617]"
+    >
       <Meta
         title="Home"
         description="Explore trending, popular, and top-rated movies and TV shows. Start streaming your favorite content now on K-Flix."
@@ -211,29 +230,43 @@ const Home: React.FC = () => {
       )}
 
       {/* Rows */}
-      <div className={`space-y-6 md:space-y-12 relative z-20 ${heroMovie ? '-mt-16 md:-mt-24' : 'pt-24'}`}>
+      <div className={`space-y-4 md:space-y-6 relative z-20 ${heroMovie ? '-mt-16 md:-mt-24' : 'pt-24'}`}>
 
         {watchlist.length > 0 && (
-          <section aria-label="My Watchlist">
+          <section aria-label="My Watchlist" className="relative group/section">
             <Row title={`My List ${user ? `(${user.username})` : ''}`} items={watchlist} onItemSelect={goToDetails} />
+            <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
           </section>
         )}
 
-        <section aria-label="Trending Movies and TV Shows">
+        <section aria-label="Trending Movies and TV Shows" className="relative group/section">
           <Row title="Trending Now" items={trending} isLoading={loadingTrending} onItemSelect={goToDetails} />
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Popular Movies">
+        <section aria-label="Popular Movies" className="relative group/section">
           <Row title="Popular Movies" items={popular} isLoading={loadingPopular} onItemSelect={goToDetails} />
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Top Rated Content">
+        <section aria-label="Top Rated Content" className="relative group/section">
           <Row title="Top Rated" items={topRated} isLoading={loadingTopRated} onItemSelect={goToDetails} />
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
+        </section>
+
+        <section aria-label="Upcoming Movies" className="relative group/section">
+          <Row title="Upcoming Movies" items={upcoming} isLoading={loadingUpcoming} onItemSelect={goToDetails} />
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
+        </section>
+
+        <section aria-label="Popular TV Shows" className="relative group/section">
+          <Row title="Popular TV Shows" items={popularTv} isLoading={loadingPopularTv} onItemSelect={goToDetails} />
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
         <NetworkSection />
       </div>
-    </main>
+    </motion.main>
   );
 };
 

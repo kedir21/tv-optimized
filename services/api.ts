@@ -1,5 +1,4 @@
-
-import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetails, Network } from '../types';
+import { Movie, TvShow, MovieDetails, TvDetails, Genre, ContentItem, SeasonDetails, Network, Review } from '../types';
 
 // Using a more reliable public demo key for TMDB
 const API_KEY: string = '3fd2be6f0c70a2a598f084ddfb75487c';
@@ -137,6 +136,16 @@ export const api = {
   getTopRated: async (): Promise<Movie[]> => {
     const res = await fetchFromTMDB<PaginatedResponse<Movie>>('/movie/top_rated');
     return res.results.map(m => ({ ...m, media_type: 'movie' }));
+  },
+
+  getUpcoming: async (): Promise<Movie[]> => {
+    const res = await fetchFromTMDB<PaginatedResponse<Movie>>('/movie/upcoming');
+    return res.results.map(m => ({ ...m, media_type: 'movie' }));
+  },
+  
+  getPopularTv: async (): Promise<TvShow[]> => {
+    const res = await fetchFromTMDB<PaginatedResponse<TvShow>>('/tv/popular');
+    return res.results.map(s => ({ ...s, media_type: 'tv' }));
   },
 
   // Details

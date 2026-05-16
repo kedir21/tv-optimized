@@ -30,15 +30,18 @@ export const NetworkSection: React.FC = () => {
 
   return (
     <div className="mb-12 md:mb-20 pl-4 md:pl-12 pr-4 md:pr-12">
-      <h2 className="text-2xl md:text-3xl font-black text-white mb-6 md:mb-8 tracking-tighter uppercase pl-1 border-l-4 border-cyan-500 ml-[-1rem] md:ml-[-3rem] pl-[1rem] md:pl-[3rem]">
-        Networks & Studios
-      </h2>
+      <div className="flex items-center gap-3 mb-6 md:mb-8 ml-[-1rem] md:ml-[-3rem] pl-[1rem] md:pl-[3rem]">
+        <div className="w-1.5 h-6 md:h-8 bg-cyan-500 rounded-full" />
+        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">
+          Networks & Studios
+        </h2>
+      </div>
       <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6" aria-label="Network links">
         {networks.map((network) => (
           <div
             key={network.id}
             onClick={() => navigate(`/network/${network.id}`)}
-            className="focusable tv-focus group bg-white/5 hover:bg-white rounded-2xl p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-500 border border-white/5 hover:scale-105 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(6,182,212,0.15)] overflow-hidden relative"
+            className="focusable tv-focus group bg-slate-900/50 backdrop-blur-md hover:bg-white/5 rounded-2xl p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-500 border border-white/10 hover:scale-105 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.2)] hover:border-cyan-500/50 overflow-hidden relative"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && navigate(`/network/${network.id}`)}
@@ -53,7 +56,7 @@ export const NetworkSection: React.FC = () => {
                 loading="lazy"
               />
             ) : (
-              <span className="text-sm md:text-base font-bold text-gray-400 group-hover:text-[#020617] text-center px-2 relative z-10">{network.name}</span>
+              <span className="text-sm md:text-base font-bold text-gray-400 group-hover:text-white text-center px-2 relative z-10 drop-shadow-md">{network.name}</span>
             )}
           </div>
         ))}

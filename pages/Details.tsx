@@ -443,16 +443,17 @@ const Details: React.FC = () => {
                   </div>
                   <h3 className="text-2xl lg:text-3xl font-black">Main Cast</h3>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 lg:gap-8">
+                
+                <div className="flex overflow-x-auto pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 gap-6 snap-x snap-mandatory hide-scrollbar">
                   {content.credits?.cast?.slice(0, 18).map(person => (
                     <motion.div
                       key={person.id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      whileHover={{ y: -10 }}
-                      className="group flex flex-col items-center"
+                      whileHover={{ y: -5 }}
+                      className="group flex flex-col items-center flex-shrink-0 w-32 sm:w-40 snap-start"
                     >
-                      <div className="relative w-full aspect-[5/6] rounded-3xl overflow-hidden mb-4 border-2 border-transparent group-hover:border-purple-500/50 shadow-xl transition-all">
+                      <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-purple-500/50 group-hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-all">
                         {person.profile_path ? (
                           <img
                             src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
@@ -462,29 +463,29 @@ const Details: React.FC = () => {
                           />
                         ) : (
                           <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                            <Users className="w-12 h-12 text-white/20" />
+                            <Users className="w-10 h-10 text-white/20" />
                           </div>
                         )}
-                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#020617] to-transparent opacity-60" />
+                        <div className="absolute inset-0 rounded-full ring-inset ring-1 ring-white/10 group-hover:ring-white/20 transition-all pointer-events-none" />
                       </div>
-                      <h4 className="font-black text-center text-white line-clamp-1 group-hover:text-purple-400 transition-colors uppercase tracking-tight">{person.name}</h4>
-                      <p className="text-sm text-white/40 text-center line-clamp-1 italic">{person.character}</p>
+                      <h4 className="font-black text-center text-white line-clamp-1 group-hover:text-purple-400 transition-colors tracking-tight px-2">{person.name}</h4>
+                      <p className="text-xs sm:text-sm text-white/40 text-center line-clamp-2 italic mt-1 px-2 leading-tight">{person.character}</p>
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="pt-12 border-t border-white/5">
+                <div className="pt-8 border-t border-white/5">
                   <div className="flex items-center gap-3 mb-8">
                     <div className="p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400">
                       <Award className="w-6 h-6" />
                     </div>
                     <h3 className="text-2xl lg:text-3xl font-black">Featured Crew</h3>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {content.credits?.crew?.filter(c => ['Director', 'Producer', 'Executive Producer', 'Writer', 'Director of Photography', 'Original Music Composer'].includes(c.job)).slice(0, 12).map(person => (
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    {content.credits?.crew?.filter(c => ['Director', 'Producer', 'Executive Producer', 'Writer', 'Director of Photography', 'Original Music Composer'].includes(c.job)).slice(0, 8).map(person => (
                       <div key={`${person.id}-${person.job}`} className="space-y-1">
-                        <p className="text-white/40 text-xs font-bold uppercase tracking-widest">{person.job}</p>
-                        <p className="text-lg font-black text-white">{person.name}</p>
+                        <p className="text-white/40 text-[11px] sm:text-xs font-bold uppercase tracking-widest">{person.job}</p>
+                        <p className="text-base sm:text-lg font-black text-white">{person.name}</p>
                       </div>
                     ))}
                   </div>
@@ -517,57 +518,57 @@ const Details: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                <div className="flex flex-col gap-4 lg:gap-6">
                   {seasonDetails?.episodes.map((episode) => (
                     <motion.div
                       key={episode.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ y: -8 }}
+                      whileHover={{ x: 4 }}
                       onClick={() => navigate(`/watch/${content.id}?type=tv&s=${episode.season_number}&e=${episode.episode_number}`)}
-                      className="group bg-white/5 border border-white/10 rounded-3xl overflow-hidden flex flex-col cursor-pointer transition-all hover:border-cyan-500/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+                      className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden flex flex-col sm:flex-row cursor-pointer transition-all hover:bg-white/10 hover:border-cyan-500/30 w-full"
                     >
-                      <div className="relative aspect-video w-full overflow-hidden">
+                      {/* Thumbnail */}
+                      <div className="relative w-full sm:w-64 md:w-80 aspect-video flex-shrink-0 overflow-hidden">
                         {episode.still_path ? (
                           <img
                             src={getStillUrl(episode.still_path)}
                             alt={episode.name}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-                            <Film className="w-12 h-12 text-white/20" />
+                          <div className="w-full h-full bg-gradient-to-br from-[#020617] to-slate-900 flex items-center justify-center">
+                            <Film className="w-10 h-10 text-white/20" />
                           </div>
                         )}
-                        <div className="absolute top-4 left-4 flex flex-col gap-2">
-                          <div className="bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tighter">
-                            Episode {episode.episode_number}
-                          </div>
-                          {episode.runtime && (
-                            <div className="bg-cyan-500 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-tighter text-[#020617] self-start">
-                              {episode.runtime}m
-                            </div>
-                          )}
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#020617]/80 to-transparent" />
+                        <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-xs font-bold text-white tracking-wider">
+                           {episode.runtime ? `${episode.runtime}m` : ''}
                         </div>
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#020617] transform scale-0 group-hover:scale-100 transition-transform">
-                            <Play className="w-6 h-6 fill-current ml-0.5" />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#020617] transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                            <Play className="w-5 h-5 fill-current ml-1" />
                           </div>
                         </div>
                       </div>
-                      <div className="p-6 space-y-3">
-                        <h4 className="text-xl font-black text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight line-clamp-1">
+                      
+                      {/* Content */}
+                      <div className="p-4 sm:p-6 flex flex-col justify-center flex-grow">
+                        <div className="flex items-center gap-3 mb-2">
+                           <span className="text-cyan-400 font-black text-sm uppercase tracking-wider">Episode {episode.episode_number}</span>
+                        </div>
+                        <h4 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-400 transition-colors tracking-tight line-clamp-1 mb-2">
                           {episode.name}
                         </h4>
-                        <p className="text-white/40 text-sm line-clamp-2 italic font-light">
+                        <p className="text-white/50 text-sm line-clamp-2 md:line-clamp-3 leading-relaxed">
                           {episode.overview || 'No plot summary available for this episode.'}
                         </p>
                       </div>
                     </motion.div>
                   )) || (
-                      [...Array(6)].map((_, i) => (
-                        <div key={i} className="aspect-video rounded-3xl bg-white/5 animate-pulse" />
+                      [...Array(4)].map((_, i) => (
+                        <div key={i} className="h-32 sm:h-48 rounded-2xl bg-white/5 animate-pulse w-full" />
                       ))
                     )}
                 </div>

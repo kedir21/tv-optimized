@@ -3,18 +3,18 @@ import React from 'react';
 
 // Basic Block Skeleton - Static
 export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`bg-white/10 rounded-lg ${className}`} />
+  <div className={`bg-slate-800/80 animate-pulse rounded-lg ${className}`} />
 );
 
 // High-Fidelity Poster Skeleton - Static
 export const MovieCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-xl overflow-hidden bg-white/5 border border-white/5 ${className}`}>
-    <div className="w-full h-full bg-white/5" />
+  <div className={`relative flex-shrink-0 w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden bg-slate-900/50 backdrop-blur-sm border border-white/10 animate-pulse ${className}`}>
+    <div className="w-full h-full bg-slate-800/50" />
     
     {/* Simple placeholders */}
-    <div className="absolute bottom-4 left-3 right-3 space-y-2 opacity-20">
-        <div className="h-2 bg-white rounded-full w-3/4" />
-        <div className="h-2 bg-white rounded-full w-1/2" />
+    <div className="absolute bottom-4 left-3 right-3 space-y-2 opacity-30">
+        <div className="h-2 bg-white/80 rounded-full w-3/4" />
+        <div className="h-2 bg-white/80 rounded-full w-1/2" />
     </div>
   </div>
 );

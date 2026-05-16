@@ -75,20 +75,29 @@ const Search: React.FC = () => {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
+    <main className="min-h-screen bg-[#020617] px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
       <Meta
         title={query ? `Search results for "${query}"` : 'Search'}
         description="Search for your favorite movies and TV shows on K-Flix. Find trending content and hidden gems."
       />
-      <div className="max-w-7xl mx-auto">
-        <header>
-          <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-white">Search</h1>
+      
+      {/* Animated Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-600/10 rounded-full filter blur-[100px] animate-blob" />
+         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full filter blur-[100px] animate-blob animation-delay-4000" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <header className="mb-12 text-center md:text-left pt-8">
+          <h1 className="text-4xl md:text-6xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50 tracking-tighter">
+            Find Content
+          </h1>
         </header>
 
-        {/* Search Bar */}
-        <section className="relative mb-8 md:mb-12 max-w-2xl" aria-label="Search form">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-            <SearchIcon className="w-5 h-5 md:w-6 md:h-6" />
+        {/* Search Bar - Animated */}
+        <section className="relative mb-12 max-w-4xl mx-auto md:mx-0 group" aria-label="Search form">
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-cyan-400 transition-colors duration-300">
+            <SearchIcon className="w-6 h-6 md:w-8 md:h-8" />
           </div>
           <input
             id="search-input"
@@ -96,49 +105,76 @@ const Search: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for movies & TV shows..."
-            className="w-full bg-gray-900 border border-gray-700 rounded-xl py-3 pl-12 pr-4 md:py-5 md:pl-14 md:pr-6 text-base md:text-xl text-white focus:outline-none focus:ring-4 focus:ring-white/20 focus:border-white transition-all focusable tv-focus"
+            className="w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] py-5 pl-16 md:pl-20 pr-6 text-lg md:text-2xl text-white outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-500 hover:bg-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus:shadow-[0_0_30px_rgba(6,182,212,0.3)] placeholder:text-white/30 font-medium"
             autoComplete="off"
             aria-label="Search for content"
           />
         </section>
 
-        {/* Results Grid */}
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8" aria-label="Search results">
-          {results.map((item, index) => {
-            const uniqueKey = `${item.id}-${item.media_type}-${index}`;
-            const isLast = results.length === index + 1;
+        {/* Trending Searches (when query empty) */}
+        {!query && !loading && (
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+             <h2 className="text-2xl font-bold mb-6 text-white/50 border-b border-white/10 pb-4">Trending Searches</h2>
+             {/* Note: In a complete implementation we would fetch trending keys here, 
+                 but we'll show popular suggestions or let the user type. */}
+             <div className="flex flex-wrap gap-3">
+                 {['Inception', 'Breaking Bad', 'Interstellar', 'The Last of Us', 'Dune', 'Oppenheimer', 'Game of Thrones'].map((term) => (
+                    <button 
+                       key={term} 
+                       onClick={() => setQuery(term)} 
+                       className="px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all font-medium text-white/80 hover:text-white hover:scale-105"
+                    >
+                       {term}
+                    </button>
+                 ))}
+             </div>
+          </div>
+        )}
 
-            if (isLast) {
+        {/* Results Grid */}
+        {query && (
+          <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 gap-y-12 animate-in fade-in duration-700" aria-label="Search results">
+            {results.map((item, index) => {
+              const uniqueKey = `${item.id}-${item.media_type}-${index}`;
+              const isLast = results.length === index + 1;
+
+              if (isLast) {
+                return (
+                  <div ref={lastElementRef} key={uniqueKey} className="w-full h-full">
+                    <MovieCard
+                      movie={item}
+                      onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
+                      className="w-full !aspect-[2/3]"
+                    />
+                  </div>
+                );
+              }
               return (
-                <div ref={lastElementRef} key={uniqueKey}>
+                <div key={uniqueKey} className="w-full h-full">
                   <MovieCard
                     movie={item}
                     onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
-                    className="w-full h-full aspect-[2/3]"
+                    className="w-full !aspect-[2/3]"
                   />
                 </div>
               );
-            }
-            return (
-              <MovieCard
-                key={uniqueKey}
-                movie={item}
-                onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
-                className="w-full h-full aspect-[2/3]"
-              />
-            );
-          })}
-        </section>
+            })}
+          </section>
+        )}
 
         {loading && (
-          <div className="flex justify-center py-10 w-full" aria-live="polite" aria-busy="true">
-            <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div className="flex justify-center py-20 w-full" aria-live="polite" aria-busy="true">
+            <div className="w-12 h-12 border-4 border-white/10 border-t-cyan-500 rounded-full animate-spin"></div>
           </div>
         )}
 
         {!loading && query && results.length === 0 && (
-          <div className="text-gray-500 text-lg md:text-2xl text-center mt-20" role="status">
-            No results found for "{query}"
+          <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in duration-500" role="status">
+            <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center">
+               <SearchIcon className="w-12 h-12 text-white/20" />
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">No results found</h3>
+            <p className="text-white/40 text-lg">We couldn't find anything matching "{query}".</p>
           </div>
         )}
       </div>

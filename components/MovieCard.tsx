@@ -3,7 +3,8 @@ import { ContentItem } from '../types';
 import { api, getPosterUrl } from '../services/api';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
-import { Star, Heart, Check } from 'lucide-react';
+import { Star, Heart, Check, Play, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface MovieCardProps {
   movie: ContentItem;
@@ -14,6 +15,7 @@ interface MovieCardProps {
 const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' }) => {
   const [inWatchlist, setInWatchlist] = useState(false);
   const { user } = useAuth(); // Triggers re-render on user change
+  const navigate = useNavigate();
 
   // Normalize title/name
   const title = 'title' in movie ? movie.title : (movie as any).name;
@@ -88,8 +90,8 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
     }
   }, [movie.id, movie.media_type, isRecent]);
 
-  // Default width is smaller on mobile (w-32) and larger on tablet/desktop
-  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-32 sm:w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer group bg-slate-900 border border-white/5 focus:border-white focus:z-20 shadow-lg active:scale-95 lg:hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300 select-none touch-pan-y";
+  // Default width is smaller on mobile (w-28 or w-32) and scales up
+  const baseClasses = "focusable tv-focus relative flex-shrink-0 w-[30vw] min-w-[7rem] max-w-[8rem] sm:max-w-none sm:w-36 md:w-48 lg:w-56 aspect-[2/3] rounded-2xl md:rounded-[1.5rem] overflow-hidden cursor-pointer group/card bg-black/40 border border-white/10 focus:border-cyan-400 focus:z-20 shadow-md active:scale-95 transition-all duration-300 md:duration-[500ms] md:ease-[cubic-bezier(0.25,1,0.5,1)] select-none touch-pan-y md:hover:z-50 md:hover:shadow-[0_0_30px_rgba(6,182,212,0.3),0_20px_40px_rgba(0,0,0,0.8)] md:hover:ring-1 md:hover:ring-cyan-400/50 transform-gpu will-change-transform md:hover:-translate-y-2 lg:hover:-translate-y-4";
 
   return (
     <div
@@ -105,11 +107,11 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
         src={getPosterUrl(movie.poster_path)}
         alt={title}
         loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-focus:scale-110"
+        className="w-full h-full object-cover transition-transform duration-500 md:duration-700 md:group-hover/card:scale-110"
       />
 
       {/* Badges (Type & In Theaters) */}
-      <div className="absolute top-2 left-2 flex flex-col gap-1 items-start pointer-events-none z-10">
+      <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 flex flex-col gap-1 items-start pointer-events-none z-10">
         {movie.media_type === 'tv' && (
           <span className="px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-white border border-white/20">
             TV
@@ -122,28 +124,29 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, className = '' })
         )}
       </div>
 
-      {/* Watchlist Indicator */}
-      <button
-        onClick={handleToggleWatchlist}
-        className={`absolute top-2 right-2 p-1.5 md:p-2 rounded-full backdrop-blur-md transition-all duration-200 z-10 
-          ${inWatchlist
-            ? 'bg-red-600/90 text-white opacity-100 scale-100'
-            : 'bg-black/40 text-white opacity-0 group-focus:opacity-100 group-hover:opacity-100 hover:bg-red-600 scale-90 group-hover:scale-100'
-          }`}
-        title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
-      >
-        {inWatchlist ? <Check size={14} className="md:w-4 md:h-4" /> : <Heart size={14} className="md:w-4 md:h-4" />}
-      </button>
+      {/* Overlay info - Hidden on mobile entirely or simplified, visible on tap/hover on desktop */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/80 to-transparent opacity-0 md:group-focus/card:opacity-100 md:group-hover/card:opacity-100 transition-all duration-300 flex flex-col justify-end p-3 md:p-5 pointer-events-none translate-y-4 md:group-hover/card:translate-y-0 md:group-focus/card:translate-y-0 z-20 hidden md:flex">
+        <h3 className="text-white font-black text-sm md:text-base line-clamp-2 leading-tight mb-3 drop-shadow-lg">{title}</h3>
+        
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 mb-3 pointer-events-auto transform translate-y-4 opacity-0 md:group-hover/card:translate-y-0 md:group-hover/card:opacity-100 transition-all duration-500 delay-100">
+           <button onClick={(e) => { e.stopPropagation(); navigate(`/watch/${movie.id}?type=${movie.media_type || 'movie'}`); }} className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-cyan-400 hover:scale-110 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]" title="Play">
+               <Play size={16} className="fill-current ml-0.5" />
+           </button>
+           <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-white/40 hover:scale-110 transition-all border border-white/20" title="More Info">
+               <Info size={16} />
+           </button>
+           <button onClick={handleToggleWatchlist} className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:scale-110 transition-all border border-white/20 backdrop-blur-md ${inWatchlist ? 'bg-red-600/90 text-white border-transparent' : 'bg-white/20 text-white hover:bg-white/40'}`} title={inWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}>
+               {inWatchlist ? <Check size={16} /> : <Heart size={16} className="text-white" />}
+           </button>
+        </div>
 
-      {/* Overlay info */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-focus:opacity-100 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 md:p-4 pointer-events-none">
-        <h3 className="text-white font-bold text-xs md:text-sm line-clamp-2 leading-tight mb-1">{title}</h3>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-yellow-400 text-[10px] md:text-xs font-medium">
-            <Star size={10} className="md:w-3 md:h-3 fill-current" />
+          <div className="flex items-center gap-1.5 text-yellow-400 text-xs md:text-sm font-bold bg-black/50 px-2 py-1 rounded-md backdrop-blur-md border border-white/10">
+            <Star size={12} className="md:w-3.5 md:h-3.5 fill-current" />
             <span>{movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
           </div>
-          <span className="text-[10px] md:text-xs text-gray-300 font-medium">{date ? date.split('-')[0] : ''}</span>
+          <span className="text-xs md:text-sm text-white/80 font-bold bg-black/50 px-2 py-1 rounded-md backdrop-blur-md border border-white/10">{date ? date.split('-')[0] : ''}</span>
         </div>
       </div>
     </div>
