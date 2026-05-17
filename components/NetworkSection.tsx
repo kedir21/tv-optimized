@@ -29,34 +29,34 @@ export const NetworkSection: React.FC = () => {
   if (networks.length === 0) return null;
 
   return (
-    <div className="mb-12 md:mb-20 pl-4 md:pl-12 pr-4 md:pr-12">
-      <div className="flex items-center gap-3 mb-6 md:mb-8 ml-[-1rem] md:ml-[-3rem] pl-[1rem] md:pl-[3rem]">
-        <div className="w-1.5 h-6 md:h-8 bg-cyan-500 rounded-full" />
-        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">
+    <div className="mb-10 md:mb-16 px-4 md:px-12">
+      <div className="flex items-center gap-3 mb-5 md:mb-7">
+        <div className="w-1 h-5 md:h-6 bg-rose-500 rounded-full" />
+        <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
           Networks & Studios
         </h2>
       </div>
-      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6" aria-label="Network links">
+      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4" aria-label="Network links">
         {networks.map((network) => (
           <div
             key={network.id}
             onClick={() => navigate(`/network/${network.id}`)}
-            className="focusable tv-focus group bg-slate-900/50 backdrop-blur-md hover:bg-white/5 rounded-2xl p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-500 border border-white/10 hover:scale-105 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.2)] hover:border-cyan-500/50 overflow-hidden relative"
+            className="focusable tv-focus group rounded-xl md:rounded-2xl p-5 md:p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-300 border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.03] overflow-hidden relative"
+            style={{ backgroundColor: 'var(--bg-card)' }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && navigate(`/network/${network.id}`)}
             aria-label={`View content from ${network.name}`}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             {network.logo_path ? (
               <img
                 src={getLogoUrl(network.logo_path)}
                 alt={`${network.name} logo`}
-                className="max-w-[80%] max-h-[70%] object-contain filter grayscale group-hover:grayscale-0 brightness-200 group-hover:brightness-100 transition-all duration-500 group-hover:scale-110 relative z-10"
+                className="max-w-[75%] max-h-[60%] object-contain filter brightness-200 opacity-40 group-hover:opacity-80 group-hover:brightness-100 transition-all duration-400 group-hover:scale-105 relative z-10"
                 loading="lazy"
               />
             ) : (
-              <span className="text-sm md:text-base font-bold text-gray-400 group-hover:text-white text-center px-2 relative z-10 drop-shadow-md">{network.name}</span>
+              <span className="text-sm font-medium text-white/30 group-hover:text-white/60 text-center px-2 relative z-10 transition-colors duration-300">{network.name}</span>
             )}
           </div>
         ))}

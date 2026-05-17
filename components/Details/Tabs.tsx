@@ -11,7 +11,6 @@ interface TabsProps {
 export const Tabs: React.FC<TabsProps> = ({ activeTab, onTabChange, tabs }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Center active tab on mobile scroll
     useEffect(() => {
         const activeEl = document.getElementById(`tab-${activeTab}`);
         if (activeEl && scrollRef.current) {
@@ -22,11 +21,11 @@ export const Tabs: React.FC<TabsProps> = ({ activeTab, onTabChange, tabs }) => {
     }, [activeTab]);
 
     return (
-        <div className="sticky top-0 z-40 bg-[#020617]/80 backdrop-blur-xl border-b border-white/5 overflow-hidden">
+        <div className="sticky top-0 z-40 border-b border-white/[0.04] overflow-hidden" style={{ backgroundColor: 'rgba(10, 10, 15, 0.85)', backdropFilter: 'blur(24px) saturate(1.4)', WebkitBackdropFilter: 'blur(24px) saturate(1.4)' }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div
                     ref={scrollRef}
-                    className="flex items-center gap-8 overflow-x-auto no-scrollbar py-4"
+                    className="flex items-center gap-6 md:gap-8 overflow-x-auto no-scrollbar py-4"
                 >
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.id;
@@ -37,15 +36,15 @@ export const Tabs: React.FC<TabsProps> = ({ activeTab, onTabChange, tabs }) => {
                                 onClick={() => onTabChange(tab.id)}
                                 className="relative whitespace-nowrap py-1 group outline-none"
                             >
-                                <span className={`text-sm lg:text-base font-bold transition-colors ${isActive ? 'text-white' : 'text-white/40 group-hover:text-white/70'
+                                <span className={`text-sm font-medium transition-colors duration-200 ${isActive ? 'text-white' : 'text-white/35 group-hover:text-white/60'
                                     }`}>
                                     {tab.label}
                                 </span>
                                 {isActive && (
                                     <motion.div
                                         layoutId="activeTab"
-                                        className="absolute -bottom-[17px] left-0 right-0 h-1 bg-cyan-500 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        className="absolute -bottom-[17px] left-0 right-0 h-[2px] bg-rose-500 rounded-full"
+                                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                                     />
                                 )}
                             </button>

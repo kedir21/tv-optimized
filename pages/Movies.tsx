@@ -47,7 +47,6 @@ const Movies: React.FC = () => {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // Initial Genre Fetch
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -60,14 +59,12 @@ const Movies: React.FC = () => {
     fetchGenres();
   }, []);
 
-  // Reset when filters change
   useEffect(() => {
     setMovies([]);
     setPage(1);
     setHasMore(true);
   }, [selectedGenre, selectedCountry]);
 
-  // Fetch Movies
   useEffect(() => {
     const fetchMovies = async () => {
       setLoading(true);
@@ -95,40 +92,40 @@ const Movies: React.FC = () => {
   const selectedGenreName = genres.find(g => g.id === selectedGenre)?.name || 'Movies';
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
+    <main className="min-h-screen px-4 pt-16 pb-24 md:px-10 md:pt-10 md:pb-28" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Meta
         title={`${selectedGenreName} - Explore Movies`}
-        description={`Browse our extensive collection of ${selectedGenreName.toLowerCase()}. Discover popular and trending movies from around the world.`}
+        description={`Browse our extensive collection of ${selectedGenreName.toLowerCase()}.`}
       />
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-white">Movies</h1>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Movies</h1>
 
-        <div className="relative group min-w-[160px] max-w-[200px]">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-white transition-colors pointer-events-none">
-            <Globe size={16} />
+        <div className="relative group min-w-[140px] max-w-[180px]">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25 group-hover:text-white/50 transition-colors pointer-events-none">
+            <Globe size={14} />
           </div>
           <select
             value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
-            className="appearance-none w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white text-sm rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all cursor-pointer focusable tv-focus font-medium"
+            className="appearance-none w-full bg-white/[0.04] hover:bg-white/[0.06] border border-white/[0.06] hover:border-white/[0.1] text-white text-xs rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-1 focus:ring-rose-500/30 transition-all cursor-pointer font-medium"
             aria-label="Filter by country"
           >
             {COUNTRIES.map(c => (
-              <option key={c.code} value={c.code} className="bg-slate-900 text-white">{c.name}</option>
+              <option key={c.code} value={c.code} className="bg-[var(--bg-card)] text-white">{c.name}</option>
             ))}
           </select>
-          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" />
         </div>
       </header>
 
-      <section className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2" aria-label="Genre filters">
+      <section className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar mb-6 py-1.5" aria-label="Genre filters">
         {genres.map(genre => (
           <button
             key={genre.id}
             onClick={() => setSelectedGenre(genre.id)}
-            className={`focusable tv-focus whitespace-nowrap px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${selectedGenre === genre.id
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            className={`focusable tv-focus whitespace-nowrap px-3.5 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-medium transition-all ${selectedGenre === genre.id
+                ? 'bg-rose-500 text-white'
+                : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70'
               }`}
             aria-pressed={selectedGenre === genre.id}
           >
@@ -137,7 +134,7 @@ const Movies: React.FC = () => {
         ))}
       </section>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 animate-in fade-in duration-500" aria-label="Movie list">
+      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 animate-fade-in" aria-label="Movie list">
         {movies.map((movie, index) => {
           if (movies.length === index + 1) {
             return (
@@ -165,7 +162,10 @@ const Movies: React.FC = () => {
 
       {loading && (
         <div className="flex justify-center py-10 w-full" aria-live="polite" aria-busy="true">
-          <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="relative w-8 h-8">
+            <div className="absolute inset-0 rounded-full border-2 border-white/5"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-500 animate-spin"></div>
+          </div>
         </div>
       )}
     </main>

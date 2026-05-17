@@ -6,7 +6,6 @@ import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
 import { Movie, ContentItem } from '../types';
 import Row from '../components/Row';
-import TvButton from '../components/TvButton';
 import { Play, Info, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NetworkSection } from '../components/NetworkSection';
@@ -35,7 +34,6 @@ const Home: React.FC = () => {
   const [watchlist, setWatchlist] = useState<Movie[]>([]);
 
   useEffect(() => {
-    // Parallel fetching for speed
     const fetchAll = async () => {
       try {
         const [trendingData, popularData, topRatedData, upcomingData, popularTvData] = await Promise.all([
@@ -71,14 +69,12 @@ const Home: React.FC = () => {
 
     fetchAll();
 
-    // Initial fetch of local data
     const fetchLocalData = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
     };
     fetchLocalData();
 
-    // Listen for updates
     const handleWatchlistUpdate = async () => {
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as Movie[]);
@@ -91,7 +87,6 @@ const Home: React.FC = () => {
     };
   }, [user]);
 
-  // Auto focus the Play button on load
   useEffect(() => {
     if (heroMovie) {
       const timer = setTimeout(() => {
@@ -109,10 +104,11 @@ const Home: React.FC = () => {
 
   return (
     <motion.main 
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="min-h-screen pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-28 overflow-x-hidden bg-[#020617]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-24 overflow-x-hidden"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
     >
       <Meta
         title="Home"
@@ -121,15 +117,15 @@ const Home: React.FC = () => {
 
       {/* Hero Section */}
       {heroMovie && (
-        <section className="relative h-[85vh] lg:h-[95vh] w-full mb-12 group overflow-hidden" aria-labelledby="hero-title">
-          {/* Backdrop with Transition */}
+        <section className="relative h-[80vh] lg:h-[90vh] w-full mb-8 group overflow-hidden" aria-labelledby="hero-title">
+          {/* Backdrop */}
           <AnimatePresence mode="wait">
             <motion.div
               key={heroMovie.id}
-              initial={{ opacity: 0, scale: 1.05 }}
+              initial={{ opacity: 0, scale: 1.03 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
               className="absolute inset-0 z-0"
             >
               <img
@@ -138,56 +134,55 @@ const Home: React.FC = () => {
                 className="w-full h-full object-cover"
                 fetchPriority="high"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/80 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent" />
-              <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)] via-[var(--bg-primary)]/70 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)]/40 to-transparent" />
             </motion.div>
           </AnimatePresence>
 
-          <div className="relative z-10 h-full w-full max-w-[1800px] mx-auto flex flex-col lg:flex-row items-end lg:items-center justify-between pb-12 lg:pb-0 px-6 md:px-12 lg:px-16 gap-10">
-            {/* Hero Content (Left) */}
+          <div className="relative z-10 h-full w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row items-end lg:items-center justify-between pb-10 lg:pb-0 px-5 md:px-10 lg:px-14 gap-8">
+            {/* Hero Content */}
             <div className="w-full lg:w-1/2 flex flex-col justify-end pt-32 lg:pt-0">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={heroMovie.id}
-                  initial={{ y: 30, opacity: 0 }}
+                  initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -30, opacity: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.4, delay: 0.15 }}
                 >
-                  <h1 id="hero-title" className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-4 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] tracking-tighter leading-[1.1]">
+                  <h1 id="hero-title" className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-white mb-4 tracking-tight leading-[1.1]">
                     {(heroMovie as any).title || (heroMovie as any).name}
                   </h1>
                   
-                  <div className="flex items-center gap-3 mb-6 text-cyan-400 font-bold tracking-widest text-sm uppercase">
-                    <span className="flex items-center gap-1 border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 rounded">
-                      <Star className="w-4 h-4 fill-current" />
+                  <div className="flex items-center gap-3 mb-5 text-white/50 font-medium text-sm">
+                    <span className="flex items-center gap-1 text-amber-400">
+                      <Star className="w-3.5 h-3.5 fill-current" />
                       {heroMovie.vote_average?.toFixed(1)}
                     </span>
-                    <span>•</span>
+                    <span className="text-white/20">•</span>
                     <span>{(heroMovie as any).release_date ? (heroMovie as any).release_date.split('-')[0] : (heroMovie as any).first_air_date?.split('-')[0]}</span>
-                    <span>•</span>
-                    <span>{heroMovie.media_type === 'tv' ? 'TV SHOW' : 'MOVIE'}</span>
+                    <span className="text-white/20">•</span>
+                    <span className="uppercase text-xs tracking-wider">{heroMovie.media_type === 'tv' ? 'TV Show' : 'Movie'}</span>
                   </div>
 
-                  <p className="text-white/70 text-base md:text-xl line-clamp-3 mb-10 max-w-2xl drop-shadow-md leading-relaxed font-light">
+                  <p className="text-white/45 text-sm md:text-base line-clamp-3 mb-8 max-w-xl leading-relaxed">
                      {heroMovie.overview || "No overview available."}
                   </p>
 
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       id="hero-play-btn"
                       onClick={() => navigate(`/watch/${heroMovie.id}?type=${heroMovie.media_type || 'movie'}`)}
-                      className="flex items-center gap-3 px-8 py-4 rounded-full bg-cyan-500 text-[#020617] font-black hover:bg-cyan-400 hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                      className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-white text-[var(--bg-primary)] font-bold text-sm hover:bg-white/90 active:scale-[0.97] transition-all duration-200 shadow-lg"
                     >
-                      <Play className="w-6 h-6 fill-current" />
+                      <Play className="w-5 h-5 fill-current" />
                       <span>Watch Now</span>
                     </button>
                     <button
                       onClick={() => goToDetails(heroMovie)}
-                      className="flex items-center gap-3 px-8 py-4 rounded-full bg-white/10 text-white font-bold backdrop-blur-md border border-white/20 hover:bg-white/20 hover:scale-105 active:scale-95 transition-all duration-300"
+                      className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-white/8 text-white/80 font-medium text-sm border border-white/[0.06] hover:bg-white/12 hover:text-white active:scale-[0.97] transition-all duration-200"
                     >
-                      <Info className="w-6 h-6" />
+                      <Info className="w-5 h-5" />
                       <span>More Info</span>
                     </button>
                   </div>
@@ -195,22 +190,22 @@ const Home: React.FC = () => {
               </AnimatePresence>
             </div>
 
-            {/* Dynamic Movie Cards Carousel (Right) */}
-            <div className="hidden lg:flex flex-col items-end justify-center w-1/2 pt-20">
-              <div className="flex items-center gap-4 mb-6">
-                 <div className="h-px w-12 bg-cyan-500" />
-                 <h3 className="text-white/60 font-black uppercase tracking-[0.2em] text-sm">Trending This Week</h3>
+            {/* Trending Cards (Desktop) */}
+            <div className="hidden lg:flex flex-col items-end justify-center w-1/2 pt-16">
+              <div className="flex items-center gap-3 mb-5">
+                 <div className="h-px w-8 bg-white/10" />
+                 <h3 className="text-white/30 font-medium text-xs uppercase tracking-[0.2em]">Trending This Week</h3>
               </div>
-              <div className="flex justify-end gap-3 xl:gap-5 w-full overflow-visible">
+              <div className="flex justify-end gap-2.5 xl:gap-4 w-full overflow-visible">
                 {trending.slice(0, 5).map((movie) => (
                   <div
                     key={movie.id}
                     onMouseEnter={() => setHeroMovie(movie)}
                     onClick={() => goToDetails(movie)}
-                    className={`relative flex-shrink-0 w-28 xl:w-36 2xl:w-44 aspect-[2/3] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out transform ${
+                    className={`relative flex-shrink-0 w-24 xl:w-32 2xl:w-40 aspect-[2/3] rounded-xl overflow-hidden cursor-pointer transition-all duration-500 ease-out transform ${
                       heroMovie.id === movie.id 
-                      ? 'ring-4 ring-cyan-500 scale-110 shadow-[0_20px_50px_rgba(6,182,212,0.4)] -translate-y-4 z-20' 
-                      : 'ring-1 ring-white/10 hover:ring-white/30 hover:scale-105 opacity-50 hover:opacity-100 z-10 grayscale hover:grayscale-0'
+                      ? 'ring-2 ring-white/30 scale-110 shadow-[0_16px_40px_rgba(0,0,0,0.5)] -translate-y-3 z-20 opacity-100' 
+                      : 'ring-1 ring-white/[0.04] hover:ring-white/10 opacity-40 hover:opacity-70 z-10'
                     }`}
                   >
                     <img 
@@ -218,9 +213,11 @@ const Home: React.FC = () => {
                       alt={(movie as any).title || (movie as any).name} 
                       className="w-full h-full object-cover" 
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 transition-opacity duration-300 ${heroMovie.id === movie.id ? 'opacity-100' : 'opacity-0'}`}>
-                      <Play className="w-8 h-8 text-cyan-400 fill-current mx-auto mb-2 drop-shadow-md" />
-                    </div>
+                    {heroMovie.id === movie.id && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-center pb-3">
+                        <Play className="w-5 h-5 text-white fill-current drop-shadow-md" />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -229,39 +226,33 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* Rows */}
-      <div className={`space-y-4 md:space-y-6 relative z-20 ${heroMovie ? '-mt-16 md:-mt-24' : 'pt-24'}`}>
+      {/* Content Rows */}
+      <div className={`space-y-2 md:space-y-4 relative z-20 ${heroMovie ? '-mt-8 md:-mt-16' : 'pt-20'}`}>
 
         {watchlist.length > 0 && (
-          <section aria-label="My Watchlist" className="relative group/section">
+          <section aria-label="My Watchlist">
             <Row title={`My List ${user ? `(${user.username})` : ''}`} items={watchlist} onItemSelect={goToDetails} />
-            <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
           </section>
         )}
 
-        <section aria-label="Trending Movies and TV Shows" className="relative group/section">
+        <section aria-label="Trending Movies and TV Shows">
           <Row title="Trending Now" items={trending} isLoading={loadingTrending} onItemSelect={goToDetails} />
-          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Popular Movies" className="relative group/section">
+        <section aria-label="Popular Movies">
           <Row title="Popular Movies" items={popular} isLoading={loadingPopular} onItemSelect={goToDetails} />
-          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Top Rated Content" className="relative group/section">
+        <section aria-label="Top Rated Content">
           <Row title="Top Rated" items={topRated} isLoading={loadingTopRated} onItemSelect={goToDetails} />
-          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Upcoming Movies" className="relative group/section">
+        <section aria-label="Upcoming Movies">
           <Row title="Upcoming Movies" items={upcoming} isLoading={loadingUpcoming} onItemSelect={goToDetails} />
-          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
-        <section aria-label="Popular TV Shows" className="relative group/section">
+        <section aria-label="Popular TV Shows">
           <Row title="Popular TV Shows" items={popularTv} isLoading={loadingPopularTv} onItemSelect={goToDetails} />
-          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover/section:opacity-100 transition-opacity duration-700" />
         </section>
 
         <NetworkSection />

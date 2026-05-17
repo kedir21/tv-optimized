@@ -71,23 +71,23 @@ const TvShows: React.FC = () => {
   const selectedGenreName = genres.find(g => g.id === selectedGenre)?.name || 'TV Shows';
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
+    <main className="min-h-screen px-4 pt-16 pb-24 md:px-10 md:pt-10 md:pb-28" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Meta
         title={`${selectedGenreName} - Explore Series`}
-        description={`Watch the best ${selectedGenreName.toLowerCase()} online. Discover trending series and popular tv shows from around the world.`}
+        description={`Watch the best ${selectedGenreName.toLowerCase()} online.`}
       />
       <header>
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-white">TV Shows</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-5 text-white tracking-tight">TV Shows</h1>
       </header>
 
-      <section className="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar mb-6 md:mb-8 py-2" aria-label="Genre filters">
+      <section className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar mb-6 py-1.5" aria-label="Genre filters">
         {genres.map(genre => (
           <button
             key={genre.id}
             onClick={() => setSelectedGenre(genre.id)}
-            className={`focusable tv-focus whitespace-nowrap px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${selectedGenre === genre.id
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
+            className={`focusable tv-focus whitespace-nowrap px-3.5 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-medium transition-all ${selectedGenre === genre.id
+                ? 'bg-rose-500 text-white'
+                : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70'
               }`}
             aria-pressed={selectedGenre === genre.id}
           >
@@ -96,7 +96,7 @@ const TvShows: React.FC = () => {
         ))}
       </section>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 animate-in fade-in duration-500" aria-label="TV show list">
+      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 animate-fade-in" aria-label="TV show list">
         {shows.map((show, index) => {
           if (shows.length === index + 1) {
             return (
@@ -124,7 +124,10 @@ const TvShows: React.FC = () => {
 
       {loading && (
         <div className="flex justify-center py-10 w-full" aria-live="polite" aria-busy="true">
-          <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="relative w-8 h-8">
+            <div className="absolute inset-0 rounded-full border-2 border-white/5"></div>
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-500 animate-spin"></div>
+          </div>
         </div>
       )}
     </main>

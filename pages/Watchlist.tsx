@@ -18,7 +18,6 @@ const Watchlist: React.FC = () => {
 
   useEffect(() => {
     const loadWatchlist = async () => {
-      // Cast to ContentItem[] as the service currently returns Movie[]
       const list = await watchlistService.getWatchlist();
       setWatchlist(list as unknown as ContentItem[]);
     };
@@ -31,48 +30,48 @@ const Watchlist: React.FC = () => {
 
     window.addEventListener('watchlist-updated', handleWatchlistUpdate);
     return () => window.removeEventListener('watchlist-updated', handleWatchlistUpdate);
-  }, [user]); // Reload when user changes
+  }, [user]);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
+    <main className="min-h-screen px-4 pt-16 pb-24 md:px-10 md:pt-10 md:pb-28" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Meta
         title="My Watchlist"
         description="Your personal collection of movies and TV shows to watch later on K-Flix."
       />
-      <header className="flex items-center justify-between mb-8 md:mb-10">
-        <div className="flex items-center gap-3 md:gap-4">
-          <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight">My List</h1>
-          <span className="bg-white/10 border border-white/10 text-gray-300 text-xs md:text-sm font-bold px-3 py-1 rounded-full" aria-label={`${watchlist.length} items in list`}>
+      <header className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">My List</h1>
+          <span className="bg-white/[0.06] text-white/50 text-xs font-medium px-2.5 py-1 rounded-lg" aria-label={`${watchlist.length} items in list`}>
             {watchlist.length}
           </span>
         </div>
         {user && (
-          <span className="hidden md:block text-gray-400 text-sm">List for <span className="text-white font-semibold">{user.username}</span></span>
+          <span className="hidden md:block text-white/30 text-xs">List for <span className="text-white/60 font-medium">{user.username}</span></span>
         )}
       </header>
 
       {watchlist.length === 0 ? (
-        <section className="flex flex-col items-center justify-center h-[50vh] md:h-[60vh] text-gray-400 animate-in fade-in duration-700" role="status">
-          <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
-            <Heart size={40} className="text-gray-600" />
+        <section className="flex flex-col items-center justify-center h-[50vh] md:h-[60vh] animate-fade-in" role="status">
+          <div className="w-20 h-20 rounded-full bg-white/[0.04] flex items-center justify-center mb-5">
+            <Heart size={32} className="text-white/15" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Your list is empty</h2>
-          <p className="text-base md:text-lg text-center max-w-md mb-8 text-gray-500">
+          <h2 className="text-xl font-bold text-white mb-2">Your list is empty</h2>
+          <p className="text-sm text-white/35 text-center max-w-sm mb-6">
             {user
-              ? "Start building your personalized library by adding movies and TV shows you want to watch."
-              : "Items added here will be saved to your device. Sign in to sync your list across devices."}
+              ? "Start building your library by adding movies and shows you want to watch."
+              : "Items added here will be saved locally. Sign in to sync across devices."}
           </p>
           <TvButton
             variant="primary"
             onClick={() => navigate('/')}
-            icon={<PlayCircle size={20} />}
+            icon={<PlayCircle size={18} />}
             aria-label="Discover content"
           >
             Discover Content
           </TvButton>
         </section>
       ) : (
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500" aria-label="Your watchlist content">
+        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 animate-fade-in" aria-label="Your watchlist content">
           {watchlist.map((item, index) => {
             const type = item.media_type || 'movie';
             return (

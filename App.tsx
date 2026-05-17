@@ -3,6 +3,7 @@ import React, { useEffect, Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import BackButton from './components/BackButton';
+import AdblockWarning from './components/AdblockWarning';
 import { handleSpatialNavigation } from './utils/spatialNavigation';
 import { AuthProvider } from './context/AuthContext';
 
@@ -18,10 +19,16 @@ const NetworkDetails = lazy(() => import('./pages/NetworkDetails'));
 const Auth = lazy(() => import('./pages/Auth'));
 const Profile = lazy(() => import('./pages/Profile'));
 
-// Loading Fallback
+// Premium Loading Fallback
 const LoadingScreen = () => (
-  <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-    <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+  <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative w-12 h-12">
+        <div className="absolute inset-0 rounded-full border-2 border-white/5"></div>
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-500 animate-spin"></div>
+      </div>
+      <p className="text-white/30 text-sm font-medium tracking-widest uppercase">Loading</p>
+    </div>
   </div>
 );
 
@@ -31,25 +38,23 @@ const TvNavigationController: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Pass the event to our spatial navigation utility
       handleSpatialNavigation(e, 'focusable');
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [location.pathname]); // Re-bind on route change if necessary
+  }, [location.pathname]);
 
   return null;
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  // Strictly check for /watch/ to avoid hiding sidebar on /watchlist
   const isPlayer = location.pathname.startsWith('/watch/');
   const isAuth = location.pathname.startsWith('/auth');
 
   return (
-    <div className="min-h-screen w-screen bg-slate-950 text-white overflow-x-hidden font-sans antialiased selection:bg-red-500 selection:text-white">
+    <div className="min-h-screen w-screen overflow-x-hidden font-sans antialiased" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <TvNavigationController />
       {!isPlayer && !isAuth && <Sidebar />}
       {!isAuth && <BackButton />}
@@ -57,6 +62,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <Suspense fallback={<LoadingScreen />}>
           {children}
         </Suspense>
+        <AdblockWarning />
       </div>
     </div>
   );
@@ -76,11 +82,8 @@ const App: React.FC = () => {
             <Route path="/tv" element={<TvShows />} />
             <Route path="/network/:id" element={<NetworkDetails />} />
             <Route path="/watchlist" element={<Watchlist />} />
-            {/* Support legacy /movie/:id route if needed, or redirect */}
-            <Route path="/movie/:id" element={<Details />} /> 
-            {/* New Unified Details Route */}
+            <Route path="/movie/:id" element={<Details />} />
             <Route path="/details/:type/:id" element={<Details />} />
-            
             <Route path="/watch/:id" element={<Player />} />
           </Routes>
         </AppLayout>

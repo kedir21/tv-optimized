@@ -50,79 +50,71 @@ export const Hero: React.FC<HeroProps> = ({
     const rating = content.vote_average?.toFixed(1) || '0.0';
 
     return (
-        <div className="relative min-h-[85vh] lg:h-screen w-full overflow-hidden flex items-end pt-[calc(5rem+env(safe-area-inset-top))]">
-            {/* Background Image/Video */}
+        <div className="relative min-h-[80vh] lg:min-h-screen w-full overflow-hidden flex items-end pt-[calc(4rem+env(safe-area-inset-top))]">
+            {/* Background */}
             <div className="absolute inset-0 z-0 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/20 to-transparent z-10 lg:from-[#020617]/90" />
-                <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-[5]" />
-                
-                {/* Ambient Glow Effects */}
-                <div className="absolute top-[-10%] -left-[10%] w-[40%] h-[40%] bg-cyan-600/30 rounded-full mix-blend-screen filter blur-[100px] animate-blob z-[6]" />
-                <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[120px] animate-blob z-[6]" style={{ animationDelay: '2s' }} />
-                <div className="absolute -bottom-[10%] left-[20%] w-[40%] h-[40%] bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob z-[6]" style={{ animationDelay: '4s' }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-[var(--bg-primary)]/70 to-[var(--bg-primary)]/20 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)] via-transparent to-transparent z-10 lg:from-[var(--bg-primary)]/80" />
 
                 <motion.img
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 1.2 }}
+                    initial={{ scale: 1.05, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 0.6 }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
                     src={getImageUrl(content.backdrop_path)}
                     alt={`${title} backdrop`}
-                    className="w-full h-full object-cover mix-blend-overlay opacity-80"
+                    className="w-full h-full object-cover"
                     fetchPriority="high"
                 />
             </div>
 
             {/* Content */}
-            <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-[calc(3rem+env(safe-area-inset-bottom))] lg:pb-24">
-                <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center lg:items-end">
+            <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-[calc(2.5rem+env(safe-area-inset-bottom))] lg:pb-20">
+                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-end">
 
-                    {/* Desktop/Tablet Poster (Left Side) */}
-                    <div className="hidden md:flex justify-center lg:block lg:col-span-4 perspective-1000 z-30 mb-8 lg:mb-0">
+                    {/* Desktop Poster */}
+                    <div className="hidden md:flex justify-center lg:block lg:col-span-4 z-30 mb-6 lg:mb-0">
                         <motion.div
-                            initial={{ y: 50, opacity: 0, rotateY: -10 }}
-                            animate={{ y: 0, opacity: 1, rotateY: 5 }}
-                            whileHover={{ scale: 1.03, rotateY: 0, rotateX: 5, z: 50 }}
-                            transition={{ delay: 0.3, type: 'spring', stiffness: 100, damping: 20 }}
-                            className="relative w-64 lg:w-full max-w-[22rem] aspect-[2/3] rounded-[2rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 group cursor-pointer animate-float backdrop-blur-md"
+                            initial={{ y: 30, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
+                            className="relative w-56 lg:w-full max-w-[20rem] aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/[0.06] group cursor-pointer"
                             onClick={onPlay}
                         >
-                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[2px]">
-                                <div className="w-20 h-20 rounded-full bg-white text-[#020617] flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.4)] transform scale-50 group-hover:scale-100 transition-transform duration-500">
-                                    <Play className="w-8 h-8 fill-current ml-1" />
+                            <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                                <div className="w-16 h-16 rounded-full bg-white/90 text-[var(--bg-primary)] flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-xl">
+                                    <Play className="w-6 h-6 fill-current ml-1" />
                                 </div>
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* Mobile Poster (Above Text, Only on small screens) */}
-                    <div className="md:hidden flex justify-center mb-6">
+                    {/* Mobile Poster */}
+                    <div className="md:hidden flex justify-center mb-4">
                         <motion.div
-                            initial={{ y: 20, opacity: 0 }}
+                            initial={{ y: 15, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="relative w-48 sm:w-56 aspect-[2/3] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10"
+                            transition={{ delay: 0.15 }}
+                            className="relative w-40 sm:w-48 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/[0.06]"
                         >
                             <img src={getPosterUrl(content.poster_path)} alt={`${title} poster`} className="w-full h-full object-cover" />
                         </motion.div>
                     </div>
 
-                    {/* Text Info (Right Side) */}
+                    {/* Text Info */}
                     <div className="lg:col-span-8 text-center md:text-left flex flex-col md:items-start items-center">
                         <motion.div
-                            initial={{ y: 30, opacity: 0 }}
+                            initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="space-y-5 lg:space-y-6 w-full"
+                            transition={{ delay: 0.3, duration: 0.5 }}
+                            className="space-y-4 lg:space-y-5 w-full"
                         >
-                            <h1 className="text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.1] drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] tracking-tighter">
+                            <h1 className="text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] tracking-tight">
                                 {title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs sm:text-sm font-semibold text-white/70 uppercase tracking-widest pt-2">
-                                <span className="px-3 py-1 rounded bg-white/10 text-white backdrop-blur-md border border-white/10">
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                <span className="px-2.5 py-1 rounded-md bg-white/[0.06] text-white/70">
                                     {mediaType}
                                 </span>
                                 {(() => {
@@ -133,32 +125,30 @@ export const Hero: React.FC<HeroProps> = ({
                                     
                                     const providers = content["watch/providers"]?.results?.US;
                                     const isNetflix = providers?.flatrate?.some((p: any) => p.provider_name.toLowerCase().includes('netflix'));
-                                    if (isNetflix) {
-                                        isInTheaters = false;
-                                    }
+                                    if (isNetflix) isInTheaters = false;
 
                                     if (isInTheaters) {
                                         return (
-                                            <span className="px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
+                                            <span className="px-2.5 py-1 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/20">
                                                 In Theaters
                                             </span>
                                         );
                                     }
                                     return null;
                                 })()}
-                                <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded border border-yellow-500/20">
-                                    <Star className="w-4 h-4 fill-current" />
+                                <span className="flex items-center gap-1 text-amber-400">
+                                    <Star className="w-3.5 h-3.5 fill-current" />
                                     {rating}
                                 </span>
-                                <span>•</span>
-                                <span className="flex items-center gap-1.5">
-                                    <Calendar className="w-4 h-4" />
+                                <span className="text-white/20">•</span>
+                                <span className="flex items-center gap-1">
+                                    <Calendar className="w-3.5 h-3.5" />
                                     {year}
                                 </span>
-                                <span>•</span>
+                                <span className="text-white/20">•</span>
                                 {mediaType === 'movie' ? (
-                                    <span className="flex items-center gap-1.5">
-                                        <Clock className="w-4 h-4" />
+                                    <span className="flex items-center gap-1">
+                                        <Clock className="w-3.5 h-3.5" />
                                         {(content as MovieDetails).runtime}m
                                     </span>
                                 ) : (
@@ -167,97 +157,97 @@ export const Hero: React.FC<HeroProps> = ({
                             </div>
 
                             {content.tagline && (
-                                <p className="text-xl lg:text-2xl text-white/50 font-light italic max-w-2xl mx-auto md:mx-0 pt-2">
+                                <p className="text-base lg:text-lg text-white/30 font-light italic max-w-xl mx-auto md:mx-0">
                                     "{content.tagline}"
                                 </p>
                             )}
 
-                            <div className="flex flex-wrap gap-2 justify-center md:justify-start pt-2">
+                            <div className="flex flex-wrap gap-1.5 justify-center md:justify-start">
                                 {content.genres?.map(genre => (
-                                    <span key={genre.id} className="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-xs font-bold text-white/80 backdrop-blur-md cursor-default">
+                                    <span key={genre.id} className="px-3 py-1 rounded-lg bg-white/[0.04] border border-white/[0.04] text-[11px] font-medium text-white/50 cursor-default">
                                         {genre.name}
                                     </span>
                                 ))}
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-6">
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-4">
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
                                     onClick={onPlay}
-                                    className="px-8 flex-1 sm:flex-none py-4 rounded-2xl bg-white text-[#020617] font-black flex justify-center items-center gap-3 transition-colors hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.3)] ring-2 ring-white/50"
+                                    className="px-7 flex-1 sm:flex-none py-3.5 rounded-xl bg-white text-[var(--bg-primary)] font-bold flex justify-center items-center gap-2.5 transition-colors hover:bg-white/90 shadow-lg text-sm"
                                 >
-                                    <Play className="w-6 h-6 fill-current" />
-                                    <span className="uppercase tracking-widest text-sm">Watch</span>
+                                    <Play className="w-5 h-5 fill-current" />
+                                    <span>Watch Now</span>
                                 </motion.button>
 
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
                                     onClick={onWatchlistToggle}
-                                    className={`p-4 rounded-2xl border transition-all backdrop-blur-md flex items-center justify-center gap-2 font-bold flex-1 sm:flex-none uppercase tracking-widest text-sm ${inWatchlist
-                                        ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
-                                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                    className={`p-3.5 rounded-xl border transition-all flex items-center justify-center gap-2 font-semibold flex-1 sm:flex-none text-sm ${inWatchlist
+                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        : 'bg-white/[0.04] border-white/[0.06] text-white/80 hover:bg-white/[0.08]'
                                         }`}
                                 >
-                                    {inWatchlist ? <Check className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
-                                    <span className="inline">{inWatchlist ? "Saved" : "List"}</span>
+                                    {inWatchlist ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                                    <span>{inWatchlist ? "Saved" : "My List"}</span>
                                 </motion.button>
 
                                 {hasTrailer && (
                                     <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                         onClick={onTrailer}
-                                        className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-md transition-all hover:bg-white/10 flex-1 sm:flex-none flex justify-center"
+                                        className="p-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white/70 hover:text-white transition-all hover:bg-white/[0.08] flex-1 sm:flex-none flex justify-center"
                                         title="Watch Trailer"
                                     >
-                                        <Youtube className="w-5 h-5" />
+                                        <Youtube className="w-4 h-4" />
                                     </motion.button>
                                 )}
 
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
                                     onClick={onShare}
-                                    className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white backdrop-blur-md transition-all hover:bg-white/10"
+                                    className="p-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white/70 hover:text-white transition-all hover:bg-white/[0.08]"
                                     title="Share"
                                 >
-                                    <Share2 className="w-5 h-5" />
+                                    <Share2 className="w-4 h-4" />
                                 </motion.button>
                             </div>
 
                             {mediaType === 'tv' && tvSeasons && tvSeasons.length > 0 && onTvSeasonChange && onTvEpisodeChange && typeof tvSeason === 'number' && typeof tvEpisode === 'number' && typeof tvEpisodeMax === 'number' && !downloadDisabled && (
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Download</span>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/25">Download</span>
                                     <div className="relative">
                                         <select
                                             value={tvSeason}
                                             onChange={(e) => onTvSeasonChange(parseInt(e.target.value, 10))}
-                                            className="appearance-none bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold text-white/90 focus:outline-none focus:border-cyan-500/50 transition-all cursor-pointer"
+                                            className="appearance-none bg-white/[0.04] border border-white/[0.06] hover:border-white/[0.1] rounded-lg pl-3 pr-8 py-2 text-xs font-medium text-white/80 focus:outline-none focus:border-rose-500/40 transition-all cursor-pointer"
                                         >
                                             {tvSeasons.map((s) => (
-                                                <option key={s.id} value={s.season_number} className="bg-slate-900">
+                                                <option key={s.id} value={s.season_number} className="bg-[var(--bg-card)]">
                                                     Season {s.season_number}
                                                 </option>
                                             ))}
                                         </select>
-                                        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-[10px]">▾</span>
+                                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-[9px]">▾</span>
                                     </div>
                                     <div className="relative">
                                         <select
                                             value={Math.min(tvEpisode, tvEpisodeMax)}
                                             onChange={(e) => onTvEpisodeChange(parseInt(e.target.value, 10))}
-                                            className="appearance-none bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold text-white/90 focus:outline-none focus:border-cyan-500/50 transition-all cursor-pointer min-w-[7rem]"
+                                            className="appearance-none bg-white/[0.04] border border-white/[0.06] hover:border-white/[0.1] rounded-lg pl-3 pr-8 py-2 text-xs font-medium text-white/80 focus:outline-none focus:border-rose-500/40 transition-all cursor-pointer min-w-[6rem]"
                                         >
                                             {Array.from({ length: tvEpisodeMax }, (_, i) => i + 1).map((num) => (
-                                                <option key={num} value={num} className="bg-slate-900">
+                                                <option key={num} value={num} className="bg-[var(--bg-card)]">
                                                     Episode {num}
                                                 </option>
                                             ))}
                                         </select>
-                                        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-[10px]">▾</span>
+                                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-[9px]">▾</span>
                                     </div>
                                      <motion.button
                                         type="button"
@@ -265,25 +255,25 @@ export const Hero: React.FC<HeroProps> = ({
                                         whileTap={{ scale: 0.95 }}
                                         onClick={onDownload}
                                         disabled={downloadLoading}
-                                        className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 disabled:opacity-50 transition-all"
+                                        className="p-2 rounded-lg bg-white/[0.04] border border-white/[0.06] text-white/50 hover:text-white/80 disabled:opacity-40 transition-all hover:bg-white/[0.08]"
                                         title="Download Selected Episode via VidVault"
                                     >
-                                        {downloadLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                                        {downloadLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                                     </motion.button>
                                 </div>
                             )}
 
                              {mediaType === 'movie' && !downloadDisabled && (
-                                <div className="flex flex-wrap items-center justify-center md:justify-start pt-4">
+                                <div className="flex flex-wrap items-center justify-center md:justify-start pt-2">
                                      <motion.button
                                         type="button"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                         onClick={onDownload}
                                         disabled={downloadLoading}
-                                        className="px-6 py-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 disabled:opacity-50 transition-all flex items-center gap-2 font-bold text-sm uppercase tracking-widest"
+                                        className="px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white/50 hover:text-white/80 disabled:opacity-40 transition-all flex items-center gap-2 font-medium text-xs hover:bg-white/[0.08]"
                                     >
-                                        {downloadLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                                        {downloadLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                                         <span>Download</span>
                                     </motion.button>
                                 </div>
