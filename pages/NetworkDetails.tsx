@@ -1,12 +1,14 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api, getLogoUrl } from '../services/api';
 import { NETWORK_MOVIE_MAPPING } from '../services/networks';
 import { Network, ContentItem, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
-import { ChevronDown, Filter, Globe } from 'lucide-react';
+import { ChevronDown, Filter, Globe, LayoutGrid, Film } from 'lucide-react';
 import Meta from '../components/Meta';
+import { CinematicBackground } from '../components/CinematicBackground';
+
 type FilterType = 'tv' | 'movie';
 type SortType = 'popularity.desc' | 'vote_average.desc' | 'first_air_date.desc';
 
@@ -16,13 +18,8 @@ const COUNTRIES = [
   { code: 'GB', name: 'United Kingdom' },
   { code: 'KR', name: 'South Korea' },
   { code: 'JP', name: 'Japan' },
-  { code: 'CN', name: 'China' },
   { code: 'IN', name: 'India' },
   { code: 'FR', name: 'France' },
-  { code: 'ES', name: 'Spain' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'AU', name: 'Australia' }
 ];
 
 const NetworkDetails: React.FC = () => {
@@ -76,42 +73,19 @@ const NetworkDetails: React.FC = () => {
     if (networkId) fetchData();
   }, [networkId]);
 
-  const handleTabChange = (type: FilterType) => {
-    if (type === filterType) return;
-
-    setFilterType(type);
-    setSelectedGenre(0);
-    setPage(1);
-    setContent([]);
-    setHasMore(true);
-  };
-
   useEffect(() => {
     const fetchContent = async () => {
       if (page === 1) setLoading(true);
-
       try {
         let newContent: ContentItem[] = [];
-
         if (filterType === 'tv') {
-          const res = await api.discoverTvShows(page, selectedGenre, sortBy, networkId, selectedCountry);
-          newContent = res;
+          newContent = await api.discoverTvShows(page, selectedGenre, sortBy, networkId, selectedCountry);
         } else if (filterType === 'movie') {
-          const movieConfig = NETWORK_MOVIE_MAPPING[networkId];
-
-          if (movieConfig) {
-            const options: any = { country: selectedCountry };
-
-            if (movieConfig.type === 'provider') {
-              options.providerId = movieConfig.value;
-            } else {
-              options.companyId = movieConfig.value;
-            }
-
-            const res = await api.discoverMovies(page, selectedGenre, sortBy, options);
-            newContent = res;
-          } else {
-            newContent = [];
+          const mConfig = NETWORK_MOVIE_MAPPING[networkId];
+          if (mConfig) {
+            const opts: any = { country: selectedCountry };
+            mConfig.type === 'provider' ? (opts.providerId = mConfig.value) : (opts.companyId = mConfig.value);
+            newContent = await api.discoverMovies(page, selectedGenre, sortBy, opts);
           }
         }
 
@@ -119,183 +93,115 @@ const NetworkDetails: React.FC = () => {
           setHasMore(false);
           if (page === 1) setContent([]);
         } else {
-          setContent(prev => {
-            if (page === 1) return newContent;
-            const existingIds = new Set(prev.map(i => i.id));
-            const uniqueNew = newContent.filter(i => !existingIds.has(i.id));
-            return [...prev, ...uniqueNew];
-          });
+          setContent(prev => page === 1 ? newContent : [...prev, ...newContent]);
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
     };
-
     if (networkId) fetchContent();
   }, [page, filterType, selectedGenre, selectedCountry, sortBy, networkId]);
 
   const currentGenres = filterType === 'movie' ? movieGenres : tvGenres;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 pt-20 pb-24 md:px-12 md:pt-12 md:pb-28">
-      <Meta
-        title={network?.name || 'Network'}
-        description={`Explore high-quality movies and TV shows from ${network?.name || 'major networks'}. Browse and stream your favorite content.`}
-      />
-      <header className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 mb-8 md:mb-10 pb-8 border-b border-white/5">
-        <div className="w-32 h-32 md:w-48 md:h-32 bg-white rounded-xl p-4 flex items-center justify-center shadow-2xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-tr from-gray-200 to-transparent opacity-50" />
-          {network?.logo_path ? (
-            <img src={getLogoUrl(network.logo_path)} alt={`${network.name} logo`} className="max-w-full max-h-full object-contain relative z-10" />
-          ) : (
-            <div className="text-black font-bold text-xl relative z-10">{network?.name}</div>
-          )}
-        </div>
-        <div className="text-center md:text-left">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{network?.name}</h1>
-          <div className="flex items-center justify-center md:justify-start gap-3 text-gray-400 text-sm md:text-base">
-            <span className="flex items-center gap-1"><Globe size={14} /> {network?.origin_country || 'Global'}</span>
-            <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-            <span className="text-red-500 font-bold uppercase tracking-wide">Network</span>
+    <div className="relative min-h-screen">
+      <CinematicBackground />
+      <Meta title={`${network?.name || 'Studio'} | K-Flix`} />
+
+      <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
+        <header className="flex flex-col md:flex-row items-center md:items-end gap-10 mb-16">
+          <div className="w-40 h-28 md:w-56 md:h-36 bg-white rounded-[24px] p-6 flex items-center justify-center shadow-2xl shrink-0">
+            {network?.logo_path ? (
+              <img src={getLogoUrl(network.logo_path)} alt={network.name} className="max-w-full max-h-full object-contain" />
+            ) : (
+              <span className="text-black font-bold text-2xl">{network?.name}</span>
+            )}
           </div>
-        </div>
-      </header>
-
-      <div className="sticky top-16 md:top-0 z-40 -mx-4 px-4 md:-mx-12 md:px-12 mb-8 transition-all">
-        <div className="bg-slate-900/80 backdrop-blur-xl border border-white/10 p-2 md:p-3 rounded-2xl shadow-2xl flex flex-col xl:flex-row gap-3 justify-between items-center max-w-[1920px] mx-auto">
-
-          <div className="bg-black/50 p-1 rounded-xl flex gap-1 w-full xl:w-auto relative">
-            <button
-              onClick={() => handleTabChange('tv')}
-              className={`relative z-10 flex-1 xl:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 focusable tv-focus ${filterType === 'tv'
-                ? 'bg-white text-black shadow-lg shadow-white/10'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              TV Shows
-            </button>
-            <button
-              onClick={() => handleTabChange('movie')}
-              className={`relative z-10 flex-1 xl:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 focusable tv-focus ${filterType === 'movie'
-                ? 'bg-white text-black shadow-lg shadow-white/10'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              Movies
-            </button>
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-3 tracking-tight">{network?.name}</h1>
+            <div className="flex items-center justify-center md:justify-start gap-4 text-white/30 font-medium">
+              <span className="flex items-center gap-1.5"><Globe size={16} /> {network?.origin_country || 'Worldwide'}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-white/10"></span>
+              <span className="text-rose-500 font-bold uppercase tracking-widest text-xs">Certified Studio</span>
+            </div>
           </div>
+        </header>
 
-          <div className="flex flex-wrap items-center justify-end gap-2 w-full xl:w-auto">
-
-            <div className="relative group flex-grow md:flex-grow-0 min-w-[150px]">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Globe size={14} className="text-gray-400 group-hover:text-white transition-colors" />
+        {/* Filters */}
+        <div className="sticky top-0 z-50 py-6 mb-12 bg-[#040406]/0 backdrop-blur-0 transition-all duration-300">
+           <div className="bg-white/5 border border-white/10 rounded-[28px] p-2 flex flex-col lg:flex-row gap-4 items-center shadow-2xl">
+              <div className="bg-white/5 p-1 rounded-2xl flex gap-1 w-full lg:w-auto">
+                 <button
+                   onClick={() => { setFilterType('tv'); setPage(1); setContent([]); }}
+                   className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterType === 'tv' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                 >
+                   <LayoutGrid size={16} />
+                   Series
+                 </button>
+                 <button
+                   onClick={() => { setFilterType('movie'); setPage(1); setContent([]); }}
+                   className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterType === 'movie' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                 >
+                   <Film size={16} />
+                   Movies
+                 </button>
               </div>
-              <select
-                value={selectedCountry}
-                onChange={(e) => {
-                  setSelectedCountry(e.target.value);
-                  setPage(1);
-                  setContent([]);
-                }}
-                className="appearance-none w-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-white text-xs md:text-sm rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all cursor-pointer focusable tv-focus font-medium"
-              >
-                {COUNTRIES.map(c => (
-                  <option key={c.code} value={c.code} className="bg-slate-900 text-white">{c.name}</option>
+
+              <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:flex-1">
+                 <div className="relative group shrink-0 min-w-[140px]">
+                    <select
+                      value={selectedCountry}
+                      onChange={(e) => { setSelectedCountry(e.target.value); setPage(1); setContent([]); }}
+                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-10 py-3 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer"
+                    >
+                      {COUNTRIES.map(c => <option key={c.code} value={c.code} className="bg-[#0a0a0f]">{c.name}</option>)}
+                    </select>
+                    <Globe size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" />
+                 </div>
+
+                 <div className="relative group shrink-0 min-w-[160px]">
+                    <select
+                      value={selectedGenre}
+                      onChange={(e) => { setSelectedGenre(parseInt(e.target.value)); setPage(1); setContent([]); }}
+                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-10 py-3 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer"
+                    >
+                      {currentGenres.map(g => <option key={g.id} value={g.id} className="bg-[#0a0a0f]">{g.name}</option>)}
+                    </select>
+                    <Filter size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" />
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <AnimatePresence>
+                {content.map((item, index) => (
+                    <motion.div
+                        key={`${item.id}-${index}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: (index % 12) * 0.05 }}
+                        ref={content.length === index + 1 ? lastElementRef : null}
+                    >
+                        <MovieCard
+                            movie={item}
+                            onClick={() => navigate(`/details/${item.media_type || filterType}/${item.id}`)}
+                            className="w-full h-full"
+                        />
+                    </motion.div>
                 ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ChevronDown size={14} className="text-gray-500" />
-              </div>
+            </AnimatePresence>
+        </section>
+
+        {loading && (
+            <div className="flex justify-center py-20 w-full">
+                <div className="w-10 h-10 rounded-full border-2 border-white/5 border-t-rose-500 animate-spin" />
             </div>
-
-            <div className="relative group flex-grow md:flex-grow-0 min-w-[170px]">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <div className="text-[10px] font-bold border border-gray-400 group-hover:border-white text-gray-400 group-hover:text-white px-1 rounded transition-colors">G</div>
-              </div>
-              <select
-                value={selectedGenre}
-                onChange={(e) => {
-                  setSelectedGenre(parseInt(e.target.value));
-                  setPage(1);
-                  setContent([]);
-                }}
-                className="appearance-none w-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-white text-xs md:text-sm rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all cursor-pointer focusable tv-focus font-medium"
-              >
-                {currentGenres.map(g => (
-                  <option key={g.id} value={g.id} className="bg-slate-900 text-white">{g.name}</option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ChevronDown size={14} className="text-gray-500" />
-              </div>
-            </div>
-
-            <div className="relative group flex-grow md:flex-grow-0 min-w-[170px]">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter size={14} className="text-gray-400 group-hover:text-white transition-colors" />
-              </div>
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value as SortType);
-                  setPage(1);
-                  setContent([]);
-                }}
-                className="appearance-none w-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-white text-xs md:text-sm rounded-lg pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all cursor-pointer focusable tv-focus font-medium"
-              >
-                <option value="popularity.desc">Most Popular</option>
-                <option value="vote_average.desc">Highest Rated</option>
-                <option value="first_air_date.desc">Newest First</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ChevronDown size={14} className="text-gray-500" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 animate-in fade-in duration-500">
-        {content.map((item, index) => {
-          const isLast = content.length === index + 1;
-          const uniqueKey = `${item.id}-${index}`;
-          const mediaType = filterType === 'movie' ? 'movie' : 'tv';
-
-          return (
-            <div ref={isLast ? lastElementRef : null} key={uniqueKey} className="w-full h-full">
-              <MovieCard
-                movie={{ ...item, media_type: item.media_type || mediaType } as ContentItem}
-                onClick={() => navigate(`/details/${(item.media_type || mediaType)}/${item.id}`)}
-                className="w-full h-full"
-              />
-            </div>
-          );
-        })
-        }
-      </div>
-
-      {loading && (
-        <div className="flex justify-center py-10 w-full">
-          <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-        </div>
-      )}
-
-      {!loading && content.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-32 text-gray-500">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-            <Filter size={40} className="opacity-50 text-gray-400" />
-          </div>
-          <h3 className="text-2xl font-semibold mb-3 text-white">No content found</h3>
-          <p className="max-w-md text-center text-gray-400">
-            We couldn't find any {filterType === 'movie' ? 'movies' : 'TV shows'} matching your filters for this network.
-            <br /><span className="text-sm opacity-70 mt-2 block">Try changing the country or genre.</span>
-          </p>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+    </div>
   );
 };
 

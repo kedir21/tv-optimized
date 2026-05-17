@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ContentItem } from '../types';
 import MovieCard from './MovieCard';
+import { MovieCardSkeleton } from './Skeletons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface RowProps {
@@ -14,8 +16,7 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
   const rowRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  if (isLoading && items.length === 0) return null;
-  if (items.length === 0) return null;
+  if (!isLoading && items.length === 0) return null;
 
   const handleScroll = () => {
     if (rowRef.current) {
@@ -23,64 +24,58 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
     }
   };
 
-  const scrollLeft = () => {
+  const scroll = (direction: 'left' | 'right') => {
     if (rowRef.current) {
-      rowRef.current.scrollBy({ left: -window.innerWidth / 2, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (rowRef.current) {
-      rowRef.current.scrollBy({ left: window.innerWidth / 2, behavior: 'smooth' });
+      const { scrollLeft, clientWidth } = rowRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - clientWidth * 0.8 : scrollLeft + clientWidth * 0.8;
+      rowRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="mb-10 md:mb-16 pl-4 md:pl-12 group relative">
-      {title && (
-        <div className="flex items-center gap-3 mb-5 md:mb-7">
-          <div className="w-1 h-5 md:h-6 bg-rose-500 rounded-full" />
-          <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
-            {title}
-          </h2>
+    <div className="relative group/row py-6">
+      <div className="flex items-center justify-between mb-6 px-6 md:px-12 lg:px-20">
+        <h2 className="text-xl md:text-2xl font-display font-bold text-white tracking-wide">
+          {title}
+        </h2>
+        <div className="hidden md:flex items-center gap-2">
+            <button 
+                onClick={() => scroll('left')}
+                className={`w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all ${!isScrolled && 'opacity-20 pointer-events-none'}`}
+            >
+                <ChevronLeft size={18} />
+            </button>
+            <button 
+                onClick={() => scroll('right')}
+                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-all"
+            >
+                <ChevronRight size={18} />
+            </button>
         </div>
-      )}
-      
-      <div className="relative">
-        {/* Left Arrow */}
-        <button 
-          onClick={scrollLeft}
-          className={`absolute left-0 top-1/2 -translate-y-1/2 z-40 glass rounded-r-xl p-2 h-20 md:h-28 opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-white/10 ${!isScrolled && 'hidden'}`}
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="text-white/60 hover:text-white w-5 h-5" />
-        </button>
+      </div>
 
-        {/* Right Arrow */}
-        <button 
-          onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-40 glass rounded-l-xl p-2 h-20 md:h-28 opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="text-white/60 hover:text-white w-5 h-5" />
-        </button>
-
-        <div 
-          ref={rowRef}
-          onScroll={handleScroll}
-          className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar py-4 md:py-6 px-1 scroll-smooth [-webkit-overflow-scrolling:touch] snap-x snap-mandatory relative z-10"
-        >
-          {items.map((item) => (
-            <div key={item.id} className="snap-start scroll-mx-4 md:scroll-mx-12 shrink-0">
-              <MovieCard
-                movie={item}
-                onClick={() => onItemSelect(item)}
-              />
-            </div>
-          ))}
-          {/* End spacer */}
-          <div className="w-4 md:w-12 flex-shrink-0" />
-        </div>
+      <div 
+        ref={rowRef}
+        onScroll={handleScroll}
+        className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar px-6 md:px-12 lg:px-20 py-2"
+      >
+        {isLoading ? (
+            <>
+                {[...Array(6)].map((_, i) => <MovieCardSkeleton key={i} />)}
+            </>
+        ) : (
+            <>
+                {items.map((item) => (
+                    <MovieCard
+                        key={item.id}
+                        movie={item}
+                        onClick={() => onItemSelect(item)}
+                    />
+                ))}
+            </>
+        )}
+        {/* End spacer */}
+        <div className="w-12 shrink-0 h-1" />
       </div>
     </div>
   );

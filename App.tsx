@@ -21,13 +21,16 @@ const Profile = lazy(() => import('./pages/Profile'));
 
 // Premium Loading Fallback
 const LoadingScreen = () => (
-  <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
-    <div className="flex flex-col items-center gap-6">
-      <div className="relative w-12 h-12">
-        <div className="absolute inset-0 rounded-full border-2 border-white/5"></div>
-        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-500 animate-spin"></div>
+  <div className="min-h-screen bg-[#040406] flex items-center justify-center p-6 text-center">
+    <div className="relative">
+      <div className="w-24 h-24 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-8 mx-auto relative overflow-hidden">
+         <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-transparent opacity-50" />
+         <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
       </div>
-      <p className="text-white/30 text-sm font-medium tracking-widest uppercase">Loading</p>
+      <div className="space-y-2">
+        <h2 className="text-white font-display font-bold text-2xl tracking-tight">K-Flix</h2>
+        <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.4em] animate-pulse">Initializing Studio</p>
+      </div>
     </div>
   </div>
 );
@@ -54,7 +57,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuth = location.pathname.startsWith('/auth');
 
   return (
-    <div className="min-h-screen w-screen overflow-x-hidden font-sans antialiased" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen w-full relative bg-[#040406] text-[#f8fafc] font-sans antialiased overflow-x-hidden">
       <TvNavigationController />
       {!isPlayer && !isAuth && <Sidebar />}
       {!isAuth && <BackButton />}

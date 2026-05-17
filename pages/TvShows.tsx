@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 import { TvShow, Genre } from '../types';
 import MovieCard from '../components/MovieCard';
 import { useNavigate } from 'react-router-dom';
-
 import Meta from '../components/Meta';
+import { CinematicBackground } from '../components/CinematicBackground';
 
 const TvShows: React.FC = () => {
   const navigate = useNavigate();
@@ -31,15 +31,7 @@ const TvShows: React.FC = () => {
   }, [loading, hasMore]);
 
   useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const g = await api.getGenres('tv');
-        setGenres([{ id: 0, name: 'All TV Shows' }, ...g]);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    fetchGenres();
+    api.getGenres('tv').then(g => setGenres([{ id: 0, name: 'All' }, ...g]));
   }, []);
 
   useEffect(() => {
@@ -53,84 +45,67 @@ const TvShows: React.FC = () => {
       setLoading(true);
       try {
         const newShows = await api.discoverTvShows(page, selectedGenre);
-        if (newShows.length === 0) {
-          setHasMore(false);
-        } else {
-          setShows(prev => [...prev, ...newShows]);
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+        if (newShows.length === 0) setHasMore(false);
+        else setShows(prev => page === 1 ? newShows : [...prev, ...newShows]);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
     };
-
     fetchShows();
   }, [page, selectedGenre]);
 
-  const selectedGenreName = genres.find(g => g.id === selectedGenre)?.name || 'TV Shows';
-
   return (
-    <main className="min-h-screen px-4 pt-16 pb-24 md:px-10 md:pt-10 md:pb-28" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <Meta
-        title={`${selectedGenreName} - Explore Series`}
-        description={`Watch the best ${selectedGenreName.toLowerCase()} online.`}
-      />
-      <header>
-        <h1 className="text-2xl md:text-3xl font-bold mb-5 text-white tracking-tight">TV Shows</h1>
-      </header>
+    <div className="relative min-h-screen">
+      <CinematicBackground />
+      <Meta title="TV Shows | K-Flix" />
 
-      <section className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar mb-6 py-1.5" aria-label="Genre filters">
-        {genres.map(genre => (
-          <button
-            key={genre.id}
-            onClick={() => setSelectedGenre(genre.id)}
-            className={`focusable tv-focus whitespace-nowrap px-3.5 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-medium transition-all ${selectedGenre === genre.id
-                ? 'bg-rose-500 text-white'
-                : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70'
-              }`}
-            aria-pressed={selectedGenre === genre.id}
-          >
-            {genre.name}
-          </button>
-        ))}
-      </section>
+      <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
+        <header className="mb-12">
+            <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-2 tracking-tight">TV Shows</h1>
+            <p className="text-white/30 font-medium">Stream the best series and dramas</p>
+        </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 animate-fade-in" aria-label="TV show list">
-        {shows.map((show, index) => {
-          if (shows.length === index + 1) {
-            return (
-              <div ref={lastElementRef} key={`${show.id}-${index}`}>
-                <MovieCard
-                  movie={{ ...show, media_type: 'tv' }}
-                  onClick={() => navigate(`/details/tv/${show.id}`)}
-                  className="w-full h-full"
-                />
-              </div>
-            );
-          } else {
-            return (
-              <MovieCard
-                key={`${show.id}-${index}`}
-                movie={{ ...show, media_type: 'tv' }}
-                onClick={() => navigate(`/details/tv/${show.id}`)}
-                className="w-full h-full"
-              />
-            );
-          }
-        })
-        }
-      </section>
+        <nav className="flex gap-2 overflow-x-auto no-scrollbar mb-12 pb-4">
+            {genres.map(genre => (
+                <button
+                    key={genre.id}
+                    onClick={() => setSelectedGenre(genre.id)}
+                    className={`shrink-0 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${selectedGenre === genre.id
+                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
+                        : 'bg-white/5 text-white/40 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                    {genre.name}
+                </button>
+            ))}
+        </nav>
 
-      {loading && (
-        <div className="flex justify-center py-10 w-full" aria-live="polite" aria-busy="true">
-          <div className="relative w-8 h-8">
-            <div className="absolute inset-0 rounded-full border-2 border-white/5"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-500 animate-spin"></div>
-          </div>
-        </div>
-      )}
-    </main>
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            <AnimatePresence>
+                {shows.map((show, index) => (
+                    <motion.div
+                        key={`${show.id}-${index}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: (index % 10) * 0.05 }}
+                        ref={shows.length === index + 1 ? lastElementRef : null}
+                    >
+                        <MovieCard
+                            movie={{ ...show, media_type: 'tv' }}
+                            onClick={() => navigate(`/details/tv/${show.id}`)}
+                            className="w-full h-full"
+                        />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
+        </section>
+
+        {loading && (
+            <div className="flex justify-center py-20 w-full">
+                <div className="w-10 h-10 rounded-full border-2 border-white/5 border-t-rose-500 animate-spin" />
+            </div>
+        )}
+      </main>
+    </div>
   );
 };
 

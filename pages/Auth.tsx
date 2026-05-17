@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { authService } from '../services/auth';
-import { User, Lock, Mail, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
-import TvButton from '../components/TvButton';
+import { User, Lock, Mail, ArrowRight, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
+import { CinematicBackground } from '../components/CinematicBackground';
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
@@ -21,10 +21,9 @@ const Auth: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       if (isLogin) {
-        await authService.login(formData.email, formData.password); // Using email field as identifier
+        await authService.login(formData.email, formData.password);
       } else {
         await authService.register(formData.username, formData.email, formData.password);
       }
@@ -41,38 +40,50 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1574267432553-4b4628081c31?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
+    <div className="relative min-h-screen flex items-center justify-center p-6">
+      <CinematicBackground />
       
-      {/* Back Button */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all group focusable tv-focus border border-white/5"
+        className="absolute top-10 left-10 z-50 flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white/50 hover:text-white transition-all group"
       >
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-bold text-xs uppercase tracking-widest">Back</span>
       </button>
 
-      <div className="relative z-10 w-full max-w-md bg-black/60 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-          <p className="text-gray-400 text-sm">
-            {isLogin ? 'Enter your credentials to access your account' : 'Join KK-flix for the ultimate streaming experience'}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 w-full max-w-[440px] bg-white/5 border border-white/10 p-10 md:p-14 rounded-[40px] backdrop-blur-2xl shadow-2xl"
+      >
+        <div className="text-center mb-12">
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-6 text-rose-500">
+                <Sparkles size={32} />
+            </div>
+          <h1 className="text-4xl font-display font-bold text-white mb-3 tracking-tight">
+            {isLogin ? 'Welcome Back' : 'Join K-Flix'}
+          </h1>
+          <p className="text-white/30 font-medium">
+            {isLogin ? 'Access your cinematic universe' : 'Start your premium streaming journey'}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-200 text-sm p-3 rounded-lg mb-6">
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            className="bg-rose-500/10 border border-rose-500/50 text-rose-200 text-xs font-bold p-4 rounded-2xl mb-8 uppercase tracking-wider text-center"
+          >
             {error}
-          </div>
+          </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {!isLogin && (
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-300 ml-1">Username</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Username</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-rose-500 transition-colors" />
                 <input
                   name="username"
                   type="text"
@@ -80,32 +91,34 @@ const Auth: React.FC = () => {
                   placeholder="johndoe"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-rose-500/50 transition-all placeholder:text-white/10 font-medium"
                 />
               </div>
             </div>
           )}
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-300 ml-1">{isLogin ? 'Email or Username' : 'Email Address'}</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">
+                {isLogin ? 'Email or Username' : 'Email Address'}
+            </label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-rose-500 transition-colors" />
               <input
                 name="email"
                 type={isLogin ? "text" : "email"}
                 required
-                placeholder={isLogin ? "user@example.com" : "user@example.com"}
+                placeholder="user@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-rose-500/50 transition-all placeholder:text-white/10 font-medium"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Password</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-rose-500 transition-colors" />
               <input
                 name="password"
                 type="password"
@@ -113,7 +126,7 @@ const Auth: React.FC = () => {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-rose-500/50 transition-all placeholder:text-white/10 font-medium"
               />
             </div>
           </div>
@@ -121,20 +134,18 @@ const Auth: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mt-6 focusable tv-focus"
+            className="w-full h-16 bg-white text-black rounded-[24px] font-bold flex items-center justify-center gap-3 transition-all hover:bg-rose-500 hover:text-white active:scale-95 disabled:opacity-50 mt-10 shadow-2xl shadow-black/20"
           >
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (
+            {loading ? <Loader2 className="animate-spin" size={24} /> : (
               <>
-                {isLogin ? 'Sign In' : 'Sign Up'}
-                <ArrowRight className="w-5 h-5" />
+                <span className="uppercase tracking-widest text-sm">{isLogin ? 'Sign In' : 'Join Now'}</span>
+                <ArrowRight size={20} />
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-400 text-sm">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
+        <div className="mt-12 text-center">
             <button
               type="button"
               onClick={() => {
@@ -142,13 +153,15 @@ const Auth: React.FC = () => {
                 setError(null);
                 setFormData({ username: '', email: '', password: '' });
               }}
-              className="text-white font-semibold ml-2 hover:underline focus:outline-none focus:text-red-400 transition-colors"
+              className="text-white/30 text-sm font-medium hover:text-white transition-colors"
             >
-              {isLogin ? 'Sign up' : 'Sign in'}
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <span className="text-rose-500 font-bold ml-1 hover:underline">
+                {isLogin ? 'Create one' : 'Sign in'}
+              </span>
             </button>
-          </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

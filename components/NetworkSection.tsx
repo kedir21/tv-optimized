@@ -29,34 +29,29 @@ export const NetworkSection: React.FC = () => {
   if (networks.length === 0) return null;
 
   return (
-    <div className="mb-10 md:mb-16 px-4 md:px-12">
-      <div className="flex items-center gap-3 mb-5 md:mb-7">
-        <div className="w-1 h-5 md:h-6 bg-rose-500 rounded-full" />
-        <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
-          Networks & Studios
-        </h2>
-      </div>
-      <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4" aria-label="Network links">
+    <div className="py-8 px-6 md:px-12 lg:px-20">
+      <h2 className="text-xl md:text-2xl font-display font-bold text-white mb-6 tracking-wide">
+        Networks & Studios
+      </h2>
+      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
         {networks.map((network) => (
           <div
             key={network.id}
             onClick={() => navigate(`/network/${network.id}`)}
-            className="focusable tv-focus group rounded-xl md:rounded-2xl p-5 md:p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-300 border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.03] overflow-hidden relative"
-            style={{ backgroundColor: 'var(--bg-card)' }}
+            className="group relative rounded-2xl p-6 aspect-video flex items-center justify-center cursor-pointer transition-all duration-400 bg-white shadow-2xl overflow-hidden hover:scale-105 active:scale-95"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && navigate(`/network/${network.id}`)}
-            aria-label={`View content from ${network.name}`}
           >
             {network.logo_path ? (
               <img
                 src={getLogoUrl(network.logo_path)}
-                alt={`${network.name} logo`}
-                className="max-w-[75%] max-h-[60%] object-contain filter brightness-200 opacity-40 group-hover:opacity-80 group-hover:brightness-100 transition-all duration-400 group-hover:scale-105 relative z-10"
+                alt={network.name}
+                className="max-w-[80%] max-h-[70%] object-contain transition-all duration-500 group-hover:scale-110"
                 loading="lazy"
               />
             ) : (
-              <span className="text-sm font-medium text-white/30 group-hover:text-white/60 text-center px-2 relative z-10 transition-colors duration-300">{network.name}</span>
+              <span className="text-sm font-bold text-white/30 uppercase tracking-widest group-hover:text-white transition-colors">{network.name}</span>
             )}
           </div>
         ))}

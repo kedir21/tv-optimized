@@ -221,6 +221,54 @@ export const api = {
     return res.results.map(s => ({ ...s, media_type: 'tv' }));
   },
 
+  /** Korean TV (K-Drama) discovery — origin KR + Korean language */
+  discoverKDramas: async (
+    page: number = 1,
+    options?: {
+      sortBy?: string;
+      genreId?: number;
+      airDateGte?: string;
+      airDateLte?: string;
+      voteCountGte?: number;
+    }
+  ): Promise<TvShow[]> => {
+    const params: Record<string, string | number> = {
+      page,
+      sort_by: options?.sortBy ?? 'popularity.desc',
+      with_origin_country: 'KR',
+      with_original_language: 'ko',
+    };
+    if (options?.genreId) params.with_genres = options.genreId;
+    if (options?.airDateGte) params['air_date.gte'] = options.airDateGte;
+    if (options?.airDateLte) params['air_date.lte'] = options.airDateLte;
+    if (options?.voteCountGte) params['vote_count.gte'] = options.voteCountGte;
+
+    const res = await fetchFromTMDB<PaginatedResponse<TvShow>>('/discover/tv', params);
+    return res.results.map(s => ({ ...s, media_type: 'tv' as const }));
+  },
+
+  getTrendingKDramas: () => api.discoverKDramas(1, { sortBy: 'popularity.desc' }),
+
+  getPopularKoreanSeries: () => api.discoverKDramas(1, { sortBy: 'popularity.desc' }),
+
+  getTopRatedKDramas: () =>
+    api.discoverKDramas(1, { sortBy: 'vote_average.desc', voteCountGte: 80 }),
+
+  getNewKDEpisodesThisWeek: () => {
+    const today = new Date();
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    return api.discoverKDramas(1, {
+      sortBy: 'first_air_date.desc',
+      airDateGte: fmt(weekAgo),
+      airDateLte: fmt(today),
+    });
+  },
+
+  getKDramaByGenre: (genreId: number, page = 1) =>
+    api.discoverKDramas(page, { genreId, sortBy: 'popularity.desc' }),
+
   // Network Details
   getNetwork: async (id: number): Promise<Network> => {
     return await fetchFromTMDB<Network>(`/network/${id}`);
