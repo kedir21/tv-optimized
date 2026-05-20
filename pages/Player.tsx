@@ -17,18 +17,25 @@ const isAllowedPopupUrl = (url: string) => {
 
 const SOURCES = [
   {
-    id: 'zxcstream',
-    name: 'ZxcStream',
-    tag: 'Default',
-    movie: (id: string) => `https://zxcstream.xyz/player/movie/${id}`,
-    tv: (id: string, s: string, e: string) => `https://zxcstream.xyz/player/tv/${id}/${s}/${e}`,
-  },
-  {
     id: 'vidcore',
     name: 'VidCore',
-    tag: 'Fast',
+    tag: 'Default',
     movie: (id: string) => `https://vidcore.net/movie/${id}?autoPlay=true`,
     tv: (id: string, s: string, e: string) => `https://vidcore.net/tv/${id}/${s}/${e}?autoPlay=true`,
+  },
+  {
+    id: 'peachify',
+    name: 'Peachify',
+    tag: 'Fast',
+    movie: (id: string) => `https://peachify.top/embed/movie/${id}`,
+    tv: (id: string, s: string, e: string) => `https://peachify.top/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'zxcstream',
+    name: 'ZxcStream',
+    tag: 'Stable',
+    movie: (id: string) => `https://zxcstream.xyz/player/movie/${id}`,
+    tv: (id: string, s: string, e: string) => `https://zxcstream.xyz/player/tv/${id}/${s}/${e}`,
   },
   {
     id: 'xpass',
@@ -36,13 +43,6 @@ const SOURCES = [
     tag: 'HD',
     movie: (id: string) => `https://play.xpass.top/e/movie/${id}`,
     tv: (id: string, s: string, e: string) => `https://play.xpass.top/e/tv/${id}/${s}/${e}`,
-  },
-  {
-    id: 'peachify',
-    name: 'Peachify',
-    tag: 'Clean',
-    movie: (id: string) => `https://peachify.top/embed/movie/${id}`,
-    tv: (id: string, s: string, e: string) => `https://peachify.top/embed/tv/${id}/${s}/${e}`,
   },
   {
     id: 'anyembed',
@@ -80,7 +80,7 @@ const Player: React.FC = () => {
   const [source, setSource] = useState(() => {
     const saved = localStorage.getItem('player_source_pref');
     if (saved && SOURCES.some(s => s.id === saved)) return saved;
-    return SANDBOXED_SOURCE_ID;
+    return 'vidcore';
   });
 
   const [showSourceMenu, setShowSourceMenu] = useState(false);
