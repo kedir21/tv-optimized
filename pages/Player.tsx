@@ -31,6 +31,20 @@ const SOURCES = [
     tv: (id: string, s: string, e: string) => `https://peachify.top/embed/tv/${id}/${s}/${e}`,
   },
   {
+    id: 'vidlink',
+    name: 'VidLink',
+    tag: 'Fast',
+    movie: (id: string) => `https://vidlink.pro/movie/${id}`,
+    tv: (id: string, s: string, e: string) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: 'movish',
+    name: 'Movish',
+    tag: 'Clean',
+    movie: (id: string) => `https://movish.net/moviebox-embed/movie/${id}`,
+    tv: (id: string, s: string, e: string) => `https://movish.net/moviebox-embed/tv/${id}/${s}/${e}`,
+  },
+  {
     id: 'zxcstream',
     name: 'ZxcStream',
     tag: 'Stable',
