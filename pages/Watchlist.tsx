@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { watchlistService } from '../services/watchlist';
 import { useAuth } from '../context/AuthContext';
 import { ContentItem } from '../types';
-import MovieCard from '../components/MovieCard';
+import MediaCard from '../components/MediaCard';
 import { Heart, Plus, Sparkles } from 'lucide-react';
 import { CinematicBackground } from '../components/CinematicBackground';
 import Meta from '../components/Meta';
@@ -37,15 +37,15 @@ const Watchlist: React.FC = () => {
       <CinematicBackground />
       <Meta title="My Watchlist | K-Flix" />
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
+      <main className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
         <header className="mb-12">
             <div className="flex items-center gap-4 mb-2">
-                <h1 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tight">My List</h1>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-rose-500 uppercase tracking-widest mt-2">
-                    {watchlist.length} items
-                </span>
+                <h1 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tight leading-none uppercase">My Deck</h1>
+                <div className="px-5 py-2 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs font-black text-rose-500 uppercase tracking-widest mt-2">
+                    {watchlist.length} verified
+                </div>
             </div>
-            <p className="text-white/30 font-medium">Your personal collection and saves</p>
+            <p className="text-white/20 font-black uppercase tracking-[0.4em] text-[10px]">Neural Watchlist Protocol</p>
         </header>
 
         {watchlist.length === 0 && !loading ? (
@@ -54,37 +54,31 @@ const Watchlist: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-32 text-center"
           >
-            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/10">
-              <Heart size={40} className="text-white/10" />
+            <div className="w-32 h-32 rounded-[40px] bg-white/5 flex items-center justify-center mb-8 border border-white/10 shadow-2xl">
+              <Heart size={48} className="text-white/10" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Your list is empty</h2>
-            <p className="text-white/40 max-w-sm mb-10 leading-relaxed">
+            <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Deck is Empty</h2>
+            <p className="text-white/30 max-w-sm mb-12 leading-relaxed font-medium">
               Start building your personal library by adding movies and shows you want to watch later.
             </p>
             <button
               onClick={() => navigate('/')}
-              className="px-8 py-4 bg-white text-black rounded-2xl font-bold flex items-center gap-3 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-xl shadow-white/5"
+              className="h-14 px-10 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center gap-3 hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-xl shadow-white/5"
             >
               <Plus size={20} />
-              Explore Content
+              Begin Uplink
             </button>
           </motion.section>
         ) : (
-          <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <AnimatePresence>
+          <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+            <AnimatePresence mode="popLayout">
                 {watchlist.map((item, index) => (
-                    <motion.div
+                    <MediaCard
                         key={`${item.id}-${index}`}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4, delay: index * 0.05 }}
-                    >
-                        <MovieCard
-                            movie={item}
-                            onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
-                            className="w-full h-full"
-                        />
-                    </motion.div>
+                        item={item}
+                        variant="portrait"
+                        onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
+                    />
                 ))}
             </AnimatePresence>
           </section>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api, getLogoUrl } from '../services/api';
 import { NETWORK_MOVIE_MAPPING } from '../services/networks';
 import { Network, ContentItem, Genre } from '../types';
-import MovieCard from '../components/MovieCard';
+import MediaCard from '../components/MediaCard';
 import { ChevronDown, Filter, Globe, LayoutGrid, Film } from 'lucide-react';
 import Meta from '../components/Meta';
 import { CinematicBackground } from '../components/CinematicBackground';
@@ -108,89 +108,83 @@ const NetworkDetails: React.FC = () => {
       <CinematicBackground />
       <Meta title={`${network?.name || 'Studio'} | K-Flix`} />
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
+      <main className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
         <header className="flex flex-col md:flex-row items-center md:items-end gap-10 mb-16">
-          <div className="w-40 h-28 md:w-56 md:h-36 bg-white rounded-[24px] p-6 flex items-center justify-center shadow-2xl shrink-0">
+          <div className="w-40 h-28 md:w-56 md:h-36 bg-white rounded-[32px] p-8 flex items-center justify-center shadow-2xl shrink-0 border border-white/5">
             {network?.logo_path ? (
               <img src={getLogoUrl(network.logo_path)} alt={network.name} className="max-w-full max-h-full object-contain" />
             ) : (
-              <span className="text-black font-bold text-2xl">{network?.name}</span>
+              <span className="text-black font-black text-3xl uppercase tracking-tighter">{network?.name}</span>
             )}
           </div>
-          <div className="text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-3 tracking-tight">{network?.name}</h1>
-            <div className="flex items-center justify-center md:justify-start gap-4 text-white/30 font-medium">
-              <span className="flex items-center gap-1.5"><Globe size={16} /> {network?.origin_country || 'Worldwide'}</span>
+          <div className="text-center md:text-left space-y-2">
+            <h1 className="text-4xl md:text-7xl font-display font-black text-white tracking-tighter leading-none">{network?.name}</h1>
+            <div className="flex items-center justify-center md:justify-start gap-4 text-white/20 font-bold uppercase tracking-widest text-[10px]">
+              <span className="flex items-center gap-2"><Globe size={14} className="text-rose-500" /> {network?.origin_country || 'Global HQ'}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-white/10"></span>
-              <span className="text-rose-500 font-bold uppercase tracking-widest text-xs">Certified Studio</span>
+              <span className="text-rose-500">Classified Studio Production</span>
             </div>
           </div>
         </header>
 
         {/* Filters */}
-        <div className="sticky top-0 z-50 py-6 mb-12 bg-[#040406]/0 backdrop-blur-0 transition-all duration-300">
-           <div className="bg-white/5 border border-white/10 rounded-[28px] p-2 flex flex-col lg:flex-row gap-4 items-center shadow-2xl">
-              <div className="bg-white/5 p-1 rounded-2xl flex gap-1 w-full lg:w-auto">
+        <div className="sticky top-4 z-50 py-4 mb-16">
+           <div className="bg-[#0a0a0f]/80 backdrop-blur-3xl border border-white/5 rounded-[32px] p-2 flex flex-col xl:flex-row gap-4 items-center shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+              <div className="bg-white/5 p-1 rounded-2xl flex gap-1 w-full xl:w-auto">
                  <button
                    onClick={() => { setFilterType('tv'); setPage(1); setContent([]); }}
-                   className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterType === 'tv' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                   className={`flex-1 xl:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'tv' ? 'bg-white text-black' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
                  >
                    <LayoutGrid size={16} />
                    Series
                  </button>
                  <button
                    onClick={() => { setFilterType('movie'); setPage(1); setContent([]); }}
-                   className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${filterType === 'movie' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                   className={`flex-1 xl:flex-none flex items-center justify-center gap-3 px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterType === 'movie' ? 'bg-white text-black' : 'text-white/30 hover:text-white hover:bg-white/5'}`}
                  >
                    <Film size={16} />
                    Movies
                  </button>
               </div>
 
-              <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:flex-1">
-                 <div className="relative group shrink-0 min-w-[140px]">
+              <div className="flex flex-wrap items-center justify-end gap-3 w-full xl:flex-1">
+                 <div className="relative group shrink-0 min-w-[180px]">
                     <select
                       value={selectedCountry}
                       onChange={(e) => { setSelectedCountry(e.target.value); setPage(1); setContent([]); }}
-                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-10 py-3 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer"
+                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-[10px] font-black text-white/40 uppercase tracking-widest outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer shadow-xl"
                     >
                       {COUNTRIES.map(c => <option key={c.code} value={c.code} className="bg-[#0a0a0f]">{c.name}</option>)}
                     </select>
-                    <Globe size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <Globe size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20" />
+                    <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20" />
                  </div>
 
-                 <div className="relative group shrink-0 min-w-[160px]">
+                 <div className="relative group shrink-0 min-w-[200px]">
                     <select
                       value={selectedGenre}
                       onChange={(e) => { setSelectedGenre(parseInt(e.target.value)); setPage(1); setContent([]); }}
-                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-xl pl-10 pr-10 py-3 text-xs font-bold text-white uppercase tracking-wider outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer"
+                      className="appearance-none w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-12 py-4 text-[10px] font-black text-white/40 uppercase tracking-widest outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all cursor-pointer shadow-xl"
                     >
                       {currentGenres.map(g => <option key={g.id} value={g.id} className="bg-[#0a0a0f]">{g.name}</option>)}
                     </select>
-                    <Filter size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
-                    <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30" />
+                    <Filter size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20" />
+                    <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20" />
                  </div>
               </div>
            </div>
         </div>
 
-        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <AnimatePresence>
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+            <AnimatePresence mode="popLayout">
                 {content.map((item, index) => (
-                    <motion.div
+                    <MediaCard
                         key={`${item.id}-${index}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: (index % 12) * 0.05 }}
+                        item={item}
+                        variant="portrait"
+                        onClick={() => navigate(`/details/${item.media_type || filterType}/${item.id}`)}
                         ref={content.length === index + 1 ? lastElementRef : null}
-                    >
-                        <MovieCard
-                            movie={item}
-                            onClick={() => navigate(`/details/${item.media_type || filterType}/${item.id}`)}
-                            className="w-full h-full"
-                        />
-                    </motion.div>
+                    />
                 ))}
             </AnimatePresence>
         </section>

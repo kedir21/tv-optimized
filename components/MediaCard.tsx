@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ContentItem } from '../types';
 import { getImageUrl } from '../services/api';
@@ -15,13 +15,13 @@ interface MediaCardProps {
   themeColor?: string;
 }
 
-const MediaCard: React.FC<MediaCardProps> = ({ 
+const MediaCard = forwardRef<HTMLDivElement, MediaCardProps>(({ 
   item, 
   onClick, 
   variant = 'landscape',
   className = '', 
   themeColor = 'rose-500' 
-}) => {
+}, ref) => {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { user } = useAuth();
@@ -55,6 +55,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
   if (variant === 'portrait') {
     return (
       <motion.div
+        ref={ref}
         layout
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -108,6 +109,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
 
   return (
     <motion.div
+      ref={ref}
       layout
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -175,6 +177,6 @@ const MediaCard: React.FC<MediaCardProps> = ({
       <div className={`absolute bottom-0 left-0 h-[3px] bg-${themeColor} transition-all duration-500 w-0 group-hover:w-full`} />
     </motion.div>
   );
-};
+});
 
 export default React.memo(MediaCard);

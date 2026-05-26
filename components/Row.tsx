@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ContentItem } from '../types';
-import MovieCard from './MovieCard';
-import { MovieCardSkeleton } from './Skeletons';
+import MediaCard from './MediaCard';
+import { PortraitMediaCardSkeleton } from './Skeletons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface RowProps {
@@ -61,14 +61,15 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
       >
         {isLoading ? (
             <>
-                {[...Array(6)].map((_, i) => <MovieCardSkeleton key={i} />)}
+                {[...Array(6)].map((_, i) => <PortraitMediaCardSkeleton key={i} className="!w-[40vw] sm:!w-[150px] md:!w-[180px] lg:!w-[220px]" />)}
             </>
         ) : (
             <>
                 {items.map((item) => (
-                    <MovieCard
+                    <MediaCard
                         key={item.id}
-                        movie={item}
+                        item={item}
+                        variant="portrait"
                         onClick={() => onItemSelect(item)}
                     />
                 ))}

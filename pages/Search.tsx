@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 import { ContentItem } from '../types';
-import MovieCard from '../components/MovieCard';
-import { Search as SearchIcon, X } from 'lucide-react';
+import MediaCard from '../components/MediaCard';
+import { Search as SearchIcon, X, Terminal, Cpu } from 'lucide-react';
 import Meta from '../components/Meta';
 import { useNavigate } from 'react-router-dom';
 import { CinematicBackground } from '../components/CinematicBackground';
@@ -76,50 +76,45 @@ const Search: React.FC = () => {
         description="Search for your favorite movies and TV shows on K-Flix."
       />
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
-        <header className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-4 tracking-tight">
-            Search
-          </h1>
-          <div className="relative group max-w-2xl">
-            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-rose-500 transition-colors">
-              <SearchIcon size={24} />
+      <main className="relative z-10 max-w-[1600px] mx-auto px-6 md:px-12 lg:px-20 pt-16 pb-32">
+        <header className="mb-16">
+            <div className="flex items-center gap-3 mb-8">
+                <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                <h1 className="text-4xl md:text-7xl font-display font-black text-white uppercase tracking-tighter leading-none">Neural Search</h1>
+            </div>
+          <div className="relative group max-w-3xl">
+            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-rose-500 transition-colors">
+              <Terminal size={24} />
             </div>
             <input
               autoFocus
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Titles, people, genres..."
-              className="w-full bg-white/5 border border-white/10 rounded-[20px] py-6 pl-16 pr-16 text-xl text-white outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all placeholder:text-white/20"
+              placeholder="Query matrix for titles, personnel..."
+              className="w-full bg-white/5 border border-white/10 rounded-[32px] py-8 pl-18 pr-16 text-xl md:text-2xl font-bold text-white outline-none focus:border-rose-500/50 hover:bg-white/10 transition-all placeholder:text-white/10 shadow-2xl"
             />
             {query && (
               <button 
                 onClick={() => setQuery('')}
-                className="absolute right-6 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all"
+                className="absolute right-8 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-white/10 text-white/20 hover:text-white transition-all"
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             )}
           </div>
         </header>
 
-        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-          <AnimatePresence>
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+          <AnimatePresence mode="popLayout">
             {results.map((item, index) => (
-              <motion.div
-                key={`${item.id}-${index}`}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.02 }}
-                ref={results.length === index + 1 ? lastElementRef : null}
-              >
-                <MovieCard
-                  movie={item}
+                <MediaCard
+                  key={`${item.id}-${index}`}
+                  item={item}
+                  variant="portrait"
                   onClick={() => navigate(`/details/${item.media_type || 'movie'}/${item.id}`)}
-                  className="w-full h-full"
+                  ref={results.length === index + 1 ? lastElementRef : null}
                 />
-              </motion.div>
             ))}
           </AnimatePresence>
         </section>
