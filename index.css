@@ -200,3 +200,102 @@ a {
     --glass-blur: blur(12px);
   }
 }
+
+/* ── New Cinematic & Futuristic Utilities ── */
+.cinematic-glow {
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.futuristic-border {
+  border: 1px solid var(--border-medium);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+.futuristic-border:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.asymmetric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-auto-rows: 150px;
+  grid-auto-flow: dense;
+  gap: 2.5rem;
+}
+
+@media (max-width: 640px) {
+  .asymmetric-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 120px;
+    gap: 1rem;
+  }
+}
+
+.grid-span-2-2 {
+  grid-column: span 2;
+  grid-row: span 4;
+}
+
+/* For normal cards in asymmetric movies grid, they should span 2 rows to keep 2:3 approx */
+.movie-grid-item {
+  grid-row: span 2;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.hover-glow:hover {
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+.landscape-card {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.portrait-card {
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Layered thumbnail effect for Futuristic TV */
+.layered-stack {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.layered-stack::before,
+.layered-stack::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  z-index: -1;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+.layered-stack::before { opacity: 0.5; }
+.layered-stack::after { opacity: 0.2; }
+
+.group:hover .layered-stack::before {
+  transform: translateY(-8px) scale(0.96);
+  opacity: 0.6;
+}
+
+.group:hover .layered-stack::after {
+  transform: translateY(-16px) scale(0.92);
+  opacity: 0.3;
+}

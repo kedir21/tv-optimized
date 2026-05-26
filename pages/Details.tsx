@@ -118,14 +118,21 @@ const Details: React.FC = () => {
     }
   };
 
-  const handleVidVaultDownload = useCallback(async () => {
+  const handleVidVaultDownload = useCallback(() => {
     if (!content?.id) return;
     const url = getVidVaultUrl(
       content.id,
       mediaType,
       mediaType === 'tv' ? { season: selectedSeasonNumber, episode: downloadEpisode } : undefined
     );
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // Use a direct anchor click for better cross-origin behavior on Vercel
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }, [content, mediaType, selectedSeasonNumber, downloadEpisode]);
 
   if (loading || !content) return <DetailsSkeleton />;

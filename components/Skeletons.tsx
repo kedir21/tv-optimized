@@ -8,8 +8,14 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) =
   <SkeletonBase className={className} />
 );
 
-export const MovieCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`relative flex-shrink-0 w-[40vw] sm:w-[150px] md:w-[180px] lg:w-[220px] aspect-[2/3] rounded-xl overflow-hidden border border-white/5 bg-white/5 ${className}`}>
+export const MediaCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`relative w-full aspect-video rounded-2xl overflow-hidden border border-white/5 bg-white/5 ${className}`}>
+    <div className="w-full h-full shimmer" />
+  </div>
+);
+
+export const PortraitMediaCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`relative w-full aspect-[2/3] rounded-3xl overflow-hidden border border-white/5 bg-white/5 ${className}`}>
     <div className="w-full h-full shimmer" />
   </div>
 );
@@ -19,7 +25,7 @@ export const RowSkeleton: React.FC = () => (
     <div className="h-8 w-48 mx-6 md:mx-12 lg:mx-20 mb-6 rounded-lg bg-white/5 shimmer" />
     <div className="flex gap-4 md:gap-6 overflow-hidden px-6 md:px-12 lg:px-20 py-2">
       {[...Array(6)].map((_, i) => (
-        <MovieCardSkeleton key={i} />
+        <PortraitMediaCardSkeleton key={i} className="!w-[40vw] sm:!w-[150px] md:!w-[180px] lg:!w-[220px]" />
       ))}
     </div>
   </div>
