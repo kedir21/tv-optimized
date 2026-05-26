@@ -189,7 +189,7 @@ const Details: React.FC = () => {
             : {})}
         />
 
-        <main className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-12 space-y-24">
+        <main className="max-w-7xl mx-auto px-6 md:px-12 py-12 space-y-4">
           <CastCarousel cast={content.credits?.cast ?? []} />
 
           {mediaType === 'tv' && (

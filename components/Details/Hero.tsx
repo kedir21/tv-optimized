@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Check, Share2, Star, Clock, Calendar, Youtube, Download, Loader2, Plus, Info, Globe, Shield } from 'lucide-react';
+import { Play, Check, Share2, Star, Clock, Calendar, Youtube, Download, Loader2, Plus, Info, ChevronRight } from 'lucide-react';
 import { getImageUrl, getPosterUrl } from '../../services/api';
 import { MovieDetails, TvDetails, Season } from '../../types';
 
@@ -49,170 +49,117 @@ export const Hero: React.FC<HeroProps> = ({
     const rating = content.vote_average?.toFixed(1) || '0.0';
 
     return (
-        <div className="relative min-h-screen w-full flex items-center overflow-hidden">
-            {/* Immersive Background */}
+        <div className="relative min-h-[85vh] w-full flex items-center pt-20">
+            {/* Minimal Background */}
             <div className="absolute inset-0 z-0">
                 <motion.img 
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.5 }}
-                    transition={{ duration: 1.5 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.4 }}
+                    transition={{ duration: 1.2 }}
                     src={getImageUrl(content.backdrop_path)} 
                     alt="" 
                     className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-[#040406]/90 lg:bg-[#040406]/70" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-[#040406]/30" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#040406] via-[#040406]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#040406] via-[#040406]/80 to-[#040406]/40" />
             </div>
 
-            {/* Content Wrapper */}
-            <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 pt-32 pb-20">
-                <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-12 lg:gap-24 items-center">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12">
+                <div className="flex flex-col lg:flex-row items-center lg:items-end gap-12 lg:gap-20">
                     
-                    {/* Premium Poster Section */}
+                    {/* Compact Poster */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, x: -50 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                        className="relative hidden lg:block"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="hidden lg:block shrink-0"
                     >
-                        <div className="relative aspect-[2/3] rounded-[40px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.9)] border border-white/10 group">
-                            <img 
-                                src={getPosterUrl(content.poster_path)} 
-                                alt={title} 
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="w-64 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+                            <img src={getPosterUrl(content.poster_path)} alt={title} className="w-full h-full object-cover" />
                         </div>
-                        {/* Status Floaties */}
-                        <div className="absolute -top-6 -right-6 w-24 h-24 bg-rose-500/20 blur-3xl rounded-full" />
-                        <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-blue-500/20 blur-3xl rounded-full" />
                     </motion.div>
 
-                    {/* Information Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="flex flex-col items-center lg:items-start text-center lg:text-left"
-                    >
-                        {/* Quick Tags */}
-                        <div className="flex flex-wrap items-center gap-3 mb-8">
-                            <div className="px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">{mediaType}</span>
+                    <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left">
+                        {/* Clean Metadata */}
+                        <div className="flex items-center gap-4 mb-6 text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
+                            <div className="flex items-center gap-1.5 text-amber-500">
+                                <Star size={12} className="fill-current" />
+                                <span className="text-white">{rating}</span>
                             </div>
-                            <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center gap-2">
-                                <Star size={14} className="text-amber-400 fill-current" />
-                                <span className="text-xs font-bold text-white">{rating}</span>
-                            </div>
-                            <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center gap-2">
-                                <Calendar size={14} className="text-white/40" />
-                                <span className="text-xs font-bold text-white/60">{year}</span>
-                            </div>
-                            {mediaType === 'movie' ? (
-                                <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center gap-2">
-                                    <Clock size={14} className="text-white/40" />
-                                    <span className="text-xs font-bold text-white/60">{(content as MovieDetails).runtime} min</span>
-                                </div>
-                            ) : (
-                                <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center gap-2">
-                                    <Shield size={14} className="text-white/40" />
-                                    <span className="text-xs font-bold text-white/60">{(content as TvDetails).number_of_seasons} Seasons</span>
-                                </div>
-                            )}
+                            <span className="w-1 h-1 rounded-full bg-white/10" />
+                            <span>{year}</span>
+                            <span className="w-1 h-1 rounded-full bg-white/10" />
+                            <span>{mediaType === 'movie' ? `${(content as MovieDetails).runtime}m` : `${(content as TvDetails).number_of_seasons} Seasons`}</span>
                         </div>
 
-                        {/* Title & Overview */}
-                        <h1 className="text-5xl md:text-7xl lg:text-9xl font-display font-black text-white mb-8 leading-tight tracking-tighter drop-shadow-2xl">
+                        <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight max-w-3xl leading-[1.1]">
                             {title}
                         </h1>
 
-                        <div className="relative max-w-2xl mb-12">
-                            <div className="absolute -left-10 top-0 hidden lg:block opacity-20">
-                                <Info size={40} className="text-rose-500" />
-                            </div>
-                            <p className="text-lg md:text-xl text-white/50 font-medium leading-relaxed line-clamp-4">
-                                {content.overview}
-                            </p>
-                        </div>
+                        <p className="text-base md:text-lg text-white/50 font-medium max-w-2xl mb-10 leading-relaxed line-clamp-3">
+                            {content.overview}
+                        </p>
 
-                        {/* Dynamic Action Controls */}
-                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 w-full lg:w-auto">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-10">
                             <button
                                 onClick={onPlay}
-                                className="h-16 px-12 bg-white text-black rounded-[24px] font-black uppercase tracking-widest text-sm flex items-center gap-4 hover:bg-rose-500 hover:text-white transition-all duration-500 shadow-[0_20px_50px_rgba(255,255,255,0.1)] hover:shadow-rose-500/40 active:scale-95 group"
+                                className="h-14 px-10 bg-rose-500 text-white rounded-2xl font-bold text-sm flex items-center gap-3 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95"
                             >
-                                <Play size={24} className="fill-current group-hover:scale-110 transition-transform" />
-                                Watch Premiere
+                                <Play size={18} className="fill-current" />
+                                Watch Now
                             </button>
 
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={onWatchlistToggle}
-                                    className={`w-16 h-16 rounded-[24px] flex items-center justify-center border transition-all duration-500 active:scale-95 ${inWatchlist ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/30' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}`}
-                                >
-                                    {inWatchlist ? <Check size={28} /> : <Plus size={28} />}
-                                </button>
-                                <button
-                                    onClick={onShare}
-                                    className="w-16 h-16 rounded-[24px] bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition-all active:scale-95"
-                                >
-                                    <Share2 size={24} />
+                            <button
+                                onClick={onWatchlistToggle}
+                                className={`h-14 px-6 rounded-2xl border flex items-center gap-2 text-sm font-bold transition-all ${inWatchlist ? 'bg-white/10 border-white/20 text-white' : 'bg-white/5 border-white/10 text-white/60 hover:text-white'}`}
+                            >
+                                {inWatchlist ? <Check size={18} /> : <Plus size={18} />}
+                                {inWatchlist ? 'In Library' : 'Add to List'}
+                            </button>
+
+                            <div className="flex items-center gap-2">
+                                <button onClick={onShare} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 text-white/60 flex items-center justify-center hover:text-white transition-all">
+                                    <Share2 size={20} />
                                 </button>
                                 {hasTrailer && (
-                                    <button
-                                        onClick={onTrailer}
-                                        className="w-16 h-16 rounded-[24px] bg-white/5 border border-white/10 text-[#FF0000] flex items-center justify-center hover:bg-white/10 transition-all active:scale-95"
-                                    >
-                                        <Youtube size={28} />
+                                    <button onClick={onTrailer} className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 text-white/60 flex items-center justify-center hover:text-rose-500 transition-all">
+                                        <Youtube size={20} />
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        {/* Enhanced Selector & Download Hub */}
+                        {/* Minimalist Season/Download Selector */}
                         {!downloadDisabled && (
-                             <div className="mt-12 w-full p-8 rounded-[32px] bg-white/[0.03] border border-white/5 backdrop-blur-2xl flex flex-wrap items-center justify-center lg:justify-start gap-8">
+                            <div className="flex flex-wrap items-center gap-4 py-6 border-t border-white/5 w-full">
                                 {mediaType === 'tv' && tvSeasons && (
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative">
-                                            <select
-                                                value={tvSeason}
-                                                onChange={(e) => onTvSeasonChange?.(parseInt(e.target.value))}
-                                                className="appearance-none bg-black/40 border border-white/10 rounded-2xl pl-6 pr-12 py-4 text-xs font-black text-white/50 uppercase tracking-widest outline-none focus:border-rose-500/50 hover:bg-black/60 transition-all cursor-pointer box-border min-w-[180px]"
-                                            >
-                                                {tvSeasons.map(s => <option key={s.id} value={s.season_number} className="bg-[#0a0a0f]">Season {s.season_number}</option>)}
-                                            </select>
-                                            <Globe size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
-                                        </div>
-                                        <div className="relative">
-                                            <select
-                                                value={tvEpisode}
-                                                onChange={(e) => onTvEpisodeChange?.(parseInt(e.target.value))}
-                                                className="appearance-none bg-black/40 border border-white/10 rounded-2xl pl-6 pr-12 py-4 text-xs font-black text-white/50 uppercase tracking-widest outline-none focus:border-rose-500/50 hover:bg-black/60 transition-all cursor-pointer box-border min-w-[150px]"
-                                            >
-                                                {Array.from({ length: tvEpisodeMax || 0 }, (_, i) => i + 1).map(num => <option key={num} value={num} className="bg-[#0a0a0f]">Episode {num}</option>)}
-                                            </select>
-                                            <Clock size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
-                                        </div>
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            value={tvSeason}
+                                            onChange={(e) => onTvSeasonChange?.(parseInt(e.target.value))}
+                                            className="appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[11px] font-bold text-white/60 uppercase outline-none cursor-pointer min-w-[120px]"
+                                        >
+                                            {tvSeasons.map(s => <option key={s.id} value={s.season_number} className="bg-[#0a0a0f]">Season {s.season_number}</option>)}
+                                        </select>
+                                        <select
+                                            value={tvEpisode}
+                                            onChange={(e) => onTvEpisodeChange?.(parseInt(e.target.value))}
+                                            className="appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[11px] font-bold text-white/60 uppercase outline-none cursor-pointer min-w-[120px]"
+                                        >
+                                            {Array.from({ length: tvEpisodeMax || 0 }, (_, i) => i + 1).map(num => <option key={num} value={num} className="bg-[#0a0a0f]">Episode {num}</option>)}
+                                        </select>
                                     </div>
                                 )}
                                 
                                 <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        onDownload();
-                                    }}
+                                    onClick={onDownload}
                                     disabled={downloadLoading}
-                                    className="flex items-center gap-4 px-10 py-4 bg-white/5 border border-rose-500/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.3em] hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-all shadow-xl disabled:opacity-50 group grow lg:grow-0"
+                                    className="h-12 px-6 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white/60 uppercase tracking-widest flex items-center gap-2 hover:bg-white/10 hover:text-white transition-all"
                                 >
-                                    {downloadLoading ? <Loader2 size={16} className="animate-spin" /> : <Download size={18} className="group-hover:-translate-y-1 transition-transform" />}
-                                    Direct Download {mediaType === 'tv' ? 'HQ' : 'Full HD'}
+                                    {downloadLoading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                    Download HQ
                                 </button>
-                             </div>
+                            </div>
                         )}
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </div>
