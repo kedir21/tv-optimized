@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { ContentItem } from '../types';
 import MediaCard from './MediaCard';
-import { PortraitMediaCardSkeleton } from './Skeletons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface RowProps {
@@ -61,7 +59,12 @@ const Row: React.FC<RowProps> = ({ title, items, onItemSelect, isLoading = false
       >
         {isLoading ? (
             <>
-                {[...Array(6)].map((_, i) => <PortraitMediaCardSkeleton key={i} className="!w-[40vw] sm:!w-[150px] md:!w-[180px] lg:!w-[220px]" />)}
+                {[...Array(6)].map((_, i) => (
+                    <div 
+                        key={i} 
+                        className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[200px] lg:w-[230px] aspect-[2/3] rounded-2xl bg-white/5 shimmer border border-white/5" 
+                    />
+                ))}
             </>
         ) : (
             <>

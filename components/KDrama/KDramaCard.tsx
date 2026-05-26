@@ -24,7 +24,6 @@ const KDramaCard: React.FC<KDramaCardProps> = ({ item, onSelect }) => {
 
   const handleWatchlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Ensure we have a valid name/title for the content type
     const watchlistContent = { 
       ...item, 
       media_type: item.media_type || 'tv' 
@@ -39,16 +38,20 @@ const KDramaCard: React.FC<KDramaCardProps> = ({ item, onSelect }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(item)}
-      whileHover={{ scale: 1.05, zIndex: 50 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -10, scale: 1.02 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative group cursor-pointer rounded-2xl overflow-hidden bg-white/5 border border-white/5 flex-shrink-0 w-[40vw] sm:w-[160px] md:w-[200px] lg:w-[240px] aspect-[2/3]"
+      className="relative group cursor-pointer rounded-2xl overflow-hidden bg-zinc-950 border border-white/5 flex-shrink-0 w-[140px] sm:w-[160px] md:w-[200px] lg:w-[230px] aspect-[2/3] shadow-2xl"
     >
       <img
         src={getPosterUrl(item.poster_path)}
         alt={title}
         loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:brightness-50"
       />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <AnimatePresence>
         {isHovered && (
@@ -56,43 +59,50 @@ const KDramaCard: React.FC<KDramaCardProps> = ({ item, onSelect }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-10 flex flex-col justify-end p-4 bg-gradient-to-t from-black via-black/40 to-transparent"
+            className="absolute inset-0 z-10 flex flex-col justify-end p-4"
           >
-            <h3 className="text-white font-bold text-sm md:text-base line-clamp-2 mb-3">
+            <h3 className="text-white font-display font-bold text-sm md:text-base line-clamp-2 mb-3">
               {title}
             </h3>
 
             <div className="flex items-center gap-2 mb-4">
               <button 
                 onClick={(e) => { e.stopPropagation(); navigate(`/watch/${item.id}?type=tv`); }}
-                className="flex-1 h-9 rounded-lg bg-white text-black flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-colors duration-200"
+                className="flex-1 h-9 rounded-xl bg-white text-black flex items-center justify-center gap-2 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-lg"
               >
                 <Play size={14} className="fill-current" />
-                <span className="text-xs font-bold uppercase tracking-wider">Play</span>
+                <span className="text-[10px] font-black uppercase tracking-widest">Play</span>
               </button>
               <button 
                 onClick={handleWatchlist}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border border-white/10 ${inWatchlist ? 'bg-rose-500 border-rose-500 text-white' : 'bg-black/40 hover:bg-white/20 text-white'}`}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border border-white/10 backdrop-blur-xl ${inWatchlist ? 'bg-rose-500 border-rose-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
               >
                 {inWatchlist ? <Check size={16} /> : <Heart size={16} />}
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] font-medium text-white/60">
+            <div className="flex items-center justify-between text-[10px] font-bold text-white/50">
                <div className="flex items-center gap-1.5 text-amber-400">
                   <Star size={11} className="fill-current" />
                   <span>{item.vote_average?.toFixed(1)}</span>
                </div>
-               <span>K-DRAMA</span>
+               <span className="tracking-tighter">K-DRAMA</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none z-20">
-        <div className="px-2 py-0.5 rounded-md bg-rose-500/80 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-widest">
+      <div className="absolute top-3 left-3 z-20 pointer-events-none group-hover:opacity-0 transition-opacity">
+        <div className="px-2 py-0.5 rounded-md glass text-[9px] font-black text-rose-500 uppercase tracking-widest border border-rose-500/20">
           K-Drama
         </div>
+      </div>
+
+      <div className="absolute bottom-0 inset-x-0 p-4 z-10 group-hover:opacity-0 transition-opacity duration-300">
+          <div className="w-8 h-0.5 bg-rose-500 mb-2 rounded-full" />
+          <h3 className="text-white font-display font-semibold text-xs line-clamp-1">
+              {title}
+          </h3>
       </div>
     </motion.div>
   );
